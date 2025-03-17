@@ -14,7 +14,7 @@ async function greet() {
 <template>
   <main class="container">
     <h1>Welcome to Tauri + Vue</h1>
-
+    <p>et si je rajoute ça la qu'est ce quon en pense ?</p>
     <div class="row">
       <a href="https://vitejs.dev" target="_blank">
         <img src="/vite.svg" class="logo vite" alt="Vite logo" />
@@ -44,7 +44,6 @@ async function greet() {
 .logo.vue:hover {
   filter: drop-shadow(0 0 2em #249b73);
 }
-
 </style>
 <style>
 :root {
@@ -141,6 +140,8 @@ button {
   :root {
     color: #f6f6f6;
     background-color: #2f2f2f;
+    touch-action: none;
+    height: 100%;
   }
 
   a:hover {
@@ -156,5 +157,8 @@ button {
     background-color: #0f0f0f69;
   }
 }
-
+html,
+body {
+  touch-action: manipulation;
+}
 </style>
