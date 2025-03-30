@@ -5,9 +5,9 @@
   "identifier": "com.swaply.app",
   "build": {
     "beforeDevCommand": "npm run dev",
-    "devUrl": "http://localhost:1420",
-    "beforeBuildCommand": "npm run build",
-    "frontendDist": "../dist"
+    "devUrl": "http://localhost:3000",
+    "beforeBuildCommand": "npm run generate",
+    "frontendDist": "../.output/public"
   },
   "app": {
     "windows": [
@@ -17,9 +17,7 @@
         "height": 600
       }
     ],
-    "security": {
-      "csp": null
-    }
+    "security": { "devCsp": "", "csp": null }
   },
   "bundle": {
     "active": true,

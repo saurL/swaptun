@@ -1,16 +1,78 @@
-# Tauri + Vue + TypeScript
+# Swaply
 
-This template should help get you started developing with Vue 3 and TypeScript in Vite. The template uses Vue 3 `<script setup>` SFCs, check out the [script setup docs](https://v3.vuejs.org/api/sfc-script-setup.html#sfc-script-setup) to learn more.
+Swaply est une application permettant de partager des playlists entre Spotify et Deezer de manière simple et rapide.
 
-## Recommended IDE Setup
+## Fonctionnalités
 
-- [VS Code](https://code.visualstudio.com/) + [Volar](https://marketplace.visualstudio.com/items?itemName=Vue.volar) + [Tauri](https://marketplace.visualstudio.com/items?itemName=tauri-apps.tauri-vscode) + [rust-analyzer](https://marketplace.visualstudio.com/items?itemName=rust-lang.rust-analyzer)
+- Importez vos playlists Spotify.
+- Convertissez-les pour les rendre compatibles avec Deezer.
+- Partagez vos playlists avec vos amis, quelle que soit leur plateforme musicale.
 
-## Type Support For `.vue` Imports in TS
+## Prérequis
 
-Since TypeScript cannot handle type information for `.vue` imports, they are shimmed to be a generic Vue component type by default. In most cases this is fine if you don't really care about component prop types outside of templates. However, if you wish to get actual prop types in `.vue` imports (for example to get props validation when using manual `h(...)` calls), you can enable Volar's Take Over mode by following these steps:
+Avant de commencer, assurez-vous d'avoir les outils suivants installés sur votre machine :
 
-1. Run `Extensions: Show Built-in Extensions` from VS Code's command palette, look for `TypeScript and JavaScript Language Features`, then right click and select `Disable (Workspace)`. By default, Take Over mode will enable itself if the default TypeScript extension is disabled.
-2. Reload the VS Code window by running `Developer: Reload Window` from the command palette.
+1. **Node.js**  
+   Téléchargez et installez Node.js depuis le site officiel :  
+   [https://nodejs.org/](https://nodejs.org/)
 
-You can learn more about Take Over mode [here](https://github.com/johnsoncodehk/volar/discussions/471).
+2. **Rust**  
+   Téléchargez et installez Rust via rustup :  
+   [https://www.rust-lang.org/tools/install](https://www.rust-lang.org/tools/install)
+
+3. **Android Studio et SDK Android**  
+   Téléchargez et installez Android Studio depuis le site officiel :  
+   [https://developer.android.com/studio](https://developer.android.com/studio)  
+   Assurez-vous d'avoir configuré le SDK Android.
+
+## Installation
+
+1. Clonez ce dépôt sur votre machine locale :
+
+   ```bash
+   git clone https://github.com/votre-utilisateur/swaply.git
+   ```
+
+2. Accédez au répertoire du projet :
+
+   ```bash
+   cd swaply
+   ```
+
+3. Installez les dépendances Node.js :
+
+   ```bash
+   npm install
+   ```
+
+4. Lancez l'application en mode développement pour Android :
+   ```bash
+   npm run tauri android dev
+   ```
+
+## Configuration pour CouchDB
+
+Pour que l'application fonctionne avec CouchDB en local, assurez-vous que l'URL de votre machine locale est ajoutée dans le fichier `src-tauri/capabilities/default.json`.
+
+```json
+"permissions": [
+    {
+    "identifier": "http:default",
+    "allow": [
+        { "url": "addresse_ip_pc" },
+    ]
+    }
+]
+```
+
+Vous devez remplacer `addresse_ip_pc` par l'adresse IP qui s'affiche dans cette ligne : ` Info Using xxx.xxx.xxx.xxx to access the development server.`
+
+Cela permet à l'application d'accéder à CouchDB en local.
+
+## Contribution
+
+Les contributions sont les bienvenues ! N'hésitez pas à ouvrir une issue ou à soumettre une pull request.
+
+## Licence
+
+Ce projet est sous licence MIT. Consultez le fichier `LICENSE` pour plus d'informations.
