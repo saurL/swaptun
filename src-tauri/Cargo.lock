@@ -3897,7 +3897,6 @@ dependencies = [
  "serde_json",
  "tauri",
  "tauri-build",
- "tauri-plugin-admob",
  "tauri-plugin-http",
  "tauri-plugin-log",
  "tauri-plugin-opener",
@@ -4180,18 +4179,6 @@ dependencies = [
  "tauri-utils",
  "toml",
  "walkdir",
-]
-
-[[package]]
-name = "tauri-plugin-admob"
-version = "0.0.4"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "dddb35b7f84e030fd7ba7c54dc503c4a00ee4f4b9a3319a1669c3952c767bf34"
-dependencies = [
- "serde",
- "tauri",
- "tauri-plugin",
- "thiserror 2.0.12",
 ]
 
 [[package]]
