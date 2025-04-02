@@ -18,7 +18,6 @@ pub fn run() {
                 ])
                 .build(),
         )
-        .plugin(tauri_plugin_admob::init())
         .setup(|app| {
             let app_handle = app.handle().clone();
             app.manage(App::new(app_handle));
