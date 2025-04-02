@@ -23,7 +23,22 @@ Avant de commencer, assurez-vous d'avoir les outils suivants installés sur votr
 3. **Android Studio et SDK Android**  
    Téléchargez et installez Android Studio depuis le site officiel :  
    [https://developer.android.com/studio](https://developer.android.com/studio)  
-   Assurez-vous d'avoir configuré le SDK Android.
+   Assurez-vous d'avoir configuré le SDK Android et le NDK.
+
+4. **Variables d'environnement pour Android**  
+   Configurez les variables d'environnement suivantes :
+
+   - `ANDROID_SDK` : chemin vers le répertoire du SDK Android.
+   - `NDK_HOME` : chemin vers le répertoire du NDK Android.
+
+   Par exemple, sous Linux ou macOS, ajoutez ceci à votre fichier `~/.bashrc` ou `~/.zshrc` :
+
+   ```bash
+   export ANDROID_SDK=/chemin/vers/android-sdk
+   export NDK_HOME=/chemin/vers/android-ndk
+   ```
+
+   Sous Windows, configurez-les via les paramètres système.
 
 ## Installation
 
