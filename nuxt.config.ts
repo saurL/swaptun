@@ -10,7 +10,7 @@ export default defineNuxtConfig({
 
   // (optional) Enable the Nuxt devtools
   devtools: { enabled: true },
-  modules: ['@nuxt/ui'],
+  modules: ['@nuxt/ui', '@nuxtjs/tailwindcss'],
   css: ['~/assets/css/main.css'],
   // Enable SSG
   ssr: false,
@@ -43,7 +43,6 @@ export default defineNuxtConfig({
     // https://v2.tauri.app/reference/environment-variables/
     envPrefix: ['VITE_', 'TAURI_'],
     server: {
-      host: '0.0.0.0',
 
       strictPort: true,
       watch: {
