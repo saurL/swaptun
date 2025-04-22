@@ -1,10 +1,14 @@
+use backend::user::{LoginRequest, LoginResponse};
 use tauri::{Manager, State};
 // Learn more about Tauri commands at https://tauri.app/develop/calling-rust/
-
 use tauri_plugin_log::{Target, TargetKind};
 mod app;
+mod backend;
 mod deezer;
 mod spotify;
+mod validators;
+use crate::backend::user::{CreateUserRequest, RegisterResponse};
+
 use app::App;
 
 #[cfg_attr(mobile, tauri::mobile_entry_point)]
@@ -26,14 +30,55 @@ pub fn run() {
 
             Ok(())
         })
-        .invoke_handler(tauri::generate_handler![function_exemple])
+        .invoke_handler(tauri::generate_handler![register, login])
         .run(tauri::generate_context!())
         .expect("error while running tauri application");
 }
+
 #[tauri::command]
-async fn function_exemple(app: State<'_, App>) -> Result<(), String> {
+async fn register(
+    app: State<'_, App>,
+    username: &str,
+    password: &str,
+    first_name: &str,
+    last_name: &str,
+    email: &str,
+) -> Result<RegisterResponse, String> {
+    let request = CreateUserRequest {
+        username: username.to_string(),
+        password: password.to_string(),
+        first_name: first_name.to_string(),
+        last_name: last_name.to_string(),
+        email: email.to_string(),
+    };
     // ICI on peut accèder aux éléments de l'App
-    app.authenticate_spotify("client_id", "client_secret", "code", "redirect_uri")
-        .await
-        .map_err(|e| e.to_string())
+    match app.register(request).await {
+        Ok(response) => {
+            if response.is_success() {
+                return Ok(RegisterResponse { succed: true });
+            } else {
+                return Err("Failed to register".to_string());
+            }
+        }
+        Err(e) => {
+            return Err(format!("Error: {}", e));
+        }
+    }
+}
+
+#[tauri::command]
+async fn login(
+    app: State<'_, App>,
+    username: &str,
+    password: &str,
+) -> Result<LoginResponse, String> {
+    let request = LoginRequest {
+        username: username.to_string(),
+        password: password.to_string(),
+    };
+    // ICI on peut accèder aux éléments de l'App
+    match app.login(request).await {
+        Ok(response) => Ok(response),
+        Err(e) => Err(e.to_string()),
+    }
 }
