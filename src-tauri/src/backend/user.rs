@@ -33,6 +33,11 @@ pub struct LoginRequest {
     pub username: String,
     pub password: String,
 }
+#[derive(Serialize)]
+pub struct LoginEmailRequest {
+    pub email: String,
+    pub password: String,
+}
 
 #[derive(Serialize, Debug, Deserialize)]
 pub struct LoginResponse {
@@ -74,6 +79,18 @@ impl UserService {
         self.backend_client
             .post_with_return::<LoginResponse, _>(
                 "auth/login",
+                serde_json::to_string(&login_request).unwrap(),
+            )
+            .await
+    }
+
+    pub async fn login_email(
+        &self,
+        login_request: LoginEmailRequest,
+    ) -> Result<LoginResponse, Box<dyn std::error::Error + Send + Sync>> {
+        self.backend_client
+            .post_with_return::<LoginResponse, _>(
+                "auth/login_email",
                 serde_json::to_string(&login_request).unwrap(),
             )
             .await

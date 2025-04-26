@@ -1,12 +1,8 @@
 use crate::backend::backend::BackendClient;
 use serde::{Deserialize, Serialize};
-use tauri::AppHandle;
+use tauri::{http::request, AppHandle};
 
-#[derive(Serialize)]
-pub struct LoginRequest {
-    pub username: String,
-    pub password: String,
-}
+use super::user::{LoginEmailRequest, LoginRequest};
 
 #[derive(Deserialize, Debug)]
 pub struct LoginResponse {
@@ -49,6 +45,18 @@ impl AuthService {
         self.backend_client
             .post_with_return::<LoginResponse, _>(
                 "auth/login",
+                serde_json::to_vec(&request).unwrap(),
+            )
+            .await
+    }
+
+    pub async fn login_email(
+        &self,
+        request: LoginEmailRequest,
+    ) -> Result<LoginResponse, Box<dyn std::error::Error + Send + Sync>> {
+        self.backend_client
+            .post_with_return::<LoginResponse, _>(
+                "auth/login_email",
                 serde_json::to_vec(&request).unwrap(),
             )
             .await

@@ -5,11 +5,14 @@ import "./assets/css/global.css"
 import LoginPage from "./pages/LoginPage.vue"
 import HomePage from "./pages/HomePage.vue";
 import ProfilePage from "./pages/ProfilePage.vue";
+import RegisterPage from "./pages/registerPage.vue";
+import { createPinia } from 'pinia';
+import { createPlugin } from '@tauri-store/pinia';
 
 
 const routes = [
-  { path: "/login", component: LoginPage }, // page de connexion
-  { path: "/", component: HomePage },  // page d’accueil
+  { path: "/", component: LoginPage }, // page de connexion
+  { path: "/homepage", component: HomePage },  // page d’accueil
   { path: "/profile", 
     component: ProfilePage, 
     props: { 
@@ -19,6 +22,16 @@ const routes = [
       userBio: 'Passionné de musique et de technologie.'
     } 
   }, // page du profil
+   { path: "/profile", 
+    component: ProfilePage, 
+    props: { 
+      userName: 'John Doe', 
+      userAge: 25, 
+      userCity: 'Paris', 
+      userBio: 'Passionné de musique et de technologie.'
+    } 
+  },
+  { path: "/register", component: RegisterPage },  // page d’accueil
 ];
 
   const router = createRouter({
@@ -26,5 +39,7 @@ const routes = [
     routes,
   });
   
-
-createApp(App).use(router).mount("#app");
+  const pinia = createPinia();
+  pinia.use(createPlugin());
+  
+createApp(App).use(router).use(pinia).mount("#app");

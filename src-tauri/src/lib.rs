@@ -1,4 +1,4 @@
-use backend::user::{LoginRequest, LoginResponse};
+use backend::user::{LoginEmailRequest, LoginRequest, LoginResponse};
 use tauri::{Manager, State};
 // Learn more about Tauri commands at https://tauri.app/develop/calling-rust/
 use tauri_plugin_log::{Target, TargetKind};
@@ -16,6 +16,7 @@ pub fn run() {
     tauri::Builder::default()
         .plugin(tauri_plugin_http::init())
         .plugin(tauri_plugin_opener::init())
+        .plugin(tauri_plugin_pinia::init())
         .plugin(
             tauri_plugin_log::Builder::new()
                 .targets([
@@ -30,7 +31,7 @@ pub fn run() {
 
             Ok(())
         })
-        .invoke_handler(tauri::generate_handler![register, login])
+        .invoke_handler(tauri::generate_handler![register, login, login_email])
         .run(tauri::generate_context!())
         .expect("error while running tauri application");
 }
@@ -78,6 +79,23 @@ async fn login(
     };
     // ICI on peut accèder aux éléments de l'App
     match app.login(request).await {
+        Ok(response) => Ok(response),
+        Err(e) => Err(e.to_string()),
+    }
+}
+
+#[tauri::command]
+async fn login_email(
+    app: State<'_, App>,
+    email: &str,
+    password: &str,
+) -> Result<LoginResponse, String> {
+    let request = LoginEmailRequest {
+        email: email.to_string(),
+        password: password.to_string(),
+    };
+    // ICI on peut accèder aux éléments de l'App
+    match app.login_email(request).await {
         Ok(response) => Ok(response),
         Err(e) => Err(e.to_string()),
     }

@@ -1,5 +1,6 @@
 use crate::backend::user::{
-    CreateUserRequest, LoginRequest, LoginResponse, RegisterResponse, UserService,
+    CreateUserRequest, LoginEmailRequest, LoginRequest, LoginResponse, RegisterResponse,
+    UserService,
 };
 use crate::deezer::DeezerClient;
 use crate::spotify::SpotifyClient;
@@ -61,5 +62,12 @@ impl App {
         request: LoginRequest,
     ) -> Result<LoginResponse, Box<dyn std::error::Error + Send + Sync>> {
         self.user_service.login(request).await
+    }
+
+    pub async fn login_email(
+        &self,
+        request: LoginEmailRequest,
+    ) -> Result<LoginResponse, Box<dyn std::error::Error + Send + Sync>> {
+        self.user_service.login_email(request).await
     }
 }
