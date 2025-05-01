@@ -2,9 +2,9 @@
 import { useStore } from "@/store/token";
 import { ref } from "vue";
 import { invoke } from "@tauri-apps/api/core";
-
+//import { useRouter } from "vue-router";
 const store = useStore();
-
+//const router = useRouter();
 const email = ref("");
 const password = ref("");
 const errorMessage = ref("");
@@ -25,6 +25,7 @@ const handleLogin = async () => {
       errorMessage.value = error.message;
     });
 };
+//router.push("/spotify-auth");
 </script>
 
 <template>
@@ -55,7 +56,7 @@ const handleLogin = async () => {
             type="email"
             v-model="email"
             class="w-full mt-1 px-4 py-2 rounded-lg bg-[#2A2A2A] text-white placeholder-gray-500 border border-gray-600 focus:outline-none focus:ring-2 focus:ring-[#00CFE8]"
-            placeholder="melomane@swaply.app"
+            placeholder="melomane@swaptun.app"
           />
         </div>
         <div>

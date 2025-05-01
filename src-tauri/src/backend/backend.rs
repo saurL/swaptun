@@ -1,19 +1,18 @@
 use std::fmt::Debug;
 
 use log::{error, info};
+
 use serde::de::DeserializeOwned;
 use std::error::Error;
-use tauri::{http::response, AppHandle};
-use tauri_plugin_http::reqwest::{Body, Client, Response, StatusCode};
+use tauri::AppHandle;
+use tauri_plugin_http::reqwest::{
+    blocking::{Body, Client, Response},
+    StatusCode,
+};
+
 pub struct BackendClient {
     client: Client,
     base_url: String,
-}
-
-#[derive(serde::Deserialize, Debug)]
-pub struct ErrorResponse {
-    pub status: String,
-    pub message: String,
 }
 
 impl BackendClient {
@@ -25,23 +24,26 @@ impl BackendClient {
         };
         let port = "8000";
         let base_url = format!("http://{}:{}/api", host, port);
+        check_rustls().expect("Failed to initialize Rustls");
         info!("Backend URL: {}", base_url);
 
-        Self {
-            client: Client::new(),
-            base_url,
-        }
+        let client = Client::new();
+
+        info!("client instance created:");
+        let instance = Self { client, base_url };
+        info!("BackendClient instance created:");
+        instance
     }
 
-    pub async fn get<T: DeserializeOwned>(
+    pub async fn _get<T: DeserializeOwned>(
         &self,
         endpoint: &str,
     ) -> Result<T, Box<dyn Error + Send + Sync>> {
         let url = format!("{}/{}", self.base_url, endpoint);
         info!("GET URL: {}", url);
-        let response = self.client.get(&url).send().await?;
+        let response = self.client.get(&url).send()?;
         info!("GET Response: {:?}", response);
-        let text: T = response.json().await?;
+        let text: T = response.json()?;
         Ok(text)
     }
 
@@ -76,14 +78,13 @@ impl BackendClient {
             .post(&url)
             .header("Content-Type", "application/json")
             .body(body)
-            .send()
-            .await?;
+            .send()?;
         info!("POST Response: {:?}", response);
         let status = response.status();
         info!("POST Response Status: {}", status);
         if status.is_client_error() {
-            let tt = response.text().await?;
-            // let json = response.json::<ErrorResponse>().await?;
+            let tt = response.text()?;
+
             let error_message = tt;
             error!("POST Response Error: {}", error_message);
             return Err(Box::new(std::io::Error::new(
@@ -105,9 +106,43 @@ impl BackendClient {
     {
         let response = self._post(endpoint, body).await?;
 
-        let json = response.json::<T>().await?;
+        let json = response.json::<T>()?;
 
         info!("POST Response Body: {:?}", json);
         Ok(json)
     }
+}
+
+use rustls::{ClientConfig, RootCertStore};
+pub fn check_rustls() -> Result<(), Box<dyn Error>> {
+    info!("Checking Rustls initialization");
+    info!("Rustls version: ");
+    // Créer un RootCertStore vide
+    info!("Creating empty RootCertStore");
+    let mut root_store = RootCertStore::empty();
+    info!("RootCertStore created successfully");
+
+    // Charger les certificats racines de webpki-roots
+    info!("Loading webpki-roots certificates");
+    let trust_anchors = webpki_roots::TLS_SERVER_ROOTS.0.iter().map(|ta| {
+        info!("Processing trust anchor: {:?}", ta.subject);
+        rustls::OwnedTrustAnchor::from_subject_spki_name_constraints(
+            ta.subject.to_vec(),
+            ta.spki.to_vec(),
+            ta.name_constraints.as_ref().map(|nc| nc.to_vec()),
+        )
+    });
+    root_store.add_server_trust_anchors(trust_anchors);
+    info!("webpki-roots certificates loaded successfully");
+
+    // Créer la configuration TLS
+    info!("Creating ClientConfig");
+    let config = ClientConfig::builder()
+        .with_safe_defaults()
+        .with_root_certificates(root_store)
+        .with_no_client_auth();
+    info!("ClientConfig created successfully");
+
+    info!("Rustls configuration created successfully");
+    Ok(())
 }

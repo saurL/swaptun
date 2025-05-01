@@ -5,31 +5,33 @@ use tauri_plugin_http::reqwest;
 */
 #[derive(Debug, Deserialize)]
 pub struct DeezerAuthResponse {
-    pub access_token: String,
-    pub expires: u64,
+    pub _access_token: String,
+    pub _expires: u64,
 }
 
 pub struct DeezerClient {
-    access_token: Option<String>,
+    _access_token: Option<String>,
 }
 
 impl DeezerClient {
     pub fn new() -> Self {
-        Self { access_token: None }
+        Self {
+            _access_token: None,
+        }
     }
 
-    pub async fn authenticate(
+    pub async fn _authenticate(
         &mut self,
         app_id: &str,
         app_secret: &str,
         code: &str,
     ) -> Result<(), reqwest::Error> {
-        let url = format!(
+        let _url = format!(
             "https://connect.deezer.com/oauth/access_token.php?app_id={}&secret={}&code={}&output=json",
             app_id, app_secret, code
         );
 
-        self.access_token = Some("aerarzar".to_string()); // Placeholder for the access token
+        self._access_token = Some("aerarzar".to_string()); // Placeholder for the access token
 
         Ok(())
     }

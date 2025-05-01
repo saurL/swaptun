@@ -45,13 +45,13 @@ Avant de commencer, assurez-vous d'avoir les outils suivants installés sur votr
 1. Clonez ce dépôt sur votre machine locale :
 
    ```bash
-   git clone https://github.com/votre-utilisateur/swaply.git
+   git clone https://github.com/votre-utilisateur/swaptun.git
    ```
 
 2. Accédez au répertoire du projet :
 
    ```bash
-   cd swaply
+   cd swaptun
    ```
 
 3. Installez les dépendances Node.js :

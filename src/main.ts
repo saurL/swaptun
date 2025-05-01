@@ -5,7 +5,8 @@ import "./assets/css/global.css"
 import LoginPage from "./pages/LoginPage.vue"
 import HomePage from "./pages/HomePage.vue";
 import ProfilePage from "./pages/ProfilePage.vue";
-import RegisterPage from "./pages/registerPage.vue";
+import RegisterPage from "./pages/RegisterPage.vue";
+import SpotifyAuthPage from "./pages/SpotifyAuthPage.vue";
 import { createPinia } from 'pinia';
 import { createPlugin } from '@tauri-store/pinia';
 
@@ -32,6 +33,7 @@ const routes = [
     } 
   },
   { path: "/register", component: RegisterPage },  // page d’accueil
+  { path: "/spotify-auth", component: SpotifyAuthPage },  // page d’accueil
 ];
 
   const router = createRouter({
