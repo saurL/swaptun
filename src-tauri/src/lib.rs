@@ -10,13 +10,10 @@ use tauri_plugin_log::{Target, TargetKind};
 mod app;
 mod backend;
 mod deezer;
-// mod spotify;
+mod spotify;
 
 use app::App;
-use tauri_plugin_http::reqwest::{
-    blocking::{Body, Client, Response},
-    StatusCode,
-};
+
 #[cfg_attr(mobile, tauri::mobile_entry_point)]
 pub fn run() {
     tauri::Builder::default()
@@ -32,7 +29,6 @@ pub fn run() {
                 .build(),
         )
         .setup(|app| {
-            check_rustls();
             let app_handle = app.handle().clone();
             app.manage(App::new(app_handle));
 
@@ -43,7 +39,7 @@ pub fn run() {
             login,
             login_email,
             verify_token,
-            //authenticate_spotify,
+            authenticate_spotify,
         ])
         .run(tauri::generate_context!())
         .expect("error while running tauri application");
@@ -125,7 +121,7 @@ async fn verify_token(app: State<'_, App>, token: String) -> Result<bool, String
         Err(e) => Err(e.to_string()),
     }
 }
-/*
+
 #[tauri::command]
 async fn authenticate_spotify(
     app: State<'_, App>,
@@ -136,39 +132,4 @@ async fn authenticate_spotify(
         Ok(_) => Ok(true),
         Err(e) => Err(e.to_string()),
     }
-}
- */
-
-use rustls::{ClientConfig, RootCertStore};
-pub fn check_rustls() -> Result<(), Box<dyn Error>> {
-    info!("Checking Rustls initialization");
-    info!("Rustls version: ");
-    // Créer un RootCertStore vide
-    info!("Creating empty RootCertStore");
-    let mut root_store = RootCertStore::empty();
-    info!("RootCertStore created successfully");
-
-    // Charger les certificats racines de webpki-roots
-    info!("Loading webpki-roots certificates");
-    let trust_anchors = webpki_roots::TLS_SERVER_ROOTS.0.iter().map(|ta| {
-        info!("Processing trust anchor: {:?}", ta.subject);
-        rustls::OwnedTrustAnchor::from_subject_spki_name_constraints(
-            ta.subject.to_vec(),
-            ta.spki.to_vec(),
-            ta.name_constraints.as_ref().map(|nc| nc.to_vec()),
-        )
-    });
-    root_store.add_server_trust_anchors(trust_anchors);
-    info!("webpki-roots certificates loaded successfully");
-
-    // Créer la configuration TLS
-    info!("Creating ClientConfig");
-    let config = ClientConfig::builder()
-        .with_safe_defaults()
-        .with_root_certificates(root_store)
-        .with_no_client_auth();
-    info!("ClientConfig created successfully");
-
-    info!("Rustls configuration created successfully");
-    Ok(())
 }

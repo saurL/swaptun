@@ -1,6 +1,6 @@
 use crate::backend::UserService;
 use crate::deezer::DeezerClient;
-// use crate::spotify::SpotifyClient;
+use crate::spotify::SpotifyClient;
 use swaptun_backend::{
     CreateUserRequest, LoginEmailRequest, LoginRequest, LoginResponse, VerifyTokenRequest,
     VerifyTokenResponse,
@@ -11,7 +11,7 @@ use tauri::AppHandle;
 use tauri_plugin_http::reqwest;
 pub struct App {
     _app_handle: AppHandle,
-    // _spotify_client: Mutex<SpotifyClient>,
+    _spotify_client: Mutex<SpotifyClient>,
     _deezer_client: Mutex<DeezerClient>,
     user_service: UserService,
 }
@@ -20,7 +20,7 @@ impl App {
     pub fn new(app_handle: AppHandle) -> Self {
         Self {
             _app_handle: app_handle.clone(),
-            // _spotify_client: SpotifyClient::new().into(),
+            _spotify_client: SpotifyClient::new().into(),
             _deezer_client: DeezerClient::new().into(),
             user_service: UserService::new(app_handle.clone()),
         }
@@ -28,7 +28,7 @@ impl App {
     pub fn _app_handle(&self) -> &AppHandle {
         &self._app_handle
     }
-    /*
+
     pub async fn authenticate_spotify(
         &self,
         client_id: &str,
@@ -37,7 +37,7 @@ impl App {
         let mut spotify_client = self._spotify_client.lock().await;
         spotify_client.authenticate(client_id, client_secret).await
     }
-    */
+
     pub async fn _authenticate_deezer(
         &self,
         app_id: &str,

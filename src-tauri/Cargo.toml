@@ -18,7 +18,7 @@ crate-type = ["staticlib", "cdylib", "rlib"]
 tauri-build = { version = "2", features = [] }
 [dependencies]
 
-swaptun_backend = { git = "ssh://git@github.com/saurL/swaptun_backend.git", branch = "main" }
+swaptun-backend = { git = "ssh://git@github.com/saurL/swaptun_backend.git", branch = "main", default-features= false }
 tauri = { version = "2.5.1", features = [] }
 tauri-plugin-opener = "2"
 serde = { version = "1", features = ["derive"] }
@@ -29,6 +29,5 @@ log="0.4.27"
 tauri-plugin-http =  { version = "2", features = ["json", "rustls-tls", "blocking"] }
 dotenv = "0.15"
 tauri-plugin-pinia = "3.3.0"
-#rspotify = {    version = "0.14.0",    default-features = false,    features = ["client-reqwest", "reqwest-rustls-tls", "cli"] }
-rustls = "0.20"
-webpki-roots = "0.22"
+rspotify = {    version = "0.14.0",    default-features = false,    features = ["client-reqwest", "reqwest-rustls-tls", "cli"] }
+

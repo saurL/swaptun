@@ -24,7 +24,6 @@ impl BackendClient {
         };
         let port = "8000";
         let base_url = format!("http://{}:{}/api", host, port);
-        check_rustls().expect("Failed to initialize Rustls");
         info!("Backend URL: {}", base_url);
 
         let client = Client::new();
@@ -111,38 +110,4 @@ impl BackendClient {
         info!("POST Response Body: {:?}", json);
         Ok(json)
     }
-}
-
-use rustls::{ClientConfig, RootCertStore};
-pub fn check_rustls() -> Result<(), Box<dyn Error>> {
-    info!("Checking Rustls initialization");
-    info!("Rustls version: ");
-    // Créer un RootCertStore vide
-    info!("Creating empty RootCertStore");
-    let mut root_store = RootCertStore::empty();
-    info!("RootCertStore created successfully");
-
-    // Charger les certificats racines de webpki-roots
-    info!("Loading webpki-roots certificates");
-    let trust_anchors = webpki_roots::TLS_SERVER_ROOTS.0.iter().map(|ta| {
-        info!("Processing trust anchor: {:?}", ta.subject);
-        rustls::OwnedTrustAnchor::from_subject_spki_name_constraints(
-            ta.subject.to_vec(),
-            ta.spki.to_vec(),
-            ta.name_constraints.as_ref().map(|nc| nc.to_vec()),
-        )
-    });
-    root_store.add_server_trust_anchors(trust_anchors);
-    info!("webpki-roots certificates loaded successfully");
-
-    // Créer la configuration TLS
-    info!("Creating ClientConfig");
-    let config = ClientConfig::builder()
-        .with_safe_defaults()
-        .with_root_certificates(root_store)
-        .with_no_client_auth();
-    info!("ClientConfig created successfully");
-
-    info!("Rustls configuration created successfully");
-    Ok(())
 }
