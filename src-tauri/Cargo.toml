@@ -7,6 +7,9 @@ edition = "2021"
 
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
+[net]
+git-fetch-with-cli = true
+
 [lib]
 # The `_lib` suffix may seem redundant but it is necessary
 # to make the lib name unique and wouldn't conflict with the bin name.
@@ -29,5 +32,5 @@ log="0.4.27"
 tauri-plugin-http =  { version = "2", features = ["json", "rustls-tls", "blocking"] }
 dotenv = "0.15"
 tauri-plugin-pinia = "3.3.0"
-rspotify = {    version = "0.14.0",    default-features = false,    features = ["client-reqwest", "reqwest-rustls-tls", "cli"] }
+tauri-plugin-oauth = "2"
 
