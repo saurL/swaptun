@@ -30,6 +30,13 @@ const handleLogin = async () => {
 
 <template>
   <div class="min-h-screen flex items-center justify-center bg-[#1E1E1E] px-4">
+    <!-- Lien vers la homepage -->
+    <a
+      href="/homepage"
+      class="absolute top-4 left-4 text-[#00CFE8] hover:text-[#FFC436] text-sm font-medium transition-all"
+    >
+      Lien vers l'accueil
+    </a>
     <div
       class="bg-white/10 backdrop-blur-md shadow-lg rounded-2xl w-full max-w-md p-8 border border-white/10"
     >
@@ -88,14 +95,6 @@ const handleLogin = async () => {
         >
       </p>
     </div>
-
-    <!-- Lien vers la homepage -->
-    <a
-      href="/homepage"
-      class="absolute top-4 left-4 text-[#00CFE8] hover:text-[#FFC436] text-sm font-medium transition-all"
-    >
-      Lien vers l'accueil
-    </a>
   </div>
 </template>
 

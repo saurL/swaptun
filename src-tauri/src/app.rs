@@ -1,94 +1,65 @@
+use std::sync::Arc;
+use std::time::Instant;
+
 use crate::backend::SpotifyClient;
 use crate::backend::UserService;
 use crate::deezer::DeezerClient;
+use log::error;
 use log::info;
+use swaptun_backend::AddTokenRequest;
 use swaptun_backend::{
     CreateUserRequest, GetAuthorizationUrlRequest, LoginEmailRequest, LoginRequest, LoginResponse,
     SpotifyUrlResponse, VerifyTokenRequest, VerifyTokenResponse,
 };
+use tauri::async_runtime::spawn;
 use tauri::async_runtime::Mutex;
 use tauri::http::StatusCode;
 use tauri::AppHandle;
-use tauri::Manager;
 use tauri::Url;
 use tauri_plugin_http::reqwest;
-use tauri_plugin_oauth::start;
-use tauri_plugin_oauth::{start_with_config, OauthConfig};
+use tauri_plugin_oauth::start_with_config;
+// use tauri_plugin_oauth::start;
+use tauri_plugin_oauth::{start, OauthConfig};
 pub struct App {
-    _app_handle: AppHandle,
-    _spotify_client: Mutex<SpotifyClient>,
+    app_handle: AppHandle,
+    spotify_client: SpotifyClient,
     _deezer_client: Mutex<DeezerClient>,
     user_service: UserService,
-    spotify_url_port: u16,
+    spotify_url_port: Mutex<Option<u16>>,
+    deezer_url_port: Mutex<Option<u16>>,
     ready: Mutex<bool>,
 }
 
 impl App {
-    pub fn new(app_handle: AppHandle) -> Self {
-        let webview_window = app_handle.get_webview_window("main").unwrap();
-        let cloned_webview_window = webview_window.clone();
-        // A utiliser lors que spotify aura un redirect_uri dynamique qui sera bien testé
-        /*
-        let spotify_url_port = start(move |url| {
-            info!("start_server for spotifyredirect_uri: {}", url);
-            let homepage_url = "http://tauri.localhost/homepage";
-            cloned_app_handle
-                .get_webview_window("main")
-                .unwrap()
-                .navigate(Url::parse(homepage_url).unwrap())
-                .unwrap();
-        })
-        .unwrap();
-        */
-        let config = OauthConfig {
-            ports: Some(vec![8000]),
-            response: None,
-        };
-
-        start_with_config(config, move |url| {
-            // Because of the unprotected localhost port, you must verify the URL here.
-            // Preferebly send back only the token, or nothing at all if you can handle everything else in Rust.
-            info!("start_server redirect_uri: {}", url);
-            let homepage_url = "http://tauri.localhost/homepage";
-            cloned_webview_window
-                .navigate(Url::parse(homepage_url).unwrap())
-                .unwrap();
-        })
-        .map_err(|err| err.to_string());
-
-        let spotify_url_port = 8000;
-        let deezer_url_port = start(move |url| {
-            info!("start_server for deezer redirect_uri: {}", url);
-            let homepage_url = "http://tauri.localhost/homepage";
-            webview_window
-                .navigate(Url::parse(homepage_url).unwrap())
-                .unwrap();
-        })
-        .unwrap();
-
-        info!("spotify_url_port: {}", spotify_url_port);
-        info!("deezer_url_port: {}", deezer_url_port);
-        Self {
-            _app_handle: app_handle.clone(),
-            _spotify_client: SpotifyClient::new(app_handle.clone()).into(),
+    pub async fn new(app_handle: AppHandle) -> Arc<Self> {
+        let instance = Self {
+            app_handle: app_handle.clone(),
+            spotify_client: SpotifyClient::new(app_handle.clone()),
             _deezer_client: DeezerClient::new().into(),
             user_service: UserService::new(app_handle.clone()),
-            spotify_url_port,
+            spotify_url_port: Mutex::new(None),
+            deezer_url_port: Mutex::new(None),
             ready: Mutex::new(false),
-        }
+        };
+        let instance = Arc::new(instance);
+        instance.start_spotify_oauth_server().await;
+        instance.start_deezer_oauth_server().await;
+        instance
     }
-    pub fn _app_handle(&self) -> &AppHandle {
-        &self._app_handle
+    pub fn app_handle(&self) -> &AppHandle {
+        &self.app_handle
     }
 
     pub async fn get_autorization_url_spotify(
         &self,
     ) -> Result<SpotifyUrlResponse, Box<dyn std::error::Error + Send + Sync>> {
-        let mut spotify_client = self._spotify_client.lock().await;
-        let req = GetAuthorizationUrlRequest {
-            port: self.spotify_url_port,
-        };
-        spotify_client.get_auth_url(req).await
+        match *self.spotify_url_port.lock().await {
+            Some(port) => {
+                let req = GetAuthorizationUrlRequest { port };
+                self.spotify_client.get_auth_url(req).await
+            }
+            None => Err("No port found for spotify oauth server".into()),
+        }
     }
 
     pub async fn _authenticate_deezer(
@@ -137,5 +108,71 @@ impl App {
     pub async fn set_app_ready(&self) {
         let mut ready = self.ready.lock().await;
         *ready = true;
+    }
+
+    pub async fn start_spotify_oauth_server(self: &Arc<Self>) {
+        let config = OauthConfig {
+            ports: Some(vec![8000]),
+            redirect_uri: Some("http://tauri.localhost/homepage".into()),
+            response: None,
+        };
+        let instance = self.clone();
+
+        match start_with_config(config, move |url: String| {
+            info!("start_server spotify modifié redirect_uri: {}", url);
+
+            let parsed_url = Url::parse(&url).expect("URL invalide");
+            let params = parsed_url.query_pairs();
+            let mut code = None;
+            for (key, value) in params {
+                match key.as_ref() {
+                    "code" => code = Some(value.to_string()),
+                    _ => {}
+                }
+            }
+            if let Some(code) = code {
+                info!("code: {:?}", code);
+                instance.send_spotify_token(code.to_string());
+            }
+
+            // Affichage des résultats
+        }) {
+            Ok(port) => {
+                *self.spotify_url_port.lock().await = Some(port);
+                info!("spotify_url_port: {}", port);
+            }
+            Err(e) => {
+                error!("Error starting spotify oauth server: {}", e);
+            }
+        };
+    }
+
+    pub async fn start_deezer_oauth_server(self: &Arc<Self>) {
+        let config = OauthConfig {
+            ports: Some(vec![8001]),
+            redirect_uri: Some("http://tauri.localhost/homepage".into()),
+            response: None,
+        };
+        match start_with_config(config, move |url| {
+            info!("start_server deezer redirect_uri: {}", url);
+        }) {
+            Ok(port) => {
+                *self.deezer_url_port.lock().await = Some(port);
+                info!("deezer_url_port: {}", port);
+            }
+            Err(e) => {
+                error!("Error starting deezer oauth server: {}", e);
+            }
+        };
+    }
+
+    pub fn send_spotify_token(self: &Arc<Self>, token: String) {
+        let instance = self.clone();
+        spawn(async move {
+            let req = AddTokenRequest {
+                token: token.to_string(),
+            };
+            instance.spotify_client.add_token(req).await;
+        });
     }
 }

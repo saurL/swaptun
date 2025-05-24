@@ -1,12 +1,12 @@
 <script setup lang="ts">
 import { useStore } from "./store/token";
-import { watchEffect } from "vue";
+import { watchEffect, onMounted } from "vue";
 import { info } from "@tauri-apps/plugin-log";
 import { useRouter } from "vue-router";
-import { ref, onMounted } from "vue";
+import { ref } from "vue";
 import { invoke } from "@tauri-apps/api/core";
-
-import loadingAppAnimation from "./components/loadingAppAnimation.vue";
+import { listen } from "@tauri-apps/api/event";
+import loadingAppAnimation from "./components/LoadingAppAnimation.vue";
 const router = useRouter();
 const store = useStore();
 
@@ -27,36 +27,50 @@ watchEffect(() => {
         router.replace("/");
       });
   }
+  //router.push("/spotify-auth");
+});
+listen("app_ready", () => {
+  isLoading.value = false;
 });
 
 onMounted(async () => {
-  const startTime = Date.now(); // Enregistre le temps de début
-
-  // Simulation d'un traitement long (API call, vérification de token, etc)
-  await store.$tauri.start();
-
-  // Calcule le temps écoulé et attend si nécessaire pour atteindre 2 secondes
-  const elapsedTime = Date.now() - startTime;
-  const remainingTime = Math.max(2000 - elapsedTime, 0);
-  await new Promise((resolve) => setTimeout(resolve, remainingTime));
-
-  // Une fois fini : on enlève l'écran de loading
+  invoke<boolean>("is_app_ready").then((isReady) => {
+    isLoading.value = !isReady;
+  });
   isLoading.value = false;
 });
 </script>
 
 <template>
-  <div
-    class="min-h-screen w-screen bg-[#121212] text-white flex flex-col pb-20"
-  >
+  <div class="h-screen w-screen bg-[#121212] text-white flex flex-col min-h-0">
     <loadingAppAnimation v-if="isLoading" />
     <RouterView v-else />
   </div>
 </template>
 
-<style lang="css" scoped>
+<style lang="css">
 html,
 body {
   overscroll-behavior-x: none; /* désactive le scroll horizontal naturel */
+  touch-action: pan-x pan-y; /* désactive le zoom par pincement */
+  -ms-overflow-style: none;
+  overflow: hidden;
+}
+
+div,
+span {
+  -ms-overflow-style: auto;
+}
+
+/* Hide scrollbar for Chrome, Safari and Opera */
+html::-webkit-scrollbar {
+  display: none;
+}
+
+/* Hide scrollbar for IE, Edge and Firefox */
+* {
+  -ms-overflow-style: none; /* IE and Edge */
+  scrollbar-width: none; /* Firefox */
+  touch-action: pan-x, pan-y;
 }
 </style>

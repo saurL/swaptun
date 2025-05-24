@@ -31,6 +31,9 @@ const form = reactive({
 
 const authenticateSpotify = async () => {
   try {
+    info("Tentative d'authentification avec Spotify...");
+    info("Client ID:" + form.clientId);
+    info("Client Secret:" + form.clientSecret);
     await invoke("authenticate_spotify", {
       clientId: form.clientId,
       clientSecret: form.clientSecret,
@@ -57,6 +60,7 @@ input {
   padding: 0.5rem;
   border: 1px solid #ccc;
   border-radius: 4px;
+  color: black;
 }
 
 button {

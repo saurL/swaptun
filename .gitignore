@@ -48,3 +48,6 @@ logs
 .env.*
 !.env.example
 **/keystore.properties
+
+# Tauri plugin
+tauri-plugin-oauth

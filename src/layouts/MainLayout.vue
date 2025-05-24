@@ -9,10 +9,9 @@
     Login
   </a>
 
-  <main class="flex-1 px-4 pt-2">
+  <div class="px-4 pt-2 flex-1 flex flex-col min-h-0">
     <slot />
-  </main>
-
+  </div>
   <BottomNav />
 </template>
 

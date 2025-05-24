@@ -1,3 +1,5 @@
+use std::sync::Arc;
+
 use log::info;
 use swaptun_backend::{
     CreateUserRequest, LoginEmailRequest, LoginRequest, LoginResponse, VerifyTokenRequest,
@@ -29,7 +31,7 @@ pub fn run() {
         .setup(|app| {
             let app_handle = app.handle().clone();
             spawn(async move {
-                let swaptun_app = App::new(app_handle.clone());
+                let swaptun_app = App::new(app_handle.clone()).await;
                 swaptun_app.set_app_ready().await;
                 app_handle.manage(swaptun_app);
                 app_handle.emit("app_ready", "").unwrap();
@@ -43,7 +45,6 @@ pub fn run() {
             login_email,
             verify_token,
             get_autorization_url_spotify,
-            start_server,
             is_app_ready
         ])
         .run(tauri::generate_context!())
@@ -52,7 +53,7 @@ pub fn run() {
 
 #[command]
 async fn register(
-    app: State<'_, App>,
+    app: State<'_, Arc<App>>,
     username: &str,
     password: &str,
     first_name: &str,
@@ -84,7 +85,7 @@ async fn register(
 
 #[command]
 async fn login(
-    app: State<'_, App>,
+    app: State<'_, Arc<App>>,
     username: &str,
     password: &str,
 ) -> Result<LoginResponse, String> {
@@ -101,7 +102,7 @@ async fn login(
 
 #[command]
 async fn login_email(
-    app: State<'_, App>,
+    app: State<'_, Arc<App>>,
     email: &str,
     password: &str,
 ) -> Result<LoginResponse, String> {
@@ -117,7 +118,7 @@ async fn login_email(
 }
 
 #[command]
-async fn verify_token(app: State<'_, App>, token: String) -> Result<bool, String> {
+async fn verify_token(app: State<'_, Arc<App>>, token: String) -> Result<bool, String> {
     let request = VerifyTokenRequest {
         token: token.clone(),
     };
@@ -128,7 +129,7 @@ async fn verify_token(app: State<'_, App>, token: String) -> Result<bool, String
 }
 
 #[command]
-async fn get_autorization_url_spotify(app: State<'_, App>) -> Result<String, String> {
+async fn get_autorization_url_spotify(app: State<'_, Arc<App>>) -> Result<String, String> {
     info!("get_autorization_url_spotify called");
     match app.get_autorization_url_spotify().await {
         Ok(response) => {
@@ -140,28 +141,6 @@ async fn get_autorization_url_spotify(app: State<'_, App>) -> Result<String, Str
 }
 
 #[command]
-async fn start_server(window: Window) -> Result<u16, String> {
-    let config = OauthConfig {
-        ports: Some(vec![8000]),
-        response: None,
-    };
-
-    start_with_config(config, move |url| {
-        // Because of the unprotected localhost port, you must verify the URL here.
-        // Preferebly send back only the token, or nothing at all if you can handle everything else in Rust.
-        info!("start_server redirect_uri: {}", url);
-        let homepage_url = "http://tauri.localhost/homepage";
-        window
-            .get_webview_window("main")
-            .unwrap()
-            .navigate(Url::parse(homepage_url).unwrap())
-            .unwrap();
-
-        let _ = window.emit("redirect_uri", url);
-    })
-    .map_err(|err| err.to_string())
-}
-#[command]
-async fn is_app_ready(app: State<'_, App>) -> Result<bool, String> {
+async fn is_app_ready(app: State<'_, Arc<App>>) -> Result<bool, String> {
     app.is_app_ready().await
 }

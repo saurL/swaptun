@@ -2168,7 +2168,7 @@ dependencies = [
  "js-sys",
  "log",
  "wasm-bindgen",
- "windows-core 0.61.1",
+ "windows-core 0.60.1",
 ]
 
 [[package]]
@@ -2894,7 +2894,7 @@ version = "0.7.3"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "af1844ef2428cc3e1cb900be36181049ef3d3193c63e43026cfe202983b27a56"
 dependencies = [
- "proc-macro-crate 3.3.0",
+ "proc-macro-crate 1.3.1",
  "proc-macro2",
  "quote",
  "syn 2.0.101",
@@ -5059,6 +5059,7 @@ version = "0.1.0"
 dependencies = [
  "dotenv",
  "log",
+ "rspotify",
  "serde",
  "serde_json",
  "swaptun-backend",
@@ -5074,7 +5075,7 @@ dependencies = [
 [[package]]
 name = "swaptun-api"
 version = "0.1.0"
-source = "git+ssh://git@github.com/saurL/swaptun_backend.git?branch=main#3e562519d7c9485f6ed5220057de6acf9d80570d"
+source = "git+ssh://git@github.com/saurL/swaptun_backend.git?branch=main#be6bc3a8e6d4c52e34211644e905e66a3f6cae20"
 dependencies = [
  "swaptun-services",
 ]
@@ -5082,7 +5083,7 @@ dependencies = [
 [[package]]
 name = "swaptun-backend"
 version = "0.1.0"
-source = "git+ssh://git@github.com/saurL/swaptun_backend.git?branch=main#3e562519d7c9485f6ed5220057de6acf9d80570d"
+source = "git+ssh://git@github.com/saurL/swaptun_backend.git?branch=main#be6bc3a8e6d4c52e34211644e905e66a3f6cae20"
 dependencies = [
  "swaptun-api",
 ]
@@ -5090,7 +5091,7 @@ dependencies = [
 [[package]]
 name = "swaptun-services"
 version = "0.1.0"
-source = "git+ssh://git@github.com/saurL/swaptun_backend.git?branch=main#3e562519d7c9485f6ed5220057de6acf9d80570d"
+source = "git+ssh://git@github.com/saurL/swaptun_backend.git?branch=main#be6bc3a8e6d4c52e34211644e905e66a3f6cae20"
 dependencies = [
  "log",
  "once_cell",
@@ -5454,8 +5455,6 @@ dependencies = [
 [[package]]
 name = "tauri-plugin-oauth"
 version = "2.0.0"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "eda564acdb23185caf700f89dd6e5d4540225d6a991516b2cad0cbcf27e4dcd3"
 dependencies = [
  "httparse",
  "log",

@@ -32,5 +32,5 @@ log="0.4.27"
 tauri-plugin-http =  { version = "2", features = ["json", "rustls-tls", "blocking"] }
 dotenv = "0.15"
 tauri-plugin-pinia = "3.3.0"
-tauri-plugin-oauth = "2"
-
+tauri-plugin-oauth = { path= "../tauri-plugin-oauth"}
+rspotify = { version = "0.14.0",    default-features = false,    features = ["client-reqwest", "reqwest-rustls-tls", "cli"] }
