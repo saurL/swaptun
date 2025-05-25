@@ -50,4 +50,3 @@ logs
 **/keystore.properties
 
 # Tauri plugin
-tauri-plugin-oauth
