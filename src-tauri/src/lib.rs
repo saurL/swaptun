@@ -45,7 +45,8 @@ pub fn run() {
             login_email,
             verify_token,
             get_autorization_url_spotify,
-            is_app_ready
+            is_app_ready,
+            test_spotify
         ])
         .run(tauri::generate_context!())
         .expect("error while running tauri application");
@@ -143,4 +144,12 @@ async fn get_autorization_url_spotify(app: State<'_, Arc<App>>) -> Result<String
 #[command]
 async fn is_app_ready(app: State<'_, Arc<App>>) -> Result<bool, String> {
     app.is_app_ready().await
+}
+
+#[command]
+async fn test_spotify(app: State<'_, Arc<App>>) -> Result<(), String> {
+    match app.test_spotify().await {
+        Ok(_) => Ok(()),
+        Err(e) => Err(e.to_string()),
+    }
 }

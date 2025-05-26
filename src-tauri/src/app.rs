@@ -175,4 +175,8 @@ impl App {
             instance.spotify_client.add_token(req).await;
         });
     }
+
+    pub async fn test_spotify(&self) -> Result<(), Box<dyn std::error::Error + Send + Sync>> {
+        self.spotify_client.test().await
+    }
 }

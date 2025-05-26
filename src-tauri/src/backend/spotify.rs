@@ -42,4 +42,7 @@ impl SpotifyClient {
             .post("spotify/token", serde_json::to_string(&req).unwrap())
             .await
     }
+    pub async fn test(&self) -> Result<(), Box<dyn std::error::Error + Send + Sync>> {
+        self.backend_client.get::<()>("spotify/test").await
+    }
 }
