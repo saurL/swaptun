@@ -2168,7 +2168,7 @@ dependencies = [
  "js-sys",
  "log",
  "wasm-bindgen",
- "windows-core 0.60.1",
+ "windows-core 0.61.1",
 ]
 
 [[package]]
@@ -5075,7 +5075,7 @@ dependencies = [
 [[package]]
 name = "swaptun-api"
 version = "0.1.0"
-source = "git+ssh://git@github.com/saurL/swaptun_backend.git?branch=main#be6bc3a8e6d4c52e34211644e905e66a3f6cae20"
+source = "git+ssh://git@github.com/saurL/swaptun_backend.git?branch=main#2760fa51cb944ff6ceb1c974eb48f7e7a00efa58"
 dependencies = [
  "swaptun-services",
 ]
@@ -5083,7 +5083,7 @@ dependencies = [
 [[package]]
 name = "swaptun-backend"
 version = "0.1.0"
-source = "git+ssh://git@github.com/saurL/swaptun_backend.git?branch=main#be6bc3a8e6d4c52e34211644e905e66a3f6cae20"
+source = "git+ssh://git@github.com/saurL/swaptun_backend.git?branch=main#2760fa51cb944ff6ceb1c974eb48f7e7a00efa58"
 dependencies = [
  "swaptun-api",
 ]
@@ -5091,7 +5091,7 @@ dependencies = [
 [[package]]
 name = "swaptun-services"
 version = "0.1.0"
-source = "git+ssh://git@github.com/saurL/swaptun_backend.git?branch=main#be6bc3a8e6d4c52e34211644e905e66a3f6cae20"
+source = "git+ssh://git@github.com/saurL/swaptun_backend.git?branch=main#2760fa51cb944ff6ceb1c974eb48f7e7a00efa58"
 dependencies = [
  "log",
  "once_cell",
