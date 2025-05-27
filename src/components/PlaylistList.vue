@@ -1,5 +1,5 @@
 <template>
-  <div class="space-y-3 flex flex-1 flex-col overflow-y-auto min-h-0">
+  <div class="space-y-3 flex flex-1 flex-col overflow-y-auto h-full min-h-0">
     <PlaylistCard v-for="p in playlists" :key="p.id" :playlist="p" />
   </div>
 </template>

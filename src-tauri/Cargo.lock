@@ -5075,7 +5075,7 @@ dependencies = [
 [[package]]
 name = "swaptun-api"
 version = "0.1.0"
-source = "git+ssh://git@github.com/saurL/swaptun_backend.git?branch=main#2760fa51cb944ff6ceb1c974eb48f7e7a00efa58"
+source = "git+ssh://git@github.com/saurL/swaptun_backend.git?branch=main#7348d3e5ad01d11ba4b95561591b709d43368d24"
 dependencies = [
  "swaptun-services",
 ]
@@ -5083,15 +5083,25 @@ dependencies = [
 [[package]]
 name = "swaptun-backend"
 version = "0.1.0"
-source = "git+ssh://git@github.com/saurL/swaptun_backend.git?branch=main#2760fa51cb944ff6ceb1c974eb48f7e7a00efa58"
+source = "git+ssh://git@github.com/saurL/swaptun_backend.git?branch=main#7348d3e5ad01d11ba4b95561591b709d43368d24"
 dependencies = [
  "swaptun-api",
 ]
 
 [[package]]
+name = "swaptun-models"
+version = "0.1.0"
+source = "git+ssh://git@github.com/saurL/swaptun_backend.git?branch=main#7348d3e5ad01d11ba4b95561591b709d43368d24"
+dependencies = [
+ "sea-orm",
+ "serde",
+ "serde_json",
+]
+
+[[package]]
 name = "swaptun-services"
 version = "0.1.0"
-source = "git+ssh://git@github.com/saurL/swaptun_backend.git?branch=main#2760fa51cb944ff6ceb1c974eb48f7e7a00efa58"
+source = "git+ssh://git@github.com/saurL/swaptun_backend.git?branch=main#7348d3e5ad01d11ba4b95561591b709d43368d24"
 dependencies = [
  "log",
  "once_cell",
@@ -5100,6 +5110,7 @@ dependencies = [
  "sea-orm",
  "serde",
  "serde_json",
+ "swaptun-models",
  "validator",
 ]
 

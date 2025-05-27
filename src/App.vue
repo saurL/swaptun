@@ -40,9 +40,10 @@ onMounted(async () => {
   isLoading.value = false;
 });
 </script>
-
 <template>
-  <div class="h-screen w-screen bg-[#121212] text-white flex flex-col min-h-0">
+  <div
+    class="h-screen w-screen bg-[#121212] text-white flex flex-col min-h-screen overflow-y-scroll items-center justify-center"
+  >
     <loadingAppAnimation v-if="isLoading" />
     <RouterView v-else />
   </div>

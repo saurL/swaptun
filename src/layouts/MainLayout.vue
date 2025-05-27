@@ -17,4 +17,20 @@
 
 <script setup>
 import BottomNav from "../components/nav/BottomNav.vue";
+import { onMounted } from "vue";
+const setMinHeight = () => {
+  const header = document.querySelector("header");
+  const bottomNav = document.querySelector(".bottom-nav");
+  const main = document.querySelector("main");
+  if (header && bottomNav && main) {
+    const headerHeight = header.offsetHeight;
+    const bottomNavHeight = bottomNav.offsetHeight;
+    const minHeight = `calc(100vh - ${headerHeight + bottomNavHeight}px)`;
+    main.style.minHeight = minHeight;
+  }
+};
+
+onMounted(() => {
+  setMinHeight();
+});
 </script>
