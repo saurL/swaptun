@@ -1,15 +1,18 @@
 use std::sync::Arc;
 use std::time::Instant;
 
+use crate::backend::PlaylistService;
 use crate::backend::SpotifyClient;
 use crate::backend::UserService;
 use crate::deezer::DeezerClient;
 use log::error;
 use log::info;
 use swaptun_backend::AddTokenRequest;
+use swaptun_backend::PlaylistOrigin;
 use swaptun_backend::{
-    CreateUserRequest, GetAuthorizationUrlRequest, LoginEmailRequest, LoginRequest, LoginResponse,
-    SpotifyUrlResponse, VerifyTokenRequest, VerifyTokenResponse,
+    getPlaylistResponse, CreateUserRequest, GetAuthorizationUrlRequest, GetPlaylistsParams,
+    LoginEmailRequest, LoginRequest, LoginResponse, SpotifyUrlResponse, VerifyTokenRequest,
+    VerifyTokenResponse,
 };
 use tauri::async_runtime::spawn;
 use tauri::async_runtime::Mutex;
@@ -25,6 +28,7 @@ pub struct App {
     spotify_client: SpotifyClient,
     _deezer_client: Mutex<DeezerClient>,
     user_service: UserService,
+    playlist_service: PlaylistService,
     spotify_url_port: Mutex<Option<u16>>,
     deezer_url_port: Mutex<Option<u16>>,
     ready: Mutex<bool>,
@@ -37,6 +41,7 @@ impl App {
             spotify_client: SpotifyClient::new(app_handle.clone()),
             _deezer_client: DeezerClient::new().into(),
             user_service: UserService::new(app_handle.clone()),
+            playlist_service: PlaylistService::new(app_handle.clone()),
             spotify_url_port: Mutex::new(None),
             deezer_url_port: Mutex::new(None),
             ready: Mutex::new(false),
@@ -178,5 +183,23 @@ impl App {
 
     pub async fn test_spotify(&self) -> Result<(), Box<dyn std::error::Error + Send + Sync>> {
         self.spotify_client.test().await
+    }
+
+    pub async fn get_playlists_spotify(
+        &self,
+    ) -> Result<getPlaylistResponse, Box<dyn std::error::Error + Send + Sync>> {
+        let params = GetPlaylistsParams {
+            origin: Some(PlaylistOrigin::Spotify),
+        };
+        self.playlist_service.get_playlists(params).await
+    }
+
+    pub async fn get_playlists_deezer(
+        &self,
+    ) -> Result<getPlaylistResponse, Box<dyn std::error::Error + Send + Sync>> {
+        let params = GetPlaylistsParams {
+            origin: Some(PlaylistOrigin::Deezer),
+        };
+        self.playlist_service.get_playlists(params).await
     }
 }

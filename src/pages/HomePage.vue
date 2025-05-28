@@ -6,9 +6,9 @@
       Connect to Spotify
     </button>
     <button @click="testSpotify" class="connect-button">Test Spotify</button>
-    <input type="text" class="standard-input" placeholder="Enter text..." />
-
-    <PlaylistList />
+    <div class="flex flex-col flex-1 min-h-0 overflow-y-auto">
+      <PlaylistList />
+    </div>
   </MainLayout>
 </template>
 

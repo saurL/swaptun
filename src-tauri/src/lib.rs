@@ -2,7 +2,8 @@ use std::sync::Arc;
 
 use log::info;
 use swaptun_backend::{
-    CreateUserRequest, LoginEmailRequest, LoginRequest, LoginResponse, VerifyTokenRequest,
+    getPlaylistResponse, CreateUserRequest, LoginEmailRequest, LoginRequest, LoginResponse,
+    VerifyTokenRequest,
 };
 use tauri::{async_runtime::spawn, command, Emitter, Manager, State, Url, Window};
 // Learn more about Tauri commands at https://tauri.app/develop/calling-rust/
@@ -11,7 +12,6 @@ mod app;
 mod backend;
 mod deezer;
 use app::App;
-use tauri_plugin_oauth::{start_with_config, OauthConfig};
 
 #[cfg_attr(mobile, tauri::mobile_entry_point)]
 pub fn run() {
@@ -46,7 +46,9 @@ pub fn run() {
             verify_token,
             get_autorization_url_spotify,
             is_app_ready,
-            test_spotify
+            test_spotify,
+            get_playlists_spotify,
+            get_playlists_deezer,
         ])
         .run(tauri::generate_context!())
         .expect("error while running tauri application");
@@ -150,6 +152,22 @@ async fn is_app_ready(app: State<'_, Arc<App>>) -> Result<bool, String> {
 async fn test_spotify(app: State<'_, Arc<App>>) -> Result<(), String> {
     match app.test_spotify().await {
         Ok(_) => Ok(()),
+        Err(e) => Err(e.to_string()),
+    }
+}
+
+#[command]
+async fn get_playlists_spotify(app: State<'_, Arc<App>>) -> Result<getPlaylistResponse, String> {
+    match app.get_playlists_spotify().await {
+        Ok(response) => Ok(response),
+        Err(e) => Err(e.to_string()),
+    }
+}
+
+#[command]
+async fn get_playlists_deezer(app: State<'_, Arc<App>>) -> Result<getPlaylistResponse, String> {
+    match app.get_playlists_deezer().await {
+        Ok(response) => Ok(response),
         Err(e) => Err(e.to_string()),
     }
 }
