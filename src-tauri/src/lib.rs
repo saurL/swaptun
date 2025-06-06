@@ -2,7 +2,7 @@ use std::sync::Arc;
 
 use log::info;
 use swaptun_backend::{
-    getPlaylistResponse, CreateUserRequest, LoginEmailRequest, LoginRequest, LoginResponse,
+    CreateUserRequest, GetPlaylistResponse, LoginEmailRequest, LoginRequest, LoginResponse,
     VerifyTokenRequest,
 };
 use tauri::{async_runtime::spawn, command, Emitter, Manager, State, Url, Window};
@@ -150,14 +150,14 @@ async fn is_app_ready(app: State<'_, Arc<App>>) -> Result<bool, String> {
 
 #[command]
 async fn test_spotify(app: State<'_, Arc<App>>) -> Result<(), String> {
-    match app.test_spotify().await {
+    match app.import_playlist_backend_request().await {
         Ok(_) => Ok(()),
         Err(e) => Err(e.to_string()),
     }
 }
 
 #[command]
-async fn get_playlists_spotify(app: State<'_, Arc<App>>) -> Result<getPlaylistResponse, String> {
+async fn get_playlists_spotify(app: State<'_, Arc<App>>) -> Result<GetPlaylistResponse, String> {
     match app.get_playlists_spotify().await {
         Ok(response) => Ok(response),
         Err(e) => Err(e.to_string()),
@@ -165,7 +165,7 @@ async fn get_playlists_spotify(app: State<'_, Arc<App>>) -> Result<getPlaylistRe
 }
 
 #[command]
-async fn get_playlists_deezer(app: State<'_, Arc<App>>) -> Result<getPlaylistResponse, String> {
+async fn get_playlists_deezer(app: State<'_, Arc<App>>) -> Result<GetPlaylistResponse, String> {
     match app.get_playlists_deezer().await {
         Ok(response) => Ok(response),
         Err(e) => Err(e.to_string()),

@@ -10,7 +10,7 @@ use log::info;
 use swaptun_backend::AddTokenRequest;
 use swaptun_backend::PlaylistOrigin;
 use swaptun_backend::{
-    getPlaylistResponse, CreateUserRequest, GetAuthorizationUrlRequest, GetPlaylistsParams,
+    CreateUserRequest, GetAuthorizationUrlRequest, GetPlaylistResponse, GetPlaylistsParams,
     LoginEmailRequest, LoginRequest, LoginResponse, SpotifyUrlResponse, VerifyTokenRequest,
     VerifyTokenResponse,
 };
@@ -18,6 +18,7 @@ use tauri::async_runtime::spawn;
 use tauri::async_runtime::Mutex;
 use tauri::http::StatusCode;
 use tauri::AppHandle;
+use tauri::Emitter;
 use tauri::Url;
 use tauri_plugin_http::reqwest;
 use tauri_plugin_oauth::start_with_config;
@@ -135,9 +136,22 @@ impl App {
                     _ => {}
                 }
             }
+            let cloned_instance = instance.clone();
             if let Some(code) = code {
-                info!("code: {:?}", code);
-                instance.send_spotify_token(code.to_string());
+                spawn(async move {
+                    cloned_instance.send_spotify_token(code.to_string()).await;
+                    cloned_instance.import_playlist_backend_request().await;
+                    match cloned_instance.get_playlists_spotify().await {
+                        Ok(playlists) => {
+                            cloned_instance
+                                .app_handle
+                                .emit("spotify_playlists", playlists);
+                        }
+                        Err(e) => {
+                            error!("Error getting playlists: {}", e);
+                        }
+                    }
+                });
             }
 
             // Affichage des résultats
@@ -171,23 +185,36 @@ impl App {
         };
     }
 
-    pub fn send_spotify_token(self: &Arc<Self>, token: String) {
-        let instance = self.clone();
-        spawn(async move {
-            let req = AddTokenRequest {
-                token: token.to_string(),
-            };
-            instance.spotify_client.add_token(req).await;
-        });
+    pub async fn send_spotify_token(self: &Self, token: String) {
+        let req = AddTokenRequest {
+            token: token.to_string(),
+        };
+        self.spotify_client.add_token(req).await;
     }
 
-    pub async fn test_spotify(&self) -> Result<(), Box<dyn std::error::Error + Send + Sync>> {
-        self.spotify_client.test().await
+    pub async fn send_token_and_get_playlists(self: &Self, token: String) {
+        self.send_spotify_token(token).await;
+        match self.get_playlists_spotify().await {
+            Ok(playlists) => {
+                self.app_handle
+                    .emit("spotify_playlists", playlists)
+                    .unwrap();
+            }
+            Err(e) => {
+                error!("Error getting playlists: {}", e);
+            }
+        }
+    }
+
+    pub async fn import_playlist_backend_request(
+        &self,
+    ) -> Result<StatusCode, Box<dyn std::error::Error + Send + Sync>> {
+        self.spotify_client.import_playlist_backend_request().await
     }
 
     pub async fn get_playlists_spotify(
         &self,
-    ) -> Result<getPlaylistResponse, Box<dyn std::error::Error + Send + Sync>> {
+    ) -> Result<GetPlaylistResponse, Box<dyn std::error::Error + Send + Sync>> {
         let params = GetPlaylistsParams {
             origin: Some(PlaylistOrigin::Spotify),
         };
@@ -196,7 +223,7 @@ impl App {
 
     pub async fn get_playlists_deezer(
         &self,
-    ) -> Result<getPlaylistResponse, Box<dyn std::error::Error + Send + Sync>> {
+    ) -> Result<GetPlaylistResponse, Box<dyn std::error::Error + Send + Sync>> {
         let params = GetPlaylistsParams {
             origin: Some(PlaylistOrigin::Deezer),
         };

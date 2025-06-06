@@ -1,6 +1,5 @@
 use crate::backend::backend::BackendClient;
-use serde::{Deserialize, Serialize};
-use swaptun_backend::{getPlaylistResponse, GetPlaylistsParams};
+use swaptun_backend::{GetPlaylistResponse, GetPlaylistsParams};
 use tauri::AppHandle;
 
 pub struct PlaylistService {
@@ -17,9 +16,9 @@ impl PlaylistService {
     pub async fn get_playlists(
         &self,
         params: GetPlaylistsParams,
-    ) -> Result<getPlaylistResponse, Box<dyn std::error::Error + Send + Sync>> {
+    ) -> Result<GetPlaylistResponse, Box<dyn std::error::Error + Send + Sync>> {
         self.backend_client
-            .get_with_body::<getPlaylistResponse, _>(
+            .get_with_body::<GetPlaylistResponse, _>(
                 "playlists",
                 serde_json::to_string(&params).unwrap(),
             )

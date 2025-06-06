@@ -26,7 +26,6 @@ impl BackendClient {
         info!("Backend URL: {}", base_url);
 
         let client = Client::builder()
-            .timeout(std::time::Duration::from_secs(10))
             .build()
             .expect("Failed to build reqwest client");
 
@@ -114,6 +113,7 @@ impl BackendClient {
             .post(&url)
             .header("Content-Type", "application/json")
             .body(body);
+
         let response = self.send(post).await?;
         info!("POST Response: {:?}", response);
         let status = response.status();
@@ -181,6 +181,8 @@ impl BackendClient {
         };
 
         if response.status().is_client_error() || response.status().is_server_error() {
+            error!("Error status: {}", response.status());
+
             let tt = response.text().await?;
             let error_message = tt;
             error!("Response Error: {}", error_message);

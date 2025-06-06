@@ -59,9 +59,10 @@
 </template>
 
 <script setup lang="ts">
-import { ref, onMounted } from "vue";
+import { ref, onMounted, onUnmounted } from "vue";
 import { invoke } from "@tauri-apps/api/core";
-import { info } from "@tauri-apps/plugin-log";
+import { listen } from "@tauri-apps/api/event";
+
 interface Playlist {
   id: string;
   name: string;
@@ -83,6 +84,27 @@ const isLoadingSpotify = ref(true);
 const isLoadingDeezer = ref(true);
 const spotifyError = ref<string | null>(null);
 const deezerError = ref<string | null>(null);
+
+let unlistenSpotifyPlaylists: (() => void) | null = null;
+let unlistenDeezerPlaylists: (() => void) | null = null;
+
+const setupSpotifyPlaylistsListener = async () => {
+  unlistenSpotifyPlaylists = await listen<PlaylistsResponse>(
+    "spotify_playlists",
+    (event) => {
+      spotifyPlaylists.value = event.payload.vec;
+    }
+  );
+};
+
+const setupDeezerPlaylistsListener = async () => {
+  unlistenDeezerPlaylists = await listen<PlaylistsResponse>(
+    "deezer_playlists",
+    (event) => {
+      deezerPlaylists.value = event.payload.vec;
+    }
+  );
+};
 
 const fetchSpotifyPlaylists = async () => {
   try {
@@ -113,6 +135,20 @@ const fetchDeezerPlaylists = async () => {
 };
 
 onMounted(async () => {
-  await Promise.all([fetchSpotifyPlaylists(), fetchDeezerPlaylists()]);
+  await Promise.all([
+    fetchSpotifyPlaylists(),
+    fetchDeezerPlaylists(),
+    setupSpotifyPlaylistsListener(),
+    setupDeezerPlaylistsListener(),
+  ]);
+});
+
+onUnmounted(() => {
+  if (unlistenSpotifyPlaylists) {
+    unlistenSpotifyPlaylists();
+  }
+  if (unlistenDeezerPlaylists) {
+    unlistenDeezerPlaylists();
+  }
 });
 </script>

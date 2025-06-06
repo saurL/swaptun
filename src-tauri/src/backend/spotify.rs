@@ -3,6 +3,7 @@ use serde::Deserialize;
 use tauri::{http::StatusCode, AppHandle};
 
 use swaptun_backend::{AddTokenRequest, GetAuthorizationUrlRequest, SpotifyUrlResponse};
+use tauri_plugin_http::reqwest::Body;
 
 #[derive(Debug, Deserialize)]
 pub struct SpotifyAuthResponse {
@@ -42,7 +43,11 @@ impl SpotifyClient {
             .post("spotify/token", serde_json::to_string(&req).unwrap())
             .await
     }
-    pub async fn test(&self) -> Result<(), Box<dyn std::error::Error + Send + Sync>> {
-        self.backend_client.get::<()>("spotify/test").await
+    pub async fn import_playlist_backend_request(
+        &self,
+    ) -> Result<StatusCode, Box<dyn std::error::Error + Send + Sync>> {
+        self.backend_client
+            .post("spotify/playlist", Body::from(""))
+            .await
     }
 }
