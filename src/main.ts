@@ -23,15 +23,6 @@ const routes = [
       userBio: 'Passionné de musique et de technologie.'
     } 
   }, // page du profil
-   { path: "/profile", 
-    component: ProfilePage, 
-    props: { 
-      userName: 'John Doe', 
-      userAge: 25, 
-      userCity: 'Paris', 
-      userBio: 'Passionné de musique et de technologie.'
-    } 
-  },
   { path: "/register", component: RegisterPage },  // page d’accueil
   { path: "/spotify-auth", component: SpotifyAuthPage },  // page d’accueil
 ];
