@@ -24,7 +24,9 @@ const handleLogin = async () => {
       const loginResponse = response as LoginResponse;
       info(`Login successful, token: ${loginResponse.token}`);
       store.setIdentificationToken(loginResponse.token);
-      await save(store);
+      await invoke("set_auth_header", {
+        token: loginResponse.token,
+      });
       info("Store saved");
     })
     .catch((error) => {

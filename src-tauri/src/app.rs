@@ -1,18 +1,18 @@
 use std::sync::Arc;
-use std::time::Instant;
 
+use crate::backend::DeezerClient;
 use crate::backend::PlaylistService;
 use crate::backend::SpotifyClient;
 use crate::backend::UserService;
-use crate::deezer::DeezerClient;
+
 use log::error;
 use log::info;
 use swaptun_backend::AddTokenRequest;
+use swaptun_backend::GetPlaylistResponse;
 use swaptun_backend::PlaylistOrigin;
 use swaptun_backend::{
-    CreateUserRequest, GetAuthorizationUrlRequest, GetPlaylistResponse, GetPlaylistsParams,
-    LoginEmailRequest, LoginRequest, LoginResponse, SpotifyUrlResponse, VerifyTokenRequest,
-    VerifyTokenResponse,
+    CreateUserRequest, GetAuthorizationUrlRequest, GetPlaylistsParams, LoginEmailRequest,
+    LoginRequest, LoginResponse, SpotifyUrlResponse, VerifyTokenRequest, VerifyTokenResponse,
 };
 use tauri::async_runtime::spawn;
 use tauri::async_runtime::Mutex;
@@ -20,14 +20,13 @@ use tauri::http::StatusCode;
 use tauri::AppHandle;
 use tauri::Emitter;
 use tauri::Url;
-use tauri_plugin_http::reqwest;
 use tauri_plugin_oauth::start_with_config;
 // use tauri_plugin_oauth::start;
 use tauri_plugin_oauth::{start, OauthConfig};
 pub struct App {
     app_handle: AppHandle,
     spotify_client: SpotifyClient,
-    _deezer_client: Mutex<DeezerClient>,
+    _deezer_client: DeezerClient,
     user_service: UserService,
     playlist_service: PlaylistService,
     spotify_url_port: Mutex<Option<u16>>,
@@ -40,7 +39,7 @@ impl App {
         let instance = Self {
             app_handle: app_handle.clone(),
             spotify_client: SpotifyClient::new(app_handle.clone()),
-            _deezer_client: DeezerClient::new().into(),
+            _deezer_client: DeezerClient::new(app_handle.clone()),
             user_service: UserService::new(app_handle.clone()),
             playlist_service: PlaylistService::new(app_handle.clone()),
             spotify_url_port: Mutex::new(None),
@@ -66,16 +65,6 @@ impl App {
             }
             None => Err("No port found for spotify oauth server".into()),
         }
-    }
-
-    pub async fn _authenticate_deezer(
-        &self,
-        app_id: &str,
-        app_secret: &str,
-        code: &str,
-    ) -> Result<(), reqwest::Error> {
-        let mut deezer_client = self._deezer_client.lock().await;
-        deezer_client._authenticate(app_id, app_secret, code).await
     }
 
     pub async fn register(
@@ -228,5 +217,13 @@ impl App {
             origin: Some(PlaylistOrigin::Deezer),
         };
         self.playlist_service.get_playlists(params).await
+    }
+
+    pub async fn set_auth_header(&self, token: String) {
+        self.user_service.set_auth_header(token.clone()).await;
+        self.spotify_client.set_auth_header(token.clone()).await;
+        self._deezer_client.set_auth_header(token.clone()).await;
+        self.playlist_service.set_auth_header(token.clone()).await;
+        self.user_service.set_auth_header(token).await;
     }
 }

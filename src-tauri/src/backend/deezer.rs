@@ -1,5 +1,7 @@
 use serde::Deserialize;
 use tauri_plugin_http::reqwest;
+
+use crate::backend::backend::BackendClient;
 /*
     Cette structure est une structure Généré par Copilot pour l'exemple
 */
@@ -11,12 +13,14 @@ pub struct DeezerAuthResponse {
 
 pub struct DeezerClient {
     _access_token: Option<String>,
+    backend_client: BackendClient,
 }
 
 impl DeezerClient {
-    pub fn new() -> Self {
+    pub fn new(app_handle: tauri::AppHandle) -> Self {
         Self {
             _access_token: None,
+            backend_client: BackendClient::new(app_handle),
         }
     }
 
@@ -34,5 +38,9 @@ impl DeezerClient {
         self._access_token = Some("aerarzar".to_string()); // Placeholder for the access token
 
         Ok(())
+    }
+
+    pub async fn set_auth_header(&self, token: String) {
+        self.backend_client.set_auth_header(token).await;
     }
 }

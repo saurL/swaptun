@@ -10,7 +10,6 @@ use tauri::{async_runtime::spawn, command, Emitter, Manager, State, Url, Window}
 use tauri_plugin_log::{Target, TargetKind};
 mod app;
 mod backend;
-mod deezer;
 use app::App;
 
 #[cfg_attr(mobile, tauri::mobile_entry_point)]
@@ -49,6 +48,7 @@ pub fn run() {
             test_spotify,
             get_playlists_spotify,
             get_playlists_deezer,
+            set_auth_header,
         ])
         .run(tauri::generate_context!())
         .expect("error while running tauri application");
@@ -170,4 +170,10 @@ async fn get_playlists_deezer(app: State<'_, Arc<App>>) -> Result<GetPlaylistRes
         Ok(response) => Ok(response),
         Err(e) => Err(e.to_string()),
     }
+}
+#[command]
+async fn set_auth_header(app: State<'_, Arc<App>>, token: String) -> Result<(), String> {
+    info!("setting_auth_header");
+    app.set_auth_header(token).await;
+    Ok(())
 }

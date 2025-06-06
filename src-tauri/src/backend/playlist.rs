@@ -24,4 +24,8 @@ impl PlaylistService {
             )
             .await
     }
+
+    pub async fn set_auth_header(&self, token: String) {
+        self.backend_client.set_auth_header(token).await;
+    }
 }
