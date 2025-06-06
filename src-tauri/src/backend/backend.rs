@@ -155,6 +155,7 @@ impl BackendClient {
         self.check_internet_connection().await?;
 
         request = self.add_authorization_header(request).await;
+        info!("Sending request: {:?}", request);
         let response = match request.send().await {
             Ok(resp) => resp,
             Err(e) => {
@@ -205,6 +206,8 @@ impl BackendClient {
                 let auth = format!("Bearer {}", token);
                 return request.header("Authorization", auth);
             }
+        } else {
+            info!("No token found in pinia");
         }
         request
     }
