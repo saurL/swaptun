@@ -3,6 +3,8 @@ import { useStore } from "@/store/token";
 import { ref } from "vue";
 import { invoke } from "@tauri-apps/api/core";
 import { info } from "@tauri-apps/plugin-log";
+import { save } from "@tauri-store/pinia";
+
 //import { useRouter } from "vue-router";
 const store = useStore();
 //const router = useRouter();
@@ -18,10 +20,12 @@ const handleLogin = async () => {
     email: email.value,
     password: password.value,
   })
-    .then((response: any) => {
+    .then(async (response: any) => {
       const loginResponse = response as LoginResponse;
       info(`Login successful, token: ${loginResponse.token}`);
       store.setIdentificationToken(loginResponse.token);
+      await save(store);
+      info("Store saved");
     })
     .catch((error) => {
       errorMessage.value = error.message;
