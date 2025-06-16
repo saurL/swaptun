@@ -212,7 +212,8 @@ impl BackendClient {
             let auth_header_guard = self.auth_header.lock().await;
             if let Some(auth_header) = &*auth_header_guard {
                 info!("Using auth header: {}", auth_header);
-                return request.header("Authorization", auth_header);
+                let auth = format!("Bearer {}", auth_header);
+                return request.header("Authorization", auth);
             } else {
                 error!("No authorization token found");
             }
