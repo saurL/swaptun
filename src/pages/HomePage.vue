@@ -5,7 +5,6 @@
     <button @click="connectToSpotify" class="connect-button">
       Connect to Spotify
     </button>
-    <button @click="testSpotify" class="connect-button">Test Spotify</button>
     <div class="flex flex-col flex-1 min-h-0 overflow-y-auto">
       <PlaylistList />
     </div>
@@ -25,11 +24,6 @@ const connectToSpotify = async () => {
   info("actual url:" + window.location.href);
   let url = await invoke("get_autorization_url_spotify");
   window.location.href = url;
-};
-
-const testSpotify = async () => {
-  let result = await invoke("test_spotify");
-  console.log(result);
 };
 
 onMounted(() => {

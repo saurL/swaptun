@@ -129,9 +129,12 @@ impl App {
             if let Some(code) = code {
                 spawn(async move {
                     cloned_instance.send_spotify_token(code.to_string()).await;
+                    info!("token send");
                     cloned_instance.import_playlist_backend_request().await;
+                    info!("importing playlist");
                     match cloned_instance.get_playlists_spotify().await {
                         Ok(playlists) => {
+                            info!("playlist imported");
                             cloned_instance
                                 .app_handle
                                 .emit("spotify_playlists", playlists);
