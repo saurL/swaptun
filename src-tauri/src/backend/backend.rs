@@ -4,7 +4,7 @@ use log::{error, info};
 
 use serde::de::DeserializeOwned;
 use std::error::Error;
-use tauri::{async_runtime::Mutex, AppHandle, Emitter};
+use tauri::{ AppHandle, Emitter};
 use tauri_plugin_http::reqwest::{Body, Client, RequestBuilder, Response, StatusCode};
 use tauri_plugin_pinia::ManagerExt;
 
@@ -12,7 +12,7 @@ pub struct BackendClient {
     client: Client,
     base_url: String,
     app_handle: AppHandle,
-    auth_header: Mutex<Option<String>>,
+    
 }
 
 impl BackendClient {
@@ -35,7 +35,7 @@ impl BackendClient {
             client,
             base_url,
             app_handle,
-            auth_header: None.into(),
+            
         };
         info!("BackendClient instance created:");
         instance
@@ -198,26 +198,17 @@ impl BackendClient {
     }
 
     async fn add_authorization_header(&self, request: RequestBuilder) -> RequestBuilder {
-        if let Some(token_value) = self
+        if let Ok(token) = self
             .app_handle
             .pinia()
-            .get("identification_token", "identification_token")
+            .try_get::<String>("user", "token")
         {
-            if let Some(token) = token_value.as_str() {
+
                 info!("Token: {:?}", token);
                 let auth = format!("Bearer {}", token);
                 return request.header("Authorization", auth);
-            }
-        } else {
-            let auth_header_guard = self.auth_header.lock().await;
-            if let Some(auth_header) = &*auth_header_guard {
-                info!("Using auth header: {}", auth_header);
-                let auth = format!("Bearer {}", auth_header);
-                return request.header("Authorization", auth);
-            } else {
-                error!("No authorization token found");
-            }
-        }
+            
+        } 
         request
     }
 
@@ -238,10 +229,5 @@ impl BackendClient {
         let json: T = response.json().await?;
         Ok(json)
     }
-    pub async fn set_auth_header(&self, header: String) {
-        info!("Authorization header set: {}", header);
 
-        let mut auth_header = self.auth_header.lock().await;
-        *auth_header = Some(header);
-    }
 }

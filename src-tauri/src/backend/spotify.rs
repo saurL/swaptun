@@ -2,7 +2,7 @@ use crate::backend::backend::BackendClient;
 use serde::Deserialize;
 use tauri::{http::StatusCode, AppHandle};
 
-use swaptun_backend::{AddTokenRequest, GetAuthorizationUrlRequest, SpotifyUrlResponse};
+use swaptun_backend::{AddTokenRequest,  SpotifyUrlResponse};
 use tauri_plugin_http::reqwest::Body;
 
 #[derive(Debug, Deserialize)]
@@ -25,12 +25,10 @@ impl SpotifyClient {
 
     pub async fn get_auth_url(
         &self,
-        req: GetAuthorizationUrlRequest,
     ) -> Result<SpotifyUrlResponse, Box<dyn std::error::Error + Send + Sync>> {
         self.backend_client
-            .get_with_body::<SpotifyUrlResponse, _>(
+            .get::<SpotifyUrlResponse>(
                 "spotify/authorization-url",
-                serde_json::to_string(&req).unwrap(),
             )
             .await
     }
@@ -49,9 +47,5 @@ impl SpotifyClient {
         self.backend_client
             .post("spotify/playlist", Body::from(""))
             .await
-    }
-
-    pub async fn set_auth_header(&self, token: String) {
-        self.backend_client.set_auth_header(token).await;
     }
 }

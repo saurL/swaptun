@@ -1,50 +1,30 @@
 <script setup lang="ts">
-import { useStore } from "./store/token";
-import { watchEffect, onMounted } from "vue";
-import { info } from "@tauri-apps/plugin-log";
+import { useUserStore } from "./store/user";
+import { watchEffect } from "vue";
 import { useRouter } from "vue-router";
-import { ref } from "vue";
-import { invoke } from "@tauri-apps/api/core";
-import { listen } from "@tauri-apps/api/event";
 import loadingAppAnimation from "./components/LoadingAppAnimation.vue";
+import { useAppStore } from "./store/app";
+import { storeToRefs } from "pinia";
 const router = useRouter();
-const store = useStore();
-
-const isLoading = ref(true);
+const userStore = useUserStore();
+const appStore = useAppStore();
+const {isAppReady} = storeToRefs(appStore)
+const userRefStore = storeToRefs(userStore);
 
 watchEffect(() => {
-  info(`Token: ${store.identification_token}`);
-  if (store.identification_token !== "") {
-    invoke("verify_token", { token: store.identification_token })
-      .then((isValid: any) => {
-        if (isValid) {
-          router.replace("/homepage");
-        }
-      })
-      .catch((error) => {
-        console.error("Token verification failed:", error);
-        store.identification_token = "";
-        router.replace("/");
-      });
+  if (userRefStore.token.value != null) {
+    // If the user is authenticated and the app is ready, navigate to the homepage
+    router.replace("/homepage");
   }
-  //router.push("/spotify-auth");
-});
-listen("app_ready", () => {
-  isLoading.value = false;
+  isAppReady.value = true;
 });
 
-onMounted(async () => {
-  invoke<boolean>("is_app_ready").then((isReady) => {
-    isLoading.value = !isReady;
-  });
-  isLoading.value = false;
-});
 </script>
 <template>
   <div
-    class="h-screen w-screen bg-[#121212] text-white flex flex-col min-h-screen overflow-y-scroll items-center justify-center"
-  >
-    <loadingAppAnimation v-if="isLoading" />
+    class="h-screen w-screen bg-[#121212] text-white flex flex-col max-h-screen w-screen max-w-full overflow-y-scroll overflow-x-hidden
+ items-center justify-center">
+    <loadingAppAnimation v-if="!isAppReady" />
     <RouterView v-else />
   </div>
 </template>
@@ -52,8 +32,10 @@ onMounted(async () => {
 <style lang="css">
 html,
 body {
-  overscroll-behavior-x: none; /* désactive le scroll horizontal naturel */
-  touch-action: pan-x pan-y; /* désactive le zoom par pincement */
+  overscroll-behavior-x: none;
+  /* désactive le scroll horizontal naturel */
+  touch-action: pan-x pan-y;
+  /* désactive le zoom par pincement */
   -ms-overflow-style: none;
   overflow: hidden;
 }
@@ -70,8 +52,10 @@ html::-webkit-scrollbar {
 
 /* Hide scrollbar for IE, Edge and Firefox */
 * {
-  -ms-overflow-style: none; /* IE and Edge */
-  scrollbar-width: none; /* Firefox */
+  -ms-overflow-style: none;
+  /* IE and Edge */
+  scrollbar-width: none;
+  /* Firefox */
   touch-action: pan-x, pan-y;
 }
 </style>

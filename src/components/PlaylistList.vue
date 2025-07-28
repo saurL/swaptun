@@ -19,7 +19,6 @@
         >
           <h3 class="text-lg font-medium text-white">{{ playlist.name }}</h3>
           <p class="text-sm text-gray-400">
-            {{ playlist.tracks_count }} titres
           </p>
           <p v-if="playlist.description" class="text-sm text-gray-500 mt-2">
             {{ playlist.description }}
@@ -47,8 +46,33 @@
         >
           <h3 class="text-lg font-medium text-white">{{ playlist.name }}</h3>
           <p class="text-sm text-gray-400">
-            {{ playlist.tracks_count }} titres
+
           </p>
+          <p v-if="playlist.description" class="text-sm text-gray-500 mt-2">
+            {{ playlist.description }}
+          </p>
+        </div>
+      </div>
+    </div>
+
+    <!-- Playlists YouTube Music -->
+    <div class="space-y-3">
+      <h2 class="text-xl font-semibold text-white">Playlists YouTube Music</h2>
+      <div v-if="isLoadingYoutubeMusic" class="flex justify-center">
+        <div
+          class="animate-spin rounded-full h-8 w-8 border-b-2 border-[#00CFE8]"
+        ></div>
+      </div>
+      <div v-else-if="youtubeMusicError" class="text-red-500">
+        {{ youtubeMusicError }}
+      </div>
+      <div v-else class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+        <div
+          v-for="playlist in youtubeMusicPlaylists"
+          :key="playlist.id"
+          class="bg-[#1E1E1E] p-4 rounded-lg hover:bg-[#2A2A2A] transition-colors"
+        >
+          <h3 class="text-lg font-medium text-white">{{ playlist.name }}</h3>
           <p v-if="playlist.description" class="text-sm text-gray-500 mt-2">
             {{ playlist.description }}
           </p>
@@ -62,28 +86,64 @@
 import { ref, onMounted, onUnmounted } from "vue";
 import { invoke } from "@tauri-apps/api/core";
 import { listen } from "@tauri-apps/api/event";
-
-interface Playlist {
-  id: string;
-  name: string;
-  description?: string;
-  tracks_count: number;
-  owner_id: string;
-  created_at: string;
-  updated_at: string;
-}
+import { useAppStore } from "@/store/app";
+import { useUserStore } from "@/store/user";
+import { storeToRefs } from "pinia";
+import type { Playlist } from "@/store/user";
+import { info } from "@tauri-apps/plugin-log";
 
 interface PlaylistsResponse {
   vec: Playlist[];
   total: number;
 }
 
-const spotifyPlaylists = ref<Playlist[]>([]);
-const deezerPlaylists = ref<Playlist[]>([]);
-const isLoadingSpotify = ref(true);
-const isLoadingDeezer = ref(true);
+const appStore = useAppStore();
+const userStore = useUserStore();
+
+const {
+  isLoadingYouTube: isLoadingYoutubeMusic,
+  isLoadingDeezer,
+  isLoadingSpotify,
+} = storeToRefs(appStore);
+
+const {
+  youtubePlaylists: youtubeMusicPlaylists,
+  deezerPlaylists,
+  spotifyPlaylists,
+} = storeToRefs(userStore);
+info("UserStore state on PlaylistList mount: " + JSON.stringify(userStore.$state));
+info("AppStore state on PlaylistList mount: " + JSON.stringify(appStore.$state));
 const spotifyError = ref<string | null>(null);
 const deezerError = ref<string | null>(null);
+const youtubeMusicError = ref<string | null>(null);
+
+let unlistenYoutubeMusicPlaylists: (() => void) | null = null;
+
+const setupYoutubeMusicPlaylistsListener = async () => {
+  unlistenYoutubeMusicPlaylists = await listen<PlaylistsResponse>(
+    "youtubemusic_playlists",
+    (event) => {
+      userStore.setYoutubePlaylists(event.payload.vec);
+    }
+  );
+
+};
+
+const fetchYoutubeMusicPlaylists = async () => {
+  try {
+    appStore.setLoading("youtube", true);
+    youtubeMusicError.value = null;
+    const response = await invoke<PlaylistsResponse>(
+      "get_playlists_youtubemusic"
+    );
+    userStore.setYoutubePlaylists(response.vec);
+  } catch (error) {
+    youtubeMusicError.value = error as string;
+    console.error("Error fetching YouTube Music playlists:", error);
+  } finally {
+    appStore.setLoading("youtube", false);
+  }
+};
 
 let unlistenSpotifyPlaylists: (() => void) | null = null;
 let unlistenDeezerPlaylists: (() => void) | null = null;
@@ -92,7 +152,7 @@ const setupSpotifyPlaylistsListener = async () => {
   unlistenSpotifyPlaylists = await listen<PlaylistsResponse>(
     "spotify_playlists",
     (event) => {
-      spotifyPlaylists.value = event.payload.vec;
+      userStore.setSpotifyPlaylists(event.payload.vec);
     }
   );
 };
@@ -101,36 +161,36 @@ const setupDeezerPlaylistsListener = async () => {
   unlistenDeezerPlaylists = await listen<PlaylistsResponse>(
     "deezer_playlists",
     (event) => {
-      deezerPlaylists.value = event.payload.vec;
+      userStore.setDeezerPlaylists(event.payload.vec);
     }
   );
 };
 
 const fetchSpotifyPlaylists = async () => {
   try {
-    isLoadingSpotify.value = true;
+    appStore.setLoading("spotify", true);
     spotifyError.value = null;
     const response = await invoke<PlaylistsResponse>("get_playlists_spotify");
-    spotifyPlaylists.value = response.vec;
+    userStore.setSpotifyPlaylists(response.vec);
   } catch (error) {
     spotifyError.value = error as string;
     console.error("Error fetching Spotify playlists:", error);
   } finally {
-    isLoadingSpotify.value = false;
+    appStore.setLoading("spotify", false);
   }
 };
 
 const fetchDeezerPlaylists = async () => {
   try {
-    isLoadingDeezer.value = true;
+    appStore.setLoading("deezer", true);
     deezerError.value = null;
     const response = await invoke<PlaylistsResponse>("get_playlists_deezer");
-    deezerPlaylists.value = response.vec;
+    userStore.setDeezerPlaylists(response.vec);
   } catch (error) {
     deezerError.value = error as string;
     console.error("Error fetching Deezer playlists:", error);
   } finally {
-    isLoadingDeezer.value = false;
+    appStore.setLoading("deezer", false);
   }
 };
 
@@ -138,8 +198,10 @@ onMounted(async () => {
   await Promise.all([
     fetchSpotifyPlaylists(),
     fetchDeezerPlaylists(),
+    fetchYoutubeMusicPlaylists(),
     setupSpotifyPlaylistsListener(),
     setupDeezerPlaylistsListener(),
+    setupYoutubeMusicPlaylistsListener()
   ]);
 });
 
@@ -149,6 +211,9 @@ onUnmounted(() => {
   }
   if (unlistenDeezerPlaylists) {
     unlistenDeezerPlaylists();
+  }
+  if( unlistenYoutubeMusicPlaylists) {
+    unlistenYoutubeMusicPlaylists();
   }
 });
 </script>

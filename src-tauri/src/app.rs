@@ -7,48 +7,45 @@ use crate::backend::UserService;
 
 use log::error;
 use log::info;
+
 use swaptun_backend::AddTokenRequest;
 use swaptun_backend::GetPlaylistResponse;
 use swaptun_backend::PlaylistOrigin;
 use swaptun_backend::{
-    CreateUserRequest, GetAuthorizationUrlRequest, GetPlaylistsParams, LoginEmailRequest,
-    LoginRequest, LoginResponse, SpotifyUrlResponse, VerifyTokenRequest, VerifyTokenResponse,
+    CreateUserRequest, GetPlaylistsParams, LoginEmailRequest, LoginRequest, LoginResponse,
+    SpotifyUrlResponse, VerifyTokenRequest, VerifyTokenResponse,
 };
-use tauri::async_runtime::spawn;
 use tauri::async_runtime::Mutex;
 use tauri::http::StatusCode;
 use tauri::AppHandle;
 use tauri::Emitter;
 use tauri::Url;
-use tauri_plugin_oauth::start_with_config;
 // use tauri_plugin_oauth::start;
-use tauri_plugin_oauth::{start, OauthConfig};
+use crate::backend::YoutubeClient;
+use tauri_plugin_custom_tabs_manager::{CustomTabsManagerExt, OpenCustomTabSimpleRequest};
+use tauri_plugin_deep_link::OpenUrlEvent;
 pub struct App {
     app_handle: AppHandle,
     spotify_client: SpotifyClient,
     _deezer_client: DeezerClient,
     user_service: UserService,
     playlist_service: PlaylistService,
-    spotify_url_port: Mutex<Option<u16>>,
-    deezer_url_port: Mutex<Option<u16>>,
+    youtube_service: YoutubeClient,
     ready: Mutex<bool>,
 }
 
 impl App {
-    pub async fn new(app_handle: AppHandle) -> Arc<Self> {
+    pub fn new(app_handle: AppHandle) -> Arc<Self> {
         let instance = Self {
             app_handle: app_handle.clone(),
             spotify_client: SpotifyClient::new(app_handle.clone()),
             _deezer_client: DeezerClient::new(app_handle.clone()),
             user_service: UserService::new(app_handle.clone()),
             playlist_service: PlaylistService::new(app_handle.clone()),
-            spotify_url_port: Mutex::new(None),
-            deezer_url_port: Mutex::new(None),
+            youtube_service: YoutubeClient::new(app_handle.clone()),
             ready: Mutex::new(false),
         };
         let instance = Arc::new(instance);
-        instance.start_spotify_oauth_server().await;
-        instance.start_deezer_oauth_server().await;
         instance
     }
     pub fn app_handle(&self) -> &AppHandle {
@@ -58,13 +55,7 @@ impl App {
     pub async fn get_autorization_url_spotify(
         &self,
     ) -> Result<SpotifyUrlResponse, Box<dyn std::error::Error + Send + Sync>> {
-        match *self.spotify_url_port.lock().await {
-            Some(port) => {
-                let req = GetAuthorizationUrlRequest { port };
-                self.spotify_client.get_auth_url(req).await
-            }
-            None => Err("No port found for spotify oauth server".into()),
-        }
+        self.spotify_client.get_auth_url().await
     }
 
     pub async fn register(
@@ -105,97 +96,96 @@ impl App {
         *ready = true;
     }
 
-    pub async fn start_spotify_oauth_server(self: &Arc<Self>) {
-        let config = OauthConfig {
-            ports: Some(vec![8000]),
-            redirect_uri: Some("http://tauri.localhost/homepage".into()),
-            response: None,
-        };
-        let instance = self.clone();
-
-        match start_with_config(config, move |url: String| {
-            info!("start_server spotify modifié redirect_uri: {}", url);
-
-            let parsed_url = Url::parse(&url).expect("URL invalide");
-            let params = parsed_url.query_pairs();
-            let mut code = None;
-            for (key, value) in params {
-                match key.as_ref() {
-                    "code" => code = Some(value.to_string()),
-                    _ => {}
-                }
+    pub async fn handle_open_url(&self, event: OpenUrlEvent) {
+        let urls: Vec<Url> = event.urls();
+        info!("deep link URLs: {:?}", urls);
+        if let Some(url) = urls.first() {
+            if url.path() == "/open/spotify" {
+                self.handle_spotify_auth(url).await
             }
-            let cloned_instance = instance.clone();
-            if let Some(code) = code {
-                spawn(async move {
-                    cloned_instance.send_spotify_token(code.to_string()).await;
-                    info!("token send");
-                    cloned_instance.import_playlist_backend_request().await;
-                    info!("importing playlist");
-                    match cloned_instance.get_playlists_spotify().await {
-                        Ok(playlists) => {
-                            info!("playlist imported");
-                            cloned_instance
-                                .app_handle
-                                .emit("spotify_playlists", playlists);
-                        }
-                        Err(e) => {
-                            error!("Error getting playlists: {}", e);
-                        }
-                    }
-                });
+            if url.path() == "/open/youtube" {
+                self.handle_youtube_auth(url).await
             }
-
-            // Affichage des résultats
-        }) {
-            Ok(port) => {
-                *self.spotify_url_port.lock().await = Some(port);
-                info!("spotify_url_port: {}", port);
-            }
-            Err(e) => {
-                error!("Error starting spotify oauth server: {}", e);
-            }
-        };
+        }
     }
 
-    pub async fn start_deezer_oauth_server(self: &Arc<Self>) {
-        let config = OauthConfig {
-            ports: Some(vec![8001]),
-            redirect_uri: Some("http://tauri.localhost/homepage".into()),
-            response: None,
-        };
-        match start_with_config(config, move |url| {
-            info!("start_server deezer redirect_uri: {}", url);
-        }) {
-            Ok(port) => {
-                *self.deezer_url_port.lock().await = Some(port);
-                info!("deezer_url_port: {}", port);
+    pub async fn handle_spotify_auth(&self, url: &Url) {
+        let params = url.query_pairs();
+        let mut code = None;
+        for (key, value) in params {
+            match key.as_ref() {
+                "code" => code = Some(value.to_string()),
+                _ => {}
             }
-            Err(e) => {
-                error!("Error starting deezer oauth server: {}", e);
+        }
+        if let Some(code) = code {
+            self.send_spotify_token(code.to_string()).await;
+            info!("token send");
+            match self.import_playlist_backend_request().await {
+                Ok(status) => {
+                    info!("import playlist backend request status: {:?}", status);
+                    if status == StatusCode::OK {
+                        info!("playlist imported successfully");
+                    } else {
+                        error!("Failed to import playlist, status: {:?}", status);
+                    }
+                }
+                Err(e) => {
+                    error!("Error importing playlist: {}", e);
+                }
+            };
+            info!("importing playlist");
+            match self.get_playlists_spotify().await {
+                Ok(playlists) => {
+                    info!("playlist imported");
+                    match self.app_handle.emit("spotify_playlists", playlists) {
+                        Ok(_) => info!("spotify_playlists event emitted"),
+                        Err(e) => error!("Error emitting spotify_playlists event: {}", e),
+                    };
+                }
+                Err(e) => {
+                    error!("Error getting playlists: {}", e);
+                }
             }
-        };
+        }
+    }
+
+    pub async fn handle_youtube_auth(&self, url: &Url) {
+        let params = url.query_pairs();
+        let mut code = None;
+        for (key, value) in params {
+            match key.as_ref() {
+                "code" => code = Some(value.to_string()),
+                _ => {}
+            }
+        }
+        if let Some(code) = code {
+            info!("youtube code: {}", code);
+            match self.set_youtube_token(code.to_string()).await {
+                Ok(status) => {
+                    info!("YouTube token set successfully with status: {:?}", status);
+                }
+                Err(e) => {
+                    error!("Error setting YouTube token: {}", e);
+                }
+            }
+        } else {
+            error!("No 'code' parameter found in the URL");
+        }
     }
 
     pub async fn send_spotify_token(self: &Self, token: String) {
         let req = AddTokenRequest {
             token: token.to_string(),
         };
-        self.spotify_client.add_token(req).await;
-    }
-
-    pub async fn send_token_and_get_playlists(self: &Self, token: String) {
-        self.send_spotify_token(token).await;
-        match self.get_playlists_spotify().await {
-            Ok(playlists) => {
-                self.app_handle
-                    .emit("spotify_playlists", playlists)
-                    .unwrap();
+        match self.spotify_client.add_token(req).await {
+            Ok(status) => {
+                info!("Spotify token set successfully with status: {:?}", status);
             }
             Err(e) => {
-                error!("Error getting playlists: {}", e);
+                error!("Error setting Spotify token: {}", e);
             }
-        }
+        };
     }
 
     pub async fn import_playlist_backend_request(
@@ -221,12 +211,44 @@ impl App {
         };
         self.playlist_service.get_playlists(params).await
     }
+    pub async fn get_playlists_youtube(
+        &self,
+    ) -> Result<GetPlaylistResponse, Box<dyn std::error::Error + Send + Sync>> {
+        let params = GetPlaylistsParams {
+            origin: Some(PlaylistOrigin::YoutubeMusic),
+        };
+        self.playlist_service.get_playlists(params).await
+    }
+    pub async fn connect_youtube(
+        self: &Self,
+    ) -> Result<(), Box<dyn std::error::Error + Send + Sync>> {
+        let url_response = self.youtube_service.get_auth_url().await;
+        match url_response {
+            Ok(response) => {
+                info!("get_auth_url_youtube response: {}", response.url);
+                self.app_handle
+                    .custom_tabs_manager()
+                    .open_custom_tab_simple(OpenCustomTabSimpleRequest {
+                        url: response.url.clone(),
+                        try_native_app: true,
+                    })
+                    .expect("error while opening custom tab");
+                Ok(())
+            }
+            Err(e) => {
+                error!("Error getting YouTube auth URL: {}", e);
+                Err(e)
+            }
+        }
+    }
 
-    pub async fn set_auth_header(&self, token: String) {
-        self.user_service.set_auth_header(token.clone()).await;
-        self.spotify_client.set_auth_header(token.clone()).await;
-        self._deezer_client.set_auth_header(token.clone()).await;
-        self.playlist_service.set_auth_header(token.clone()).await;
-        self.user_service.set_auth_header(token).await;
+    pub async fn set_youtube_token(
+        &self,
+        token: String,
+    ) -> Result<StatusCode, Box<dyn std::error::Error + Send + Sync>> {
+        let req = AddTokenRequest {
+            token: token.to_string(),
+        };
+        self.youtube_service.add_token(req).await
     }
 }

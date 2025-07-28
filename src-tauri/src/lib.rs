@@ -5,16 +5,22 @@ use swaptun_backend::{
     CreateUserRequest, GetPlaylistResponse, LoginEmailRequest, LoginRequest, LoginResponse,
     VerifyTokenRequest,
 };
-use tauri::{async_runtime::spawn, command, Emitter, Manager, State, Url, Window};
+use tauri::{async_runtime::spawn, command, Emitter, Manager, State, };
 // Learn more about Tauri commands at https://tauri.app/develop/calling-rust/
 use tauri_plugin_log::{Target, TargetKind};
 mod app;
 mod backend;
 use app::App;
+use tauri_plugin_deep_link::DeepLinkExt;
+use tauri_plugin_custom_tabs_manager::{
+    CustomTabsManagerExt,  OpenCustomTabSimpleRequest,
+};
 
 #[cfg_attr(mobile, tauri::mobile_entry_point)]
 pub fn run() {
     tauri::Builder::default()
+        .plugin(tauri_plugin_custom_tabs_manager::init())
+        .plugin(tauri_plugin_deep_link::init())
         .plugin(tauri_plugin_http::init())
         .plugin(tauri_plugin_opener::init())
         .plugin(tauri_plugin_pinia::init())
@@ -30,9 +36,17 @@ pub fn run() {
         .setup(|app| {
             let app_handle = app.handle().clone();
             spawn(async move {
-                let swaptun_app = App::new(app_handle.clone()).await;
+                let swaptun_app = App::new(app_handle.clone());
+              
+                app_handle.manage(swaptun_app.clone());
+                
                 swaptun_app.set_app_ready().await;
-                app_handle.manage(swaptun_app);
+                app_handle.deep_link().on_open_url(move |event| {
+                    let app = swaptun_app.clone();
+                    spawn(async move {
+                        app.handle_open_url(event).await;
+                    });
+                });
                 app_handle.emit("app_ready", "").unwrap();
             });
 
@@ -48,7 +62,8 @@ pub fn run() {
             test_spotify,
             get_playlists_spotify,
             get_playlists_deezer,
-            set_auth_header,
+            connect_youtube,
+            get_playlists_youtubemusic,
         ])
         .run(tauri::generate_context!())
         .expect("error while running tauri application");
@@ -137,6 +152,10 @@ async fn get_autorization_url_spotify(app: State<'_, Arc<App>>) -> Result<String
     match app.get_autorization_url_spotify().await {
         Ok(response) => {
             info!("get_autorization_url_spotify response: {}", response.url);
+            app.app_handle().custom_tabs_manager().open_custom_tab_simple(OpenCustomTabSimpleRequest {
+                url: response.url.clone(),
+                try_native_app: true,
+            }).expect("error while opening custom tab");
             Ok(response.url)
         }
         Err(e) => Err(format!("Error: {}", e)),
@@ -171,9 +190,18 @@ async fn get_playlists_deezer(app: State<'_, Arc<App>>) -> Result<GetPlaylistRes
         Err(e) => Err(e.to_string()),
     }
 }
+
 #[command]
-async fn set_auth_header(app: State<'_, Arc<App>>, token: String) -> Result<(), String> {
-    info!("setting_auth_header");
-    app.set_auth_header(token).await;
-    Ok(())
+async fn connect_youtube(app: State<'_, Arc<App>>) -> Result<(), String> {
+    match app.connect_youtube().await {
+        Ok(_) => Ok(()),
+        Err(e) => Err(e.to_string()),
+    }
+}
+#[command]
+async fn get_playlists_youtubemusic(app: State<'_, Arc<App>>) -> Result<GetPlaylistResponse, String> {
+    match app.get_playlists_youtube().await {
+        Ok(response) => Ok(response),
+        Err(e) => Err(e.to_string()),
+    }
 }

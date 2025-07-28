@@ -3,7 +3,7 @@
 
   <!-- Lien vers la page de login -->
   <a
-    href="/login"
+    href="/"
     class="absolute top-4 right-4 text-[#00CFE8] hover:text-[#FFC436] text-sm font-medium transition-all"
   >
     Login

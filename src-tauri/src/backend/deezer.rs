@@ -13,14 +13,14 @@ pub struct DeezerAuthResponse {
 
 pub struct DeezerClient {
     _access_token: Option<String>,
-    backend_client: BackendClient,
+    _backend_client: BackendClient,
 }
 
 impl DeezerClient {
     pub fn new(app_handle: tauri::AppHandle) -> Self {
         Self {
             _access_token: None,
-            backend_client: BackendClient::new(app_handle),
+            _backend_client: BackendClient::new(app_handle),
         }
     }
 
@@ -40,7 +40,5 @@ impl DeezerClient {
         Ok(())
     }
 
-    pub async fn set_auth_header(&self, token: String) {
-        self.backend_client.set_auth_header(token).await;
-    }
+
 }

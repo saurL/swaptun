@@ -1,6 +1,8 @@
 <script lang="ts" setup>
 import { reactive } from "vue";
 import { invoke } from "@tauri-apps/api/core";
+import { useRouter } from "vue-router";
+const router = useRouter();
 const form = reactive({
   firstName: "",
   lastName: "",
@@ -10,20 +12,23 @@ const form = reactive({
 });
 
 async function handleSubmit() {
-  try {
-    const response = await invoke("register", {
+    invoke("register", {
       firstName: form.firstName,
       lastName: form.lastName,
       username: form.username,
       email: form.email,
       password: form.password,
+    }).then((response) => {
+      // Handle successful registration response
+      console.log("Registration response:", response);
+      // Optionally, redirect to login page or show a success message
+      router.replace("/");
+    }).catch((error) => {
+      // Handle error response
+      console.error("Registration error:", error);
+      // Optionally, show an error message to the user
     });
-    console.log("Registration successful:", response);
-    // Handle success (e.g., redirect or show a success message)
-  } catch (error) {
-    console.error("Registration failed:", error);
-    // Handle error (e.g., show an error message)
-  }
+
 }
 </script>
 
