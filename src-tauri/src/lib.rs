@@ -5,16 +5,15 @@ use swaptun_backend::{
     CreateUserRequest, GetPlaylistResponse, LoginEmailRequest, LoginRequest, LoginResponse,
     VerifyTokenRequest,
 };
-use tauri::{async_runtime::spawn, command, Emitter, Manager, State, };
+use tauri::{async_runtime::spawn, command, Emitter, Manager, State};
 // Learn more about Tauri commands at https://tauri.app/develop/calling-rust/
 use tauri_plugin_log::{Target, TargetKind};
 mod app;
 mod backend;
 use app::App;
+use tauri_plugin_custom_tabs_manager::{CustomTabsManagerExt, OpenCustomTabSimpleRequest};
 use tauri_plugin_deep_link::DeepLinkExt;
-use tauri_plugin_custom_tabs_manager::{
-    CustomTabsManagerExt,  OpenCustomTabSimpleRequest,
-};
+use tauri_plugin_remote_push;
 
 #[cfg_attr(mobile, tauri::mobile_entry_point)]
 pub fn run() {
@@ -25,6 +24,7 @@ pub fn run() {
         .plugin(tauri_plugin_opener::init())
         .plugin(tauri_plugin_pinia::init())
         .plugin(tauri_plugin_oauth::init())
+        .plugin(tauri_plugin_remote_push::init())
         .plugin(
             tauri_plugin_log::Builder::new()
                 .targets([
@@ -37,9 +37,9 @@ pub fn run() {
             let app_handle = app.handle().clone();
             spawn(async move {
                 let swaptun_app = App::new(app_handle.clone());
-              
+
                 app_handle.manage(swaptun_app.clone());
-                
+
                 swaptun_app.set_app_ready().await;
                 app_handle.deep_link().on_open_url(move |event| {
                     let app = swaptun_app.clone();
@@ -152,10 +152,13 @@ async fn get_autorization_url_spotify(app: State<'_, Arc<App>>) -> Result<String
     match app.get_autorization_url_spotify().await {
         Ok(response) => {
             info!("get_autorization_url_spotify response: {}", response.url);
-            app.app_handle().custom_tabs_manager().open_custom_tab_simple(OpenCustomTabSimpleRequest {
-                url: response.url.clone(),
-                try_native_app: true,
-            }).expect("error while opening custom tab");
+            app.app_handle()
+                .custom_tabs_manager()
+                .open_custom_tab_simple(OpenCustomTabSimpleRequest {
+                    url: response.url.clone(),
+                    try_native_app: true,
+                })
+                .expect("error while opening custom tab");
             Ok(response.url)
         }
         Err(e) => Err(format!("Error: {}", e)),
@@ -199,7 +202,9 @@ async fn connect_youtube(app: State<'_, Arc<App>>) -> Result<(), String> {
     }
 }
 #[command]
-async fn get_playlists_youtubemusic(app: State<'_, Arc<App>>) -> Result<GetPlaylistResponse, String> {
+async fn get_playlists_youtubemusic(
+    app: State<'_, Arc<App>>,
+) -> Result<GetPlaylistResponse, String> {
     match app.get_playlists_youtube().await {
         Ok(response) => Ok(response),
         Err(e) => Err(e.to_string()),

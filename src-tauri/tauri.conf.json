@@ -30,9 +30,12 @@
       "icons/icon.ico"
     ]
   },
-  "plugins": {    "deep-link": {
-    "mobile": [
-      { "host": "swaptun.com" ,"pathPrefix": ["/open"]}
-    ]
-  }}
+  "plugins": {
+    "deep-link": {
+      "mobile": [{ "host": "swaptun.com", "pathPrefix": ["/open"] }]
+    },
+    "remote-push": {
+      "senderId": "21299847778"
+    }
+  }
 }
