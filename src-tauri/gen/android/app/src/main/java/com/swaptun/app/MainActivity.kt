@@ -5,8 +5,17 @@ import androidx.core.view.ViewCompat
 import androidx.core.view.WindowCompat
 import androidx.core.view.WindowInsetsCompat
 import androidx.core.view.WindowInsetsControllerCompat
+import android.webkit.WebView
+import android.webkit.ValueCallback
+import android.util.Log
+import android.view.ViewGroup
+import android.view.KeyEvent
+import android.os.SystemClock
+import android.view.MotionEvent
 
 class MainActivity : TauriActivity() {
+    private var currentWebView: WebView? = null
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         
@@ -39,6 +48,27 @@ class MainActivity : TauriActivity() {
             view.setPadding(0, 0, 0, bottomInset)
             insets
         }
-
     }
+
+    
+ 
+
+ override fun onWebViewCreate(webView: WebView) {
+     currentWebView = webView
+}
+
+override fun dispatchKeyEvent(event: KeyEvent): Boolean {
+        if (event.keyCode == KeyEvent.KEYCODE_BACK && event.action == KeyEvent.ACTION_UP) {
+                // Vérifie côté JS
+                val list = currentWebView!!.copyBackForwardList()
+                val canGoBackAndroid = list.currentIndex > 0
+                if (canGoBackAndroid){
+                    currentWebView!!.evaluateJavascript("history.back();", null)
+                    return true
+                }
+            
+        }
+        return super.dispatchKeyEvent(event)
+    }
+
 }

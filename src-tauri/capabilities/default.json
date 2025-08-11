@@ -10,7 +10,7 @@
     "pinia:default",
     "pinia:allow-save",
     "core:event:default",
-
+    "push-notifications:default",
     {
       "identifier": "http:default",
       "allow": [

@@ -1,10 +1,12 @@
-mod backend;
+pub mod backend;
 pub mod deezer;
+pub mod notification;
 pub mod playlist;
 pub mod spotify;
 pub mod user;
 pub mod youtube;
 pub use deezer::*;
+pub use notification::*;
 pub use playlist::*;
 pub use spotify::*;
 pub use user::*;

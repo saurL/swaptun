@@ -4,7 +4,7 @@ use log::{error, info};
 
 use serde::de::DeserializeOwned;
 use std::error::Error;
-use tauri::{ AppHandle, Emitter};
+use tauri::{async_runtime::Mutex, AppHandle, Emitter};
 use tauri_plugin_http::reqwest::{Body, Client, RequestBuilder, Response, StatusCode};
 use tauri_plugin_pinia::ManagerExt;
 
@@ -12,7 +12,7 @@ pub struct BackendClient {
     client: Client,
     base_url: String,
     app_handle: AppHandle,
-    
+    next_request_token: Mutex<Option<String>>,
 }
 
 impl BackendClient {
@@ -35,7 +35,7 @@ impl BackendClient {
             client,
             base_url,
             app_handle,
-            
+            next_request_token: Mutex::new(None),
         };
         info!("BackendClient instance created:");
         instance
@@ -197,19 +197,41 @@ impl BackendClient {
         Ok(response)
     }
 
-    async fn add_authorization_header(&self, request: RequestBuilder) -> RequestBuilder {
-        if let Ok(token) = self
-            .app_handle
-            .pinia()
-            .try_get::<String>("user", "token")
-        {
+    pub async fn add_authorization_header_check_temp_token(
+        &self,
+        request: RequestBuilder,
+    ) -> RequestBuilder {
+        // Use the temporary token if set, otherwise use the token from pinia
+        let mut guard_token = self.next_request_token.lock().await;
 
-                info!("Token: {:?}", token);
-                let auth = format!("Bearer {}", token);
-                return request.header("Authorization", auth);
-            
-        } 
+        if let Some(token) = guard_token.take() {
+            info!("Using temporary token: {:?}", token);
+            let auth = format!("Bearer {}", token);
+            *guard_token = None;
+            return request.header("Authorization", auth);
+        } else if let Ok(token) = self.app_handle.pinia().try_get::<String>("user", "token") {
+            info!("Using pinia token: {:?}", token);
+            let auth = format!("Bearer {}", token);
+            return request.header("Authorization", auth);
+        }
         request
+    }
+
+    pub async fn add_authorization_header(&self, request: RequestBuilder) -> RequestBuilder {
+        // Use the temporary token if set, otherwise use the token from pinia
+        if let Ok(token) = self.app_handle.pinia().try_get::<String>("user", "token") {
+            info!("Using pinia token: {:?}", token);
+            let auth = format!("Bearer {}", token);
+            return request.header("Authorization", auth);
+        }
+        request
+    }
+
+    /// Adds an authorization header with a specific token for the next request
+    pub async fn add_temporary_token(&self, token: String) {
+        let mut guard_token = self.next_request_token.lock().await;
+
+        *guard_token = Some(token);
     }
 
     pub async fn get_with_body<T: DeserializeOwned, U: Into<Body> + Debug>(
@@ -229,5 +251,4 @@ impl BackendClient {
         let json: T = response.json().await?;
         Ok(json)
     }
-
 }

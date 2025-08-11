@@ -37,6 +37,7 @@
                 
                 
                 <data android:pathPrefix="/open" />
+                <data android:pathPrefix="/reset-password" />
                 
             </intent-filter>
             <!-- DEEP LINK PLUGIN. AUTO-GENERATED. DO NOT REMOVE. -->
@@ -58,7 +59,7 @@
                 android:name="com.google.android.gms.ads.DELAY_APP_MEASUREMENT_INIT"
                 android:value="true"/>
      <service
-        android:name="app.tauri.remotepush.FCMService"
+        android:name="app.tauri.pushNotifications.AppMessagingService"
         android:exported="false">
         <intent-filter>
             <action android:name="com.google.firebase.MESSAGING_EVENT" />

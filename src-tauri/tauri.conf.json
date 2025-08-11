@@ -32,7 +32,9 @@
   },
   "plugins": {
     "deep-link": {
-      "mobile": [{ "host": "swaptun.com", "pathPrefix": ["/open"] }]
+      "mobile": [
+        { "host": "swaptun.com", "pathPrefix": ["/open", "/reset-password"] }
+      ]
     },
     "remote-push": {
       "senderId": "21299847778"

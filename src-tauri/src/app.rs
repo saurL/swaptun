@@ -1,6 +1,7 @@
 use std::sync::Arc;
 
 use crate::backend::DeezerClient;
+use crate::backend::NotificationService;
 use crate::backend::PlaylistService;
 use crate::backend::SpotifyClient;
 use crate::backend::UserService;
@@ -8,12 +9,11 @@ use crate::backend::UserService;
 use log::error;
 use log::info;
 
-use swaptun_backend::AddTokenRequest;
-use swaptun_backend::GetPlaylistResponse;
-use swaptun_backend::PlaylistOrigin;
 use swaptun_backend::{
-    CreateUserRequest, GetPlaylistsParams, LoginEmailRequest, LoginRequest, LoginResponse,
-    SpotifyUrlResponse, VerifyTokenRequest, VerifyTokenResponse,
+    AddTokenRequest, CreateUserRequest, ForgotPasswordRequest, GetPlaylistResponse,
+    GetPlaylistsParams, LoginEmailRequest, LoginRequest, LoginResponse, PlaylistOrigin,
+    RegisterFcmTokenRequest, ResetPasswordRequest, SendPlaylistRequest,
+    SendTestNotificationRequest, SpotifyUrlResponse, VerifyTokenRequest, VerifyTokenResponse,
 };
 use tauri::async_runtime::Mutex;
 use tauri::http::StatusCode;
@@ -23,7 +23,6 @@ use tauri::Url;
 // use tauri_plugin_oauth::start;
 use crate::backend::YoutubeClient;
 use tauri_plugin_custom_tabs_manager::{CustomTabsManagerExt, OpenCustomTabSimpleRequest};
-use tauri_plugin_deep_link::OpenUrlEvent;
 pub struct App {
     app_handle: AppHandle,
     spotify_client: SpotifyClient,
@@ -31,6 +30,7 @@ pub struct App {
     user_service: UserService,
     playlist_service: PlaylistService,
     youtube_service: YoutubeClient,
+    notification_service: NotificationService,
     ready: Mutex<bool>,
 }
 
@@ -43,6 +43,7 @@ impl App {
             user_service: UserService::new(app_handle.clone()),
             playlist_service: PlaylistService::new(app_handle.clone()),
             youtube_service: YoutubeClient::new(app_handle.clone()),
+            notification_service: NotificationService::new(app_handle.clone()),
             ready: Mutex::new(false),
         };
         let instance = Arc::new(instance);
@@ -96,8 +97,7 @@ impl App {
         *ready = true;
     }
 
-    pub async fn handle_open_url(&self, event: OpenUrlEvent) {
-        let urls: Vec<Url> = event.urls();
+    pub async fn handle_open_url(&self, urls: Vec<Url>) {
         info!("deep link URLs: {:?}", urls);
         if let Some(url) = urls.first() {
             if url.path() == "/open/spotify" {
@@ -105,6 +105,12 @@ impl App {
             }
             if url.path() == "/open/youtube" {
                 self.handle_youtube_auth(url).await
+            }
+            if url.path().starts_with("/reset-password") {
+                let fullurl = format!("{}?{}", url.path(), url.query().unwrap_or(""));
+                self.app_handle
+                    .emit("routing", fullurl)
+                    .expect("Failed to emit routing event");
             }
         }
     }
@@ -250,5 +256,45 @@ impl App {
             token: token.to_string(),
         };
         self.youtube_service.add_token(req).await
+    }
+    pub async fn set_fcm_token(
+        &self,
+        register_fcm_token_request: RegisterFcmTokenRequest,
+    ) -> Result<StatusCode, Box<dyn std::error::Error + Send + Sync>> {
+        self.notification_service
+            .set_fcm_token(register_fcm_token_request)
+            .await
+    }
+
+    pub async fn send_test_notification(
+        &self,
+        notification_request: SendTestNotificationRequest,
+    ) -> Result<StatusCode, Box<dyn std::error::Error + Send + Sync>> {
+        self.notification_service
+            .send_test_notification(notification_request)
+            .await
+    }
+
+    pub async fn send_playlist(
+        &self,
+        playlist_id: i32,
+        req: SendPlaylistRequest,
+    ) -> Result<StatusCode, Box<dyn std::error::Error + Send + Sync>> {
+        self.playlist_service.send_playlist(playlist_id, req).await
+    }
+
+    pub async fn forgot_password(
+        &self,
+        req: ForgotPasswordRequest,
+    ) -> Result<StatusCode, Box<dyn std::error::Error + Send + Sync>> {
+        self.user_service.forgot_password(req).await
+    }
+
+    pub async fn reset_password(
+        &self,
+        req: ResetPasswordRequest,
+        token: String,
+    ) -> Result<StatusCode, Box<dyn std::error::Error + Send + Sync>> {
+        self.user_service.reset_password(token, req).await
     }
 }

@@ -1,7 +1,7 @@
 use crate::backend::backend::BackendClient;
 use swaptun_backend::{
-    CreateUserRequest, LoginEmailRequest, LoginRequest, LoginResponse, VerifyTokenRequest,
-    VerifyTokenResponse,
+    CreateUserRequest, ForgotPasswordRequest, LoginEmailRequest, LoginRequest, LoginResponse,
+    ResetPasswordRequest, VerifyTokenRequest, VerifyTokenResponse,
 };
 use tauri::AppHandle;
 use tauri_plugin_http::reqwest::StatusCode;
@@ -63,5 +63,35 @@ impl UserService {
         Ok(response)
     }
 
+    pub async fn forgot_password(
+        &self,
+        req: ForgotPasswordRequest,
+    ) -> Result<StatusCode, Box<dyn std::error::Error + Send + Sync>> {
+        self.backend_client
+            .post("auth/forgot-password", serde_json::to_string(&req).unwrap())
+            .await
+    }
+    pub async fn add_temporary_token(
+        &self,
+        token: String,
+    ) -> Result<(), Box<dyn std::error::Error + Send + Sync>> {
+        self.backend_client.add_temporary_token(token);
+        Ok(())
+    }
 
+    pub async fn reset_password(
+        &self,
+        token: String,
+        request: ResetPasswordRequest,
+    ) -> Result<StatusCode, Box<dyn std::error::Error + Send + Sync>> {
+        self.backend_client.add_temporary_token(token).await;
+        self.backend_client
+            .post(
+                "users/reset-password",
+                serde_json::to_string(&request).unwrap(),
+            )
+            .await
+    }
+    // TODO: Add reset password functionality
+    // This would require implementing a reset_password function in the backend
 }
