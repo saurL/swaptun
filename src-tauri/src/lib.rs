@@ -3,8 +3,6 @@ mod backend;
 mod commands;
 mod models;
 
-use log::error;
-
 use tauri::{async_runtime::spawn, Emitter, Manager};
 use tauri_plugin_log::{Target, TargetKind};
 
@@ -30,6 +28,7 @@ pub fn run() {
                 ])
                 .build(),
         )
+        .plugin(tauri_plugin_safe_area_insets_css::init())
         .setup(|app| {
             let app_handle = app.handle().clone();
             let swaptun_app = App::new(app_handle.clone());
@@ -79,6 +78,11 @@ pub fn run() {
             reset_password,
             logout,
             check_opening_url,
+            search_users,
+            get_friends,
+            add_friend,
+            remove_friend,
+            search_non_friends_users
         ])
         .run(tauri::generate_context!())
         .expect("error while running tauri application");

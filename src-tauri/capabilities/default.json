@@ -11,6 +11,7 @@
     "pinia:allow-save",
     "core:event:default",
     "push-notifications:default",
+    "safe-area-insets-css:default",
     {
       "identifier": "http:default",
       "allow": [

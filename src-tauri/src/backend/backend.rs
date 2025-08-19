@@ -197,29 +197,15 @@ impl BackendClient {
         Ok(response)
     }
 
-    pub async fn add_authorization_header_check_temp_token(
-        &self,
-        request: RequestBuilder,
-    ) -> RequestBuilder {
+    pub async fn add_authorization_header(&self, request: RequestBuilder) -> RequestBuilder {
         // Use the temporary token if set, otherwise use the token from pinia
         let mut guard_token = self.next_request_token.lock().await;
 
         if let Some(token) = guard_token.take() {
             info!("Using temporary token: {:?}", token);
             let auth = format!("Bearer {}", token);
-            *guard_token = None;
             return request.header("Authorization", auth);
-        } else if let Ok(token) = self.app_handle.pinia().try_get::<String>("user", "token") {
-            info!("Using pinia token: {:?}", token);
-            let auth = format!("Bearer {}", token);
-            return request.header("Authorization", auth);
-        }
-        request
-    }
-
-    pub async fn add_authorization_header(&self, request: RequestBuilder) -> RequestBuilder {
-        // Use the temporary token if set, otherwise use the token from pinia
-        if let Ok(token) = self.app_handle.pinia().try_get::<String>("user", "token") {
+        } else if let Ok(token) = self.app_handle.pinia().get::<String>("user", "token") {
             info!("Using pinia token: {:?}", token);
             let auth = format!("Bearer {}", token);
             return request.header("Authorization", auth);
@@ -246,6 +232,7 @@ impl BackendClient {
             .client
             .get(&url)
             .header("Content-Type", "application/json");
+        info!("GET Request: {:?}", body);
         let get_with_body = get.body(body);
         let response = self.send(get_with_body).await?;
         let json: T = response.json().await?;

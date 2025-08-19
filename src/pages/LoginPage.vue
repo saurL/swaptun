@@ -1,71 +1,69 @@
 <script setup lang="ts">
 import { useUserStore } from "@/store/user";
-import { isRef, ref } from "vue";
+import { ref } from "vue";
 import { invoke } from "@tauri-apps/api/core";
-import { info } from "@tauri-apps/plugin-log";
-import { storeToRefs } from "pinia";
-
-//import { useRouter } from "vue-router";
+import { useRouter } from "vue-router";
+import { info, error } from "@tauri-apps/plugin-log";
 const store = useUserStore();
-//const router = useRouter();
 const email = ref("");
 const password = ref("");
 const errorMessage = ref("");
-interface LoginResponse {
-  token: string;
-  user_id: number,
-  username: string,
+import LoginResponse from "@/models/dto";
 
-}
-info("LoginPage loaded");
-info("UserStore: " + JSON.stringify(store.$state));
+const router = useRouter();
+info("Router state in login: " + JSON.stringify(router.currentRoute.value));
+info("history state in login: " + JSON.stringify(window.history));
 
 const handleLogin = async () => {
-  info("UserStore: " + JSON.stringify(store.$state));
-
   invoke<LoginResponse>("login_email", {
-    email: email.value,
-    password: password.value,
+    request: {
+      email: email.value,
+      password: password.value,
+    },
   })
     .then(async (response) => {
-
-
       try {
         store.setToken(response.token);
-
       } catch (e) {
         info("setToken failed: " + e);
       }
 
       info("UserStore after setting token: " + JSON.stringify(store.$state));
       try {
-
-        store.setUserInfo(response.user_id, response.username);
+        store.setUserInfo(response.user.id, response.user.username);
         info("setUserInfo succeeded");
-
       } catch (e) {
         info("setUserInfo failed: " + e);
       }
-      info("UserStore after setting user info: " + JSON.stringify(store.$state));
-
+      info(
+        "UserStore after setting user info: " + JSON.stringify(store.$state)
+      );
+      router.replace("/");
     })
-    .catch((error) => {
-      errorMessage.value = error.message;
+    .catch((err) => {
+      error(err);
     });
 };
-
 </script>
 
 <template>
   <!-- Lien vers la homepage -->
-  <a href="/homepage"
-    class="absolute top-4 left-4 text-[#00CFE8] hover:text-[#FFC436] text-sm font-medium transition-all">
+  <router-link
+    to="/homepage"
+    class="absolute top-4 left-4 text-[#00CFE8] hover:text-[#FFC436] text-sm font-medium transition-all"
+  >
     Lien vers l'accueil
-  </a>
-  <div class="bg-white/10 backdrop-blur-md shadow-lg rounded-2xl w-full max-w-md p-8 border border-white/10">
+  </router-link>
+  <div
+    class="bg-white/10 backdrop-blur-md shadow-lg rounded-2xl w-full max-w-md p-8 border border-white/10"
+  >
     <!-- LOGO -->
     <div class="flex justify-center mb-6">
-      <img src="/src/assets/images/icon.ico" alt="Swaply Logo" class="h-16 w-16" />
+      <img
+        src="/src/assets/images/icon.ico"
+        alt="Swaply Logo"
+        class="h-16 w-16"
+      />
     </div>
 
     <h1 class="text-2xl font-bold text-center text-white mb-4">
@@ -78,26 +76,48 @@ const handleLogin = async () => {
     <form class="space-y-5">
       <div>
         <label class="block text-sm font-medium text-gray-300">Email</label>
-        <input type="email" v-model="email"
+        <input
+          type="email"
+          v-model="email"
           class="w-full mt-1 px-4 py-2 rounded-lg bg-[#2A2A2A] text-white placeholder-gray-500 border border-gray-600 focus:outline-none focus:ring-2 focus:ring-[#00CFE8]"
-          placeholder="melomane@swaptun.app" />
+          placeholder="melomane@swaptun.app"
+        />
       </div>
       <div>
-        <label class="block text-sm font-medium text-gray-300">Mot de passe</label>
-        <input type="password" v-model="password"
+        <label class="block text-sm font-medium text-gray-300"
+          >Mot de passe</label
+        >
+        <input
+          type="password"
+          v-model="password"
           class="w-full mt-1 px-4 py-2 rounded-lg bg-[#2A2A2A] text-white placeholder-gray-500 border border-gray-600 focus:outline-none focus:ring-2 focus:ring-[#00CFE8]"
-          placeholder="••••••••" />
+          placeholder="••••••••"
+        />
       </div>
-      <button type="submit"
+      <button
+        type="submit"
         class="w-full bg-[#00CFE8] hover:bg-[#FFC436] text-[#1E1E1E] font-semibold py-2 px-4 rounded-lg transition"
-        @click.prevent="handleLogin">
+        @click.prevent="handleLogin"
+      >
         Se connecter
       </button>
+
+      <p class="text-center text-sm text-gray-400 mt-4">
+        <router-link
+          to="/forgot-password"
+          class="text-[#00CFE8] hover:text-[#FFC436] hover:underline"
+          >Mot de passe oublié ?</router-link
+        >
+      </p>
     </form>
 
     <p class="text-center text-sm text-gray-400 mt-6">
       Pas encore de compte ?
-      <a href="/register" class="text-[#00CFE8] hover:text-[#FFC436] hover:underline">Créer un compte</a>
+      <router-link
+        to="/register"
+        class="text-[#00CFE8] hover:text-[#FFC436] hover:underline"
+        >Créer un compte</router-link
+      >
     </p>
   </div>
 </template>

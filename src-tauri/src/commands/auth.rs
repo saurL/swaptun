@@ -53,13 +53,8 @@ pub async fn logout(app: State<'_, Arc<App>>) -> Result<(), String> {
 #[command]
 pub async fn login(
     app: State<'_, Arc<App>>,
-    username: &str,
-    password: &str,
+    request: LoginRequest,
 ) -> Result<LoginResponse, String> {
-    let request = LoginRequest {
-        username: username.to_string(),
-        password: password.to_string(),
-    };
     // ICI on peut accèder aux éléments de l'App
     match app.login(request).await {
         Ok(response) => Ok(response),
@@ -70,13 +65,8 @@ pub async fn login(
 #[command]
 pub async fn login_email(
     app: State<'_, Arc<App>>,
-    email: &str,
-    password: &str,
+    request: LoginEmailRequest,
 ) -> Result<LoginResponse, String> {
-    let request = LoginEmailRequest {
-        email: email.to_string(),
-        password: password.to_string(),
-    };
     // ICI on peut accèder aux éléments de l'App
     match app.login_email(request).await {
         Ok(response) => Ok(response),
@@ -126,6 +116,7 @@ pub async fn reset_password(
     token: String,
     request: ResetPasswordRequest,
 ) -> Result<bool, String> {
+    info!("Reset password request: {:?}", request);
     match app.reset_password(request, token).await {
         Ok(status) => {
             if status.is_success() {

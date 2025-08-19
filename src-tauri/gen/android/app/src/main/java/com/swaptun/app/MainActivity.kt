@@ -12,13 +12,18 @@ import android.view.ViewGroup
 import android.view.KeyEvent
 import android.os.SystemClock
 import android.view.MotionEvent
+import android.os.Build
+import androidx.activity.enableEdgeToEdge
+
 
 class MainActivity : TauriActivity() {
     private var currentWebView: WebView? = null
-
+    private var isKeyboardVisible: Boolean = false
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        
+         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+            enableEdgeToEdge()
+        } else {
         // Allow content to extend under the system bars
         WindowCompat.setDecorFitsSystemWindows(window, false)
         /*
@@ -48,6 +53,15 @@ class MainActivity : TauriActivity() {
             view.setPadding(0, 0, 0, bottomInset)
             insets
         }
+        }
+        ViewCompat.setOnApplyWindowInsetsListener(findViewById(android.R.id.content)) { view: View, insets: WindowInsetsCompat ->
+            val bottomInset = insets.getInsets(WindowInsetsCompat.Type.ime()).bottom
+            isKeyboardVisible = bottomInset > 0
+            insets
+        }
+
+     
+
     }
 
     
@@ -55,7 +69,13 @@ class MainActivity : TauriActivity() {
 
  override fun onWebViewCreate(webView: WebView) {
      currentWebView = webView
+     webView.isVerticalScrollBarEnabled = false
+    webView.isHorizontalScrollBarEnabled = false
+        // Intercept touch events to prevent scrolling
+  
+    webView.setOverScrollMode(View.OVER_SCROLL_NEVER)
 }
+
 
 override fun dispatchKeyEvent(event: KeyEvent): Boolean {
         if (event.keyCode == KeyEvent.KEYCODE_BACK && event.action == KeyEvent.ACTION_UP) {

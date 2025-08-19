@@ -81,6 +81,8 @@ dependencies {
     testImplementation("junit:junit:4.13.2")
     androidTestImplementation("androidx.test.ext:junit:1.1.4")
     androidTestImplementation("androidx.test.espresso:espresso-core:3.5.0")
+    implementation( "androidx.activity:activity-ktx:1.9.3") // version actuelle (août 2025)
+
 }
 
 apply(from = "tauri.build.gradle.kts")

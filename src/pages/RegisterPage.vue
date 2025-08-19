@@ -2,6 +2,7 @@
 import { reactive } from "vue";
 import { invoke } from "@tauri-apps/api/core";
 import { useRouter } from "vue-router";
+import { info } from "@tauri-apps/plugin-log";
 const router = useRouter();
 const form = reactive({
   firstName: "",
@@ -12,24 +13,28 @@ const form = reactive({
 });
 
 async function handleSubmit() {
-    invoke("register", {
-      firstName: form.firstName,
-      lastName: form.lastName,
-      username: form.username,
-      email: form.email,
-      password: form.password,
-    }).then((response) => {
+  invoke("register", {
+    firstName: form.firstName,
+    lastName: form.lastName,
+    username: form.username,
+    email: form.email,
+    password: form.password,
+  })
+    .then((response) => {
       // Handle successful registration response
       console.log("Registration response:", response);
       // Optionally, redirect to login page or show a success message
       router.replace("/");
-    }).catch((error) => {
+    })
+    .catch((error) => {
       // Handle error response
       console.error("Registration error:", error);
       // Optionally, show an error message to the user
     });
-
 }
+
+info("history state: " + JSON.stringify(window.history.length));
+info("window.location.href: " + window.location);
 </script>
 
 <template>

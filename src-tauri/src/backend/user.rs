@@ -1,7 +1,9 @@
 use crate::backend::backend::BackendClient;
+use log::info;
 use swaptun_backend::{
-    CreateUserRequest, ForgotPasswordRequest, LoginEmailRequest, LoginRequest, LoginResponse,
-    ResetPasswordRequest, VerifyTokenRequest, VerifyTokenResponse,
+    AddFriendRequest, CreateUserRequest, ForgotPasswordRequest, GetUsersRequest, LoginEmailRequest,
+    LoginRequest, LoginResponse, RemoveFriendRequest, ResetPasswordRequest, UserBean,
+    VerifyTokenRequest, VerifyTokenResponse,
 };
 use tauri::AppHandle;
 use tauri_plugin_http::reqwest::StatusCode;
@@ -71,13 +73,6 @@ impl UserService {
             .post("auth/forgot-password", serde_json::to_string(&req).unwrap())
             .await
     }
-    pub async fn add_temporary_token(
-        &self,
-        token: String,
-    ) -> Result<(), Box<dyn std::error::Error + Send + Sync>> {
-        self.backend_client.add_temporary_token(token);
-        Ok(())
-    }
 
     pub async fn reset_password(
         &self,
@@ -92,6 +87,45 @@ impl UserService {
             )
             .await
     }
-    // TODO: Add reset password functionality
-    // This would require implementing a reset_password function in the backend
+    pub async fn get_users(
+        &self,
+        request: GetUsersRequest,
+    ) -> Result<Vec<UserBean>, Box<dyn std::error::Error + Send + Sync>> {
+        info!("Fetching users with request: {:?}", request);
+        self.backend_client
+            .get_with_body("users", serde_json::to_string(&request).unwrap())
+            .await
+    }
+
+    pub async fn get_friends(
+        &self,
+    ) -> Result<Vec<UserBean>, Box<dyn std::error::Error + Send + Sync>> {
+        self.backend_client.get("users/friends").await
+    }
+
+    pub async fn add_friend(
+        &self,
+        request: AddFriendRequest,
+    ) -> Result<(), Box<dyn std::error::Error + Send + Sync>> {
+        self.backend_client
+            .post(
+                "users/friends/add",
+                serde_json::to_string(&request).unwrap(),
+            )
+            .await?;
+        Ok(())
+    }
+
+    pub async fn remove_friend(
+        &self,
+        request: RemoveFriendRequest,
+    ) -> Result<(), Box<dyn std::error::Error + Send + Sync>> {
+        self.backend_client
+            .post(
+                "users/friends/remove",
+                serde_json::to_string(&request).unwrap(),
+            )
+            .await?;
+        Ok(())
+    }
 }

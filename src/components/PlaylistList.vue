@@ -18,8 +18,7 @@
           class="bg-[#1E1E1E] p-4 rounded-lg hover:bg-[#2A2A2A] transition-colors"
         >
           <h3 class="text-lg font-medium text-white">{{ playlist.name }}</h3>
-          <p class="text-sm text-gray-400">
-          </p>
+          <p class="text-sm text-gray-400"></p>
           <p v-if="playlist.description" class="text-sm text-gray-500 mt-2">
             {{ playlist.description }}
           </p>
@@ -45,9 +44,7 @@
           class="bg-[#1E1E1E] p-4 rounded-lg hover:bg-[#2A2A2A] transition-colors"
         >
           <h3 class="text-lg font-medium text-white">{{ playlist.name }}</h3>
-          <p class="text-sm text-gray-400">
-
-          </p>
+          <p class="text-sm text-gray-400"></p>
           <p v-if="playlist.description" class="text-sm text-gray-500 mt-2">
             {{ playlist.description }}
           </p>
@@ -89,7 +86,7 @@ import { listen } from "@tauri-apps/api/event";
 import { useAppStore } from "@/store/app";
 import { useUserStore } from "@/store/user";
 import { storeToRefs } from "pinia";
-import type { Playlist } from "@/store/user";
+import type Playlist from "@/models/playlist";
 import { info } from "@tauri-apps/plugin-log";
 
 interface PlaylistsResponse {
@@ -111,8 +108,12 @@ const {
   deezerPlaylists,
   spotifyPlaylists,
 } = storeToRefs(userStore);
-info("UserStore state on PlaylistList mount: " + JSON.stringify(userStore.$state));
-info("AppStore state on PlaylistList mount: " + JSON.stringify(appStore.$state));
+info(
+  "UserStore state on PlaylistList mount: " + JSON.stringify(userStore.$state)
+);
+info(
+  "AppStore state on PlaylistList mount: " + JSON.stringify(appStore.$state)
+);
 const spotifyError = ref<string | null>(null);
 const deezerError = ref<string | null>(null);
 const youtubeMusicError = ref<string | null>(null);
@@ -126,7 +127,6 @@ const setupYoutubeMusicPlaylistsListener = async () => {
       userStore.setYoutubePlaylists(event.payload.vec);
     }
   );
-
 };
 
 const fetchYoutubeMusicPlaylists = async () => {
@@ -201,7 +201,7 @@ onMounted(async () => {
     fetchYoutubeMusicPlaylists(),
     setupSpotifyPlaylistsListener(),
     setupDeezerPlaylistsListener(),
-    setupYoutubeMusicPlaylistsListener()
+    setupYoutubeMusicPlaylistsListener(),
   ]);
 });
 
@@ -212,7 +212,7 @@ onUnmounted(() => {
   if (unlistenDeezerPlaylists) {
     unlistenDeezerPlaylists();
   }
-  if( unlistenYoutubeMusicPlaylists) {
+  if (unlistenYoutubeMusicPlaylists) {
     unlistenYoutubeMusicPlaylists();
   }
 });

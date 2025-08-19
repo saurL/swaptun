@@ -1,43 +1,44 @@
 <script setup lang="ts">
-import { useUserStore } from "./store/user";
-import { watchEffect } from "vue";
-import { useRouter } from "vue-router";
+/*
 import loadingAppAnimation from "./components/LoadingAppAnimation.vue";
+import { onMounted } from "vue";
 import { useAppStore } from "./store/app";
 import { storeToRefs } from "pinia";
-const router = useRouter();
-const userStore = useUserStore();
-const appStore = useAppStore();
-const {isAppReady} = storeToRefs(appStore)
-const userRefStore = storeToRefs(userStore);
 
-watchEffect(() => {
-  if (userRefStore.token.value != null) {
-    // If the user is authenticated and the app is ready, navigate to the homepage
-    router.replace("/homepage");
-  }
+const appStore = useAppStore();
+
+const { isAppReady } = storeToRefs(appStore);
+
+onMounted(async () => {
+  
   isAppReady.value = true;
 });
-
+*/
 </script>
 <template>
   <div
-    class="h-screen w-screen bg-[#121212] text-white flex flex-col max-h-screen w-screen max-w-full overflow-y-scroll overflow-x-hidden
- items-center justify-center">
-    <loadingAppAnimation v-if="!isAppReady" />
-    <RouterView v-else />
+    class="pt-[var(--safe-area-inset-top)] pb-[var(--safe-area-inset-bottom)] h-screen bg-[#121212] text-white flex flex-col max-h-screen w-screen max-w-full overflow-y-scroll overflow-x-hidden items-center justify-center"
+  >
+    <!--<loadingAppAnimation v-if="!isAppReady" />-->
+    <RouterView />
   </div>
 </template>
 
 <style lang="css">
 html,
 body {
-  overscroll-behavior-x: none;
-  /* désactive le scroll horizontal naturel */
-  touch-action: pan-x pan-y;
-  /* désactive le zoom par pincement */
-  -ms-overflow-style: none;
-  overflow: hidden;
+  margin: 0;
+  padding: 0;
+  height: 100%;
+  width: 100%;
+  overflow: hidden; /* Prevent scrolling */
+  overscroll-behavior: none; /* Disable overscroll effects */
+  touch-action: none; /* Disable all touch scrolling and zooming */
+  -ms-overflow-style: none; /* IE/Edge */
+  scrollbar-width: none; /* Firefox */
+  position: fixed; /* Fix the body to prevent scrolling */
+  top: 0;
+  left: 0;
 }
 
 div,
@@ -52,6 +53,7 @@ html::-webkit-scrollbar {
 
 /* Hide scrollbar for IE, Edge and Firefox */
 * {
+  user-select: none;
   -ms-overflow-style: none;
   /* IE and Edge */
   scrollbar-width: none;

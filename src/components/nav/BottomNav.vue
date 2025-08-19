@@ -18,15 +18,6 @@
       <i class="lucide lucide-share-2 text-2xl"></i>
       <span class="text-xs mt-1">Partager</span>
     </button>
-
-    <!-- Profil Button -->
-    <router-link
-      to="/profile"
-      class="text-white flex flex-col items-center transition-transform transform hover:scale-110"
-    >
-      <i class="lucide lucide-user text-2xl"></i>
-      <span class="text-xs mt-1">Profil</span>
-    </router-link>
   </nav>
 </template>
 

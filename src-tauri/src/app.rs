@@ -9,6 +9,10 @@ use crate::backend::UserService;
 use log::error;
 use log::info;
 
+use swaptun_backend::AddFriendRequest;
+use swaptun_backend::GetUsersRequest;
+use swaptun_backend::RemoveFriendRequest;
+use swaptun_backend::UserBean;
 use swaptun_backend::{
     AddTokenRequest, CreateUserRequest, ForgotPasswordRequest, GetPlaylistResponse,
     GetPlaylistsParams, LoginEmailRequest, LoginRequest, LoginResponse, PlaylistOrigin,
@@ -106,7 +110,7 @@ impl App {
             if url.path() == "/open/youtube" {
                 self.handle_youtube_auth(url).await
             }
-            if url.path().starts_with("/reset-password") {
+            if url.path() == "/reset-password" {
                 let fullurl = format!("{}?{}", url.path(), url.query().unwrap_or(""));
                 self.app_handle
                     .emit("routing", fullurl)
@@ -296,5 +300,32 @@ impl App {
         token: String,
     ) -> Result<StatusCode, Box<dyn std::error::Error + Send + Sync>> {
         self.user_service.reset_password(token, req).await
+    }
+
+    pub async fn search_users(
+        &self,
+        request: GetUsersRequest,
+    ) -> Result<Vec<UserBean>, Box<dyn std::error::Error + Send + Sync>> {
+        self.user_service.get_users(request).await
+    }
+
+    pub async fn add_friend(
+        &self,
+        request: AddFriendRequest,
+    ) -> Result<(), Box<dyn std::error::Error + Send + Sync>> {
+        self.user_service.add_friend(request).await
+    }
+
+    pub async fn remove_friend(
+        &self,
+        request: RemoveFriendRequest,
+    ) -> Result<(), Box<dyn std::error::Error + Send + Sync>> {
+        self.user_service.remove_friend(request).await
+    }
+
+    pub async fn get_friends(
+        &self,
+    ) -> Result<Vec<UserBean>, Box<dyn std::error::Error + Send + Sync>> {
+        self.user_service.get_friends().await
     }
 }
