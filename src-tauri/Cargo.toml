@@ -30,7 +30,8 @@ tauri-plugin-http =  { version = "2", features = ["json", "rustls-tls", "blockin
 dotenv = "0.15"
 tauri-plugin-push-notifications = { git="https://github.com/saurL/tauri-plugin-push-notifications" }
 
-tauri-plugin-pinia = {git = "https://github.com/saurL/tauri-store", branch = "sandboxedPath"}
+#tauri-plugin-pinia = {git = "https://github.com/saurL/tauri-store", branch = "sandboxedPath"}
+tauri-plugin-pinia = {path = "C:/Programmation/Projets/tauri-store/crates/plugin-pinia"}
 rspotify = { version = "0.14.0",    default-features = false,    features = ["client-reqwest", "reqwest-rustls-tls", "cli"] }
 tauri-plugin-deep-link = "2"
 tauri-plugin-custom-tabs-manager = { git = "https://github.com/saurL/tauri-plugin-custom-tabs-manager"}
