@@ -16,8 +16,8 @@
     "@tauri-store/pinia": "^3.3.0",
     "lodash": "^4.17.21",
     "pinia": "^3.0.3",
-    "tautauri-plugin-push-notifications": "link:C:\\Programmation\\Projets\\tauri-plugin-push-notifications",
-    "tauri-plugin-safe-area-insets-css-api": "link:C:/Programmation/Projets/tauri-plugin-safe-area-insets-css/",
+    "tauri-plugin-push-notifications": "github:saurL/tauri-plugin-push-notifications",
+    "tauri-plugin-safe-area-insets-css-api": "github:saurL/tauri-plugin-safe-area-insets-css",
     "vue": "^3.5.13",
     "vue-router": "^4.5.0"
   },

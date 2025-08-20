@@ -22,6 +22,8 @@ onMounted(async () => {
     <!--<loadingAppAnimation v-if="!isAppReady" />-->
     <RouterView />
   </div>
+  <p>et la ?</p>
+  <p>et la 2</p>ea
 </template>
 
 <style lang="css">
