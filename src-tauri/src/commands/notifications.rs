@@ -81,4 +81,4 @@ pub async fn check_opening_notification(app: State<'_, Arc<App>>) -> Result<(), 
         }
     };
     Ok(())
-}
+} 

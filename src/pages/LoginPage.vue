@@ -14,6 +14,7 @@ const router = useRouter();
 info("Router state in login: " + JSON.stringify(router.currentRoute.value));
 info("history state in login: " + JSON.stringify(window.history));
 
+
 const handleLogin = async () => {
   invoke<LoginResponse>("login_email", {
     request: {
