@@ -17,6 +17,7 @@ crate-type = ["staticlib", "cdylib", "rlib"]
 [build-dependencies]
 tauri-build = { version = "2.3", features = [] }
 [dependencies]
+tauri-plugin = "2.4.0"
 
 swaptun-backend = { git = "ssh://git@github.com/saurL/swaptun_backend.git", branch = "main", default-features= false }
 tauri = { git ="https://github.com/saurL/tauri",branch="feat/push-notifications", features= ["push-notifications"] }
@@ -29,12 +30,18 @@ log="0.4.27"
 tauri-plugin-http =  { version = "2", features = ["json", "rustls-tls", "blocking"] }
 dotenv = "0.15"
 tauri-plugin-push-notifications = { git="https://github.com/saurL/tauri-plugin-push-notifications" }
-
 tauri-plugin-pinia = {git = "https://github.com/saurL/tauri-store", branch = "sandboxedPath"}
+
 rspotify = { version = "0.14.0",    default-features = false,    features = ["client-reqwest", "reqwest-rustls-tls", "cli"] }
 tauri-plugin-deep-link = "2"
 tauri-plugin-custom-tabs-manager = { git = "https://github.com/saurL/tauri-plugin-custom-tabs-manager"}
 tauri-plugin-safe-area-insets-css = { git ="https://github.com/saurL/tauri-plugin-safe-area-insets-css" }
+
+
+[target.'cfg(target_os = "ios")'.dependencies]
+tauri-plugin-fullscreen = { git = "https://github.com/saurL/tauri-plugin-fullscreen" }
+
+
 [patch.crates-io]
 tauri = { git = "https://github.com/saurL/tauri", branch = "feat/push-notifications" }
 tauri-utils = { git = "https://github.com/saurL/tauri", branch = "feat/push-notifications" }

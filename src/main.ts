@@ -12,7 +12,7 @@ import { createPlugin } from '@tauri-store/pinia';
 import { useUserStore } from "./store/user";
 import { listen } from "@tauri-apps/api/event";
 import { invoke } from "@tauri-apps/api/core";
-import init from 'tauri-plugin-safe-area-insets-css-api';
+import "tauri-plugin-safe-area-insets-css-api"
 (window as any).canGoBack = () => {
   return window.location.pathname !== "/"; // ou ta page d’accueil réelle
 };
@@ -33,7 +33,6 @@ const router = createRouter({
 
 const pinia = createPinia();
 pinia.use(createPlugin());
-await init(); // Initialisation du plugin safe area insets CSS
 let app = createApp(App).use(router).use(pinia);
 const userStore = useUserStore();
 await userStore.$tauri.start();
@@ -60,10 +59,13 @@ router.beforeEach((to, from, next) => {
 });
 
 await router.isReady();
+/*
 await invoke("check_opening_notification");
+  */
 if (userStore.token == null) {
   router.replace({ name: 'Login' });
 }
+
 await invoke("check_opening_url");
 console.log("avant mount");
 // @ts-ignore
@@ -78,5 +80,6 @@ else {
 
 
 app.mount("#app");
+
 console.log("après mount");
 

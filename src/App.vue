@@ -1,4 +1,5 @@
 <script setup lang="ts">
+
 /*
 import loadingAppAnimation from "./components/LoadingAppAnimation.vue";
 import { onMounted } from "vue";
@@ -14,16 +15,20 @@ onMounted(async () => {
   isAppReady.value = true;
 });
 */
+
 </script>
 <template>
+
   <div
-    class="pt-[var(--safe-area-inset-top)] pb-[var(--safe-area-inset-bottom)] h-screen bg-[#121212] text-white flex flex-col max-h-screen w-screen max-w-full overflow-y-scroll overflow-x-hidden items-center justify-center"
+    class=" h-screen bg-[#121212] text-white flex flex-col max-h-screen w-screen max-w-full overflow-y-scroll overflow-x-hidden items-center justify-center"
   >
+
     <!--<loadingAppAnimation v-if="!isAppReady" />-->
     <RouterView />
+
+
   </div>
-  <p>et la ?</p>
-  <p>et la 2</p>ea
+
 </template>
 
 <style lang="css">
@@ -42,6 +47,7 @@ body {
   top: 0;
   left: 0;
 }
+
 
 div,
 span {
