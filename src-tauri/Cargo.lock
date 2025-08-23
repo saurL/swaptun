@@ -2400,7 +2400,7 @@ dependencies = [
  "js-sys",
  "log",
  "wasm-bindgen",
- "windows-core 0.61.2",
+ "windows-core 0.58.0",
 ]
 
 [[package]]
@@ -5763,7 +5763,7 @@ dependencies = [
 [[package]]
 name = "tao"
 version = "0.34.2"
-source = "git+https://github.com/saurL/tao?branch=feat%2Fpush-notification#f06434800852a9bad20a47ae6c02823e8aa245b5"
+source = "git+https://github.com/saurL/tao?branch=feat%2Fpush-notification#7f552e77df52ab82191f307afaa50089b417790b"
 dependencies = [
  "bitflags 2.9.2",
  "block2 0.6.1",
@@ -5815,7 +5815,7 @@ dependencies = [
 [[package]]
 name = "tao-macros"
 version = "0.1.3"
-source = "git+https://github.com/saurL/tao?branch=feat%2Fpush-notification#f06434800852a9bad20a47ae6c02823e8aa245b5"
+source = "git+https://github.com/saurL/tao?branch=feat%2Fpush-notification#7f552e77df52ab82191f307afaa50089b417790b"
 dependencies = [
  "proc-macro2",
  "quote",
@@ -5985,7 +5985,7 @@ dependencies = [
 [[package]]
 name = "tauri-plugin-custom-tabs-manager"
 version = "0.0.0"
-source = "git+https://github.com/saurL/tauri-plugin-custom-tabs-manager#9c01ece27862728a25020d2eff104d5fa3f7d6f3"
+source = "git+https://github.com/saurL/tauri-plugin-custom-tabs-manager#fc84e91b5eb6d801053e9377c46958afaa247055"
 dependencies = [
  "serde",
  "tauri",
@@ -6128,7 +6128,7 @@ dependencies = [
 [[package]]
 name = "tauri-plugin-push-notifications"
 version = "0.1.0"
-source = "git+https://github.com/saurL/tauri-plugin-push-notifications#fe8ca2dff36652184202491ca3d8bc6344ed82d4"
+source = "git+https://github.com/saurL/tauri-plugin-push-notifications#8d0f13ec5e98d56650a231a620325472b42f0a29"
 dependencies = [
  "base64 0.22.1",
  "log",

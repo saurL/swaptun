@@ -18,10 +18,22 @@ pub struct BackendClient {
 impl BackendClient {
     pub fn new(app_handle: AppHandle) -> Self {
         let dev_url = &app_handle.config().build.dev_url;
-        let host = match dev_url {
-            Some(dev_url) => dev_url.host_str().unwrap_or("localhost").to_string(),
-            None => "localhost".to_string(),
+        
+        let host = if cfg!(debug_assertions) {
+            if cfg!(target_os = "ios") {
+                "192.168.50.54".to_string()
+            } else if cfg!(target_os = "android") {
+                match dev_url {
+                    Some(dev_url) => dev_url.host_str().unwrap_or("localhost").to_string(),
+                    None => "localhost".to_string(),
+                }
+            } else {
+                "localhost".to_string()
+            }
+        } else {
+            "localhost".to_string()
         };
+
         let port: &'static str = "8000";
         let base_url = format!("http://{}:{}/api", host, port);
         info!("Backend URL: {}", base_url);

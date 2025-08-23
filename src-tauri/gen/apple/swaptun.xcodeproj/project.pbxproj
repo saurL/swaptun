@@ -3,7 +3,7 @@
 	archiveVersion = 1;
 	classes = {
 	};
-	objectVersion = 77;
+	objectVersion = 63;
 	objects = {
 
 /* Begin PBXBuildFile section */
@@ -16,22 +16,23 @@
 		565240C50BB3994042661703 /* UIKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = C59CE9753A097B914ABC7BD3 /* UIKit.framework */; };
 		85F78F8AE3985E00316CFE05 /* CoreGraphics.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = E6F4A7D51C996753E881FF94 /* CoreGraphics.framework */; };
 		91111D826F9C9C218BC4A648 /* WebKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 8B72CC8C0D602BF91B24BCB5 /* WebKit.framework */; };
+		A04E46C72E5920190004A5B3 /* GoogleService-Info.plist in Resources */ = {isa = PBXBuildFile; fileRef = A04E46C62E5920190004A5B3 /* GoogleService-Info.plist */; };
 		B1E69B14CE567175FA92E292 /* assets in Resources */ = {isa = PBXBuildFile; fileRef = 87F269F9B4AC422D787161DE /* assets */; };
 		BFF4B2CC4A0FC46AF2DAA404 /* Security.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = E9E30D13053AE8DAC13879CA /* Security.framework */; };
 		DEC6855C99E4FF5B54B24DBC /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 540633C3927C09C4D06901D8 /* LaunchScreen.storyboard */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
-		141DCA43BDEA7C0289A6E6C5 /* youtube.rs */ = {isa = PBXFileReference; path = youtube.rs; sourceTree = "<group>"; };
-		18975287849130276E2C90DA /* playlist.rs */ = {isa = PBXFileReference; path = playlist.rs; sourceTree = "<group>"; };
+		141DCA43BDEA7C0289A6E6C5 /* youtube.rs */ = {isa = PBXFileReference; lastKnownFileType = text; path = youtube.rs; sourceTree = "<group>"; };
+		18975287849130276E2C90DA /* playlist.rs */ = {isa = PBXFileReference; lastKnownFileType = text; path = playlist.rs; sourceTree = "<group>"; };
 		2D738269D39F9DF74060F7AB /* MetalKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = MetalKit.framework; path = System/Library/Frameworks/MetalKit.framework; sourceTree = SDKROOT; };
 		3374DA1F18D7390B80402483 /* QuartzCore.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = QuartzCore.framework; path = System/Library/Frameworks/QuartzCore.framework; sourceTree = SDKROOT; };
-		3B8F814D623E3AFD73241D24 /* app.rs */ = {isa = PBXFileReference; path = app.rs; sourceTree = "<group>"; };
-		3C54DE7D6AB33EE39F70AE69 /* backend.rs */ = {isa = PBXFileReference; path = backend.rs; sourceTree = "<group>"; };
-		3EA8B02EC7A5D80C20E70CF4 /* lib.rs */ = {isa = PBXFileReference; path = lib.rs; sourceTree = "<group>"; };
+		3B8F814D623E3AFD73241D24 /* app.rs */ = {isa = PBXFileReference; lastKnownFileType = text; path = app.rs; sourceTree = "<group>"; };
+		3C54DE7D6AB33EE39F70AE69 /* backend.rs */ = {isa = PBXFileReference; lastKnownFileType = text; path = backend.rs; sourceTree = "<group>"; };
+		3EA8B02EC7A5D80C20E70CF4 /* lib.rs */ = {isa = PBXFileReference; lastKnownFileType = text; path = lib.rs; sourceTree = "<group>"; };
 		4161E73170FA5FA5B8D0DF7F /* Metal.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Metal.framework; path = System/Library/Frameworks/Metal.framework; sourceTree = SDKROOT; };
-		446371680B28406DB4A63798 /* deezer.rs */ = {isa = PBXFileReference; path = deezer.rs; sourceTree = "<group>"; };
-		455D4C2E736EA26E097D3803 /* main.rs */ = {isa = PBXFileReference; path = main.rs; sourceTree = "<group>"; };
+		446371680B28406DB4A63798 /* deezer.rs */ = {isa = PBXFileReference; lastKnownFileType = text; path = deezer.rs; sourceTree = "<group>"; };
+		455D4C2E736EA26E097D3803 /* main.rs */ = {isa = PBXFileReference; lastKnownFileType = text; path = main.rs; sourceTree = "<group>"; };
 		540633C3927C09C4D06901D8 /* LaunchScreen.storyboard */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; path = LaunchScreen.storyboard; sourceTree = "<group>"; };
 		56597BAC064E946F2D1E3CDA /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist; path = Info.plist; sourceTree = "<group>"; };
 		61389F9F45327B321765A369 /* swaptun_iOS.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = swaptun_iOS.entitlements; sourceTree = "<group>"; };
@@ -39,14 +40,15 @@
 		88A2955EF6DCC3BA2828FD7B /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
 		8B72CC8C0D602BF91B24BCB5 /* WebKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = WebKit.framework; path = System/Library/Frameworks/WebKit.framework; sourceTree = SDKROOT; };
 		8E051603F541F609D3A4A38D /* libapp.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; path = libapp.a; sourceTree = "<group>"; };
-		B2092AEC571E2247B1B701DF /* user.rs */ = {isa = PBXFileReference; path = user.rs; sourceTree = "<group>"; };
-		B286D8B3B3FAC12F66CA0F9A /* spotify.rs */ = {isa = PBXFileReference; path = spotify.rs; sourceTree = "<group>"; };
+		A04E46C62E5920190004A5B3 /* GoogleService-Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = "GoogleService-Info.plist"; sourceTree = "<group>"; };
+		B2092AEC571E2247B1B701DF /* user.rs */ = {isa = PBXFileReference; lastKnownFileType = text; path = user.rs; sourceTree = "<group>"; };
+		B286D8B3B3FAC12F66CA0F9A /* spotify.rs */ = {isa = PBXFileReference; lastKnownFileType = text; path = spotify.rs; sourceTree = "<group>"; };
 		C59CE9753A097B914ABC7BD3 /* UIKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = UIKit.framework; path = System/Library/Frameworks/UIKit.framework; sourceTree = SDKROOT; };
 		C8AAD60AF77127688AC2B172 /* main.mm */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.objcpp; path = main.mm; sourceTree = "<group>"; };
-		D09A7D8A241DF9869BAABC17 /* swaptun_iOS.app */ = {isa = PBXFileReference; includeInIndex = 0; lastKnownFileType = wrapper.application; path = swaptun_iOS.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		D09A7D8A241DF9869BAABC17 /* swaptun_iOS.app */ = {isa = PBXFileReference; includeInIndex = 0; lastKnownFileType = wrapper.application; name = swaptun_iOS.app; path = swaptun.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		E6F4A7D51C996753E881FF94 /* CoreGraphics.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreGraphics.framework; path = System/Library/Frameworks/CoreGraphics.framework; sourceTree = SDKROOT; };
 		E9E30D13053AE8DAC13879CA /* Security.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Security.framework; path = System/Library/Frameworks/Security.framework; sourceTree = SDKROOT; };
-		F1ED865439CF8E14E3B836D4 /* mod.rs */ = {isa = PBXFileReference; path = mod.rs; sourceTree = "<group>"; };
+		F1ED865439CF8E14E3B836D4 /* mod.rs */ = {isa = PBXFileReference; lastKnownFileType = text; path = mod.rs; sourceTree = "<group>"; };
 		F745A22B70CE0B1F6B860650 /* bindings.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = bindings.h; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
@@ -150,6 +152,7 @@
 		B6F398E88071B9E6A8A83386 /* Products */ = {
 			isa = PBXGroup;
 			children = (
+				A04E46C62E5920190004A5B3 /* GoogleService-Info.plist */,
 				D09A7D8A241DF9869BAABC17 /* swaptun_iOS.app */,
 			);
 			name = Products;
@@ -216,7 +219,6 @@
 			);
 			mainGroup = 38B06C7C7B9DBA8F1E0C249F;
 			minimizedProjectReferenceProxies = 1;
-			preferredProjectObjectVersion = 77;
 			projectDirPath = "";
 			projectRoot = "";
 			targets = (
@@ -231,6 +233,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				2A0028CA74CBBCFA864CCFF0 /* Assets.xcassets in Resources */,
+				A04E46C72E5920190004A5B3 /* GoogleService-Info.plist in Resources */,
 				DEC6855C99E4FF5B54B24DBC /* LaunchScreen.storyboard in Resources */,
 				B1E69B14CE567175FA92E292 /* assets in Resources */,
 			);
@@ -278,9 +281,7 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ALWAYS_EMBED_SWIFT_STANDARD_LIBRARIES = YES;
-				ARCHS = (
-					arm64,
-				);
+				ARCHS = arm64;
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				CODE_SIGN_ENTITLEMENTS = swaptun_iOS/swaptun_iOS.entitlements;
 				CODE_SIGN_IDENTITY = "iPhone Developer";
@@ -295,13 +296,26 @@
 					"$(inherited)",
 					"@executable_path/Frameworks",
 				);
-				"LIBRARY_SEARCH_PATHS[arch=arm64]" = "$(inherited) $(PROJECT_DIR)/Externals/arm64/$(CONFIGURATION) $(SDKROOT)/usr/lib/swift $(TOOLCHAIN_DIR)/usr/lib/swift/$(PLATFORM_NAME) $(TOOLCHAIN_DIR)/usr/lib/swift-5.0/$(PLATFORM_NAME)";
-				"LIBRARY_SEARCH_PATHS[arch=x86_64]" = "$(inherited) $(PROJECT_DIR)/Externals/x86_64/$(CONFIGURATION) $(SDKROOT)/usr/lib/swift $(TOOLCHAIN_DIR)/usr/lib/swift/$(PLATFORM_NAME) $(TOOLCHAIN_DIR)/usr/lib/swift-5.0/$(PLATFORM_NAME)";
+				"LIBRARY_SEARCH_PATHS[arch=arm64]" = (
+					"$(inherited)",
+					"$(PROJECT_DIR)/Externals/arm64/$(CONFIGURATION)",
+					"$(SDKROOT)/usr/lib/swift",
+					"$(TOOLCHAIN_DIR)/usr/lib/swift/$(PLATFORM_NAME)",
+					"$(TOOLCHAIN_DIR)/usr/lib/swift-5.0/$(PLATFORM_NAME)",
+				);
+				"LIBRARY_SEARCH_PATHS[arch=x86_64]" = (
+					"$(inherited)",
+					"$(PROJECT_DIR)/Externals/x86_64/$(CONFIGURATION)",
+					"$(SDKROOT)/usr/lib/swift",
+					"$(TOOLCHAIN_DIR)/usr/lib/swift/$(PLATFORM_NAME)",
+					"$(TOOLCHAIN_DIR)/usr/lib/swift-5.0/$(PLATFORM_NAME)",
+				);
 				PRODUCT_BUNDLE_IDENTIFIER = com.swaptun.app;
 				PRODUCT_NAME = "swaptun";
 				SDKROOT = iphoneos;
 				TARGETED_DEVICE_FAMILY = "1,2";
 				VALID_ARCHS = arm64;
+				DEVELOPMENT_TEAM = "TJGS234P96";
 			};
 			name = debug;
 		};
@@ -309,9 +323,7 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ALWAYS_EMBED_SWIFT_STANDARD_LIBRARIES = YES;
-				ARCHS = (
-					arm64,
-				);
+				ARCHS = arm64;
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				CODE_SIGN_ENTITLEMENTS = swaptun_iOS/swaptun_iOS.entitlements;
 				CODE_SIGN_IDENTITY = "iPhone Developer";
@@ -326,13 +338,26 @@
 					"$(inherited)",
 					"@executable_path/Frameworks",
 				);
-				"LIBRARY_SEARCH_PATHS[arch=arm64]" = "$(inherited) $(PROJECT_DIR)/Externals/arm64/$(CONFIGURATION) $(SDKROOT)/usr/lib/swift $(TOOLCHAIN_DIR)/usr/lib/swift/$(PLATFORM_NAME) $(TOOLCHAIN_DIR)/usr/lib/swift-5.0/$(PLATFORM_NAME)";
-				"LIBRARY_SEARCH_PATHS[arch=x86_64]" = "$(inherited) $(PROJECT_DIR)/Externals/x86_64/$(CONFIGURATION) $(SDKROOT)/usr/lib/swift $(TOOLCHAIN_DIR)/usr/lib/swift/$(PLATFORM_NAME) $(TOOLCHAIN_DIR)/usr/lib/swift-5.0/$(PLATFORM_NAME)";
+				"LIBRARY_SEARCH_PATHS[arch=arm64]" = (
+					"$(inherited)",
+					"$(PROJECT_DIR)/Externals/arm64/$(CONFIGURATION)",
+					"$(SDKROOT)/usr/lib/swift",
+					"$(TOOLCHAIN_DIR)/usr/lib/swift/$(PLATFORM_NAME)",
+					"$(TOOLCHAIN_DIR)/usr/lib/swift-5.0/$(PLATFORM_NAME)",
+				);
+				"LIBRARY_SEARCH_PATHS[arch=x86_64]" = (
+					"$(inherited)",
+					"$(PROJECT_DIR)/Externals/x86_64/$(CONFIGURATION)",
+					"$(SDKROOT)/usr/lib/swift",
+					"$(TOOLCHAIN_DIR)/usr/lib/swift/$(PLATFORM_NAME)",
+					"$(TOOLCHAIN_DIR)/usr/lib/swift-5.0/$(PLATFORM_NAME)",
+				);
 				PRODUCT_BUNDLE_IDENTIFIER = com.swaptun.app;
 				PRODUCT_NAME = "swaptun";
 				SDKROOT = iphoneos;
 				TARGETED_DEVICE_FAMILY = "1,2";
 				VALID_ARCHS = arm64;
+				DEVELOPMENT_TEAM = "TJGS234P96";
 			};
 			name = release;
 		};

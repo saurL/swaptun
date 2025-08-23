@@ -15,6 +15,13 @@ use tauri_plugin_push_notifications::PushNotificationsExt;
 #[cfg_attr(mobile, tauri::mobile_entry_point)]
 pub fn run() {
     let mut builder = tauri::Builder::default();
+    let logger = tauri_plugin_log::Builder::new()
+        .targets([
+            Target::new(TargetKind::Stdout),
+            Target::new(TargetKind::Webview),
+        ])
+  .level(log::LevelFilter::Info)
+        .build();
     builder = builder
         .plugin(tauri_plugin_custom_tabs_manager::init())
         .plugin(tauri_plugin_deep_link::init())
@@ -23,12 +30,7 @@ pub fn run() {
         .plugin(tauri_plugin_pinia::init())
         .plugin(tauri_plugin_push_notifications::init())
         .plugin(
-            tauri_plugin_log::Builder::new()
-                .targets([
-                    Target::new(TargetKind::Stdout),
-                    Target::new(TargetKind::Webview),
-                ])
-                .build(),
+           logger
         )
         .plugin(tauri_plugin_safe_area_insets_css::init());
 

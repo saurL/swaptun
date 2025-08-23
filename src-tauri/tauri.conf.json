@@ -19,7 +19,9 @@
     ],
     "security": { "devCsp": "", "csp": null }
   },
-  "bundle": {
+  "bundle": {"iOS": {
+    "developmentTeam": "TJGS234P96"
+  },
     "active": true,
     "targets": "all",
     "icon": [
