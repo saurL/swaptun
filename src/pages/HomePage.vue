@@ -72,8 +72,9 @@ import { onMounted, ref, watch } from "vue";
 import { info } from "@tauri-apps/plugin-log";
 import { useRouter } from "vue-router";
 import {
-  pushToken,
-  request_push_permission,
+  getFcmToken,
+  requestPushPermission,
+  onNewFcmToken
 } from "tauri-plugin-push-notifications";
 
 // @ts-ignore
@@ -160,17 +161,41 @@ const testSendPlaylist = async () => {
 };
 
 onMounted(async () => {
-  const permission = await request_push_permission();
-  info("Push permission: " + permission);
-  const token = await pushToken();
-  info("push token : " + token);
-  invoke("set_fcm_token", { token: token })
-    .then((response) => {
+  let onnewtoken = await onNewFcmToken((token) => {
+    info("New FCM token received: " + token);
+    invoke("set_fcm_token", { token: token }).then((response) => {
       info("FCM token set successfully: " + response);
     })
     .catch((error) => {
       info("Error setting FCM token: " + error);
     });
+  });
+  console.log("HomePage mounted");
+  const permission = await requestPushPermission();
+  info("Push permission: " + permission);
+  getFcmToken().then((token) => {
+    info("Initial FCM token: " + token);
+  }).catch((error) => {
+    info("Error getting initial FCM token: " + error);
+  });
+
+  info("Requesting FCM token...");
+  try {
+    const token = await getFcmToken();
+    info("push token : " + token);
+    invoke("set_fcm_token", { token: token }).then((response) => {
+      info("FCM token set successfully: " + response);
+    })
+    .catch((error) => {
+      info("Error setting FCM token: ");
+
+    });
+  } catch (error) {
+    info("Error getting FCM token: " + error);
+   info("Error object:" + JSON.stringify(error, null, 2));
+
+  }
+    
 });
 </script>
 
