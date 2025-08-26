@@ -9,7 +9,7 @@
 	<key>PLIST_VERSION</key>
 	<string>1</string>
 	<key>BUNDLE_ID</key>
-	<string>com.swaptun.com</string>
+	<string>com.swaptun.app</string>
 	<key>PROJECT_ID</key>
 	<string>swaptun-f742a</string>
 	<key>STORAGE_BUCKET</key>
@@ -25,6 +25,6 @@
 	<key>IS_SIGNIN_ENABLED</key>
 	<true></true>
 	<key>GOOGLE_APP_ID</key>
-	<string>1:21299847778:ios:906e15109a2a1c756c273b</string>
+	<string>1:21299847778:ios:bb57d25c26ef018e6c273b</string>
 </dict>
 </plist>

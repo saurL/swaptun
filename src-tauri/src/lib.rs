@@ -59,7 +59,10 @@ fn finish_setup(builder: Builder<Wry>) {
                 .on_notification_clicked(move |data: Notification| {
                     handle_notification(&app_handle_navigation, data);
                 });
-                 
+
+            app_handle.push_notifications().on_message_received(move |data: Notification| {
+                println!("Push notification received: {:?}", data);
+            });
             let app = swaptun_app.clone();
 
             app_handle.deep_link().on_open_url(move |event| {
