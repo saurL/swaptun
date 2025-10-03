@@ -23,6 +23,9 @@ importers:
       pinia:
         specifier: ^3.0.3
         version: 3.0.3(typescript@5.6.3)(vue@3.5.18(typescript@5.6.3))
+      tauri-plugin-apple-music-kit-api:
+        specifier: github:saurL/tauri-plugin-musickit
+        version: https://codeload.github.com/saurL/tauri-plugin-musickit/tar.gz/40712e22fe8410987471e522c101e2c179c5c7c3
       tauri-plugin-push-notifications:
         specifier: github:saurL/tauri-plugin-push-notifications
         version: https://codeload.github.com/saurL/tauri-plugin-push-notifications/tar.gz/53a1455fae5e7339eab17586bcb4e14ba9367f16
@@ -997,6 +1000,10 @@ packages:
     engines: {node: '>=14.0.0'}
     hasBin: true
 
+  tauri-plugin-apple-music-kit-api@https://codeload.github.com/saurL/tauri-plugin-musickit/tar.gz/40712e22fe8410987471e522c101e2c179c5c7c3:
+    resolution: {tarball: https://codeload.github.com/saurL/tauri-plugin-musickit/tar.gz/40712e22fe8410987471e522c101e2c179c5c7c3}
+    version: 0.2.7
+
   tauri-plugin-push-notifications@https://codeload.github.com/saurL/tauri-plugin-push-notifications/tar.gz/53a1455fae5e7339eab17586bcb4e14ba9367f16:
     resolution: {tarball: https://codeload.github.com/saurL/tauri-plugin-push-notifications/tar.gz/53a1455fae5e7339eab17586bcb4e14ba9367f16}
     version: 0.1.0
@@ -1956,6 +1963,10 @@ snapshots:
       sucrase: 3.35.0
     transitivePeerDependencies:
       - ts-node
+
+  tauri-plugin-apple-music-kit-api@https://codeload.github.com/saurL/tauri-plugin-musickit/tar.gz/40712e22fe8410987471e522c101e2c179c5c7c3:
+    dependencies:
+      '@tauri-apps/api': 2.8.0
 
   tauri-plugin-push-notifications@https://codeload.github.com/saurL/tauri-plugin-push-notifications/tar.gz/53a1455fae5e7339eab17586bcb4e14ba9367f16:
     dependencies:

@@ -1,3 +1,4 @@
+mod apple;
 pub mod backend;
 pub mod deezer;
 pub mod notification;
@@ -5,6 +6,8 @@ pub mod playlist;
 pub mod spotify;
 pub mod user;
 pub mod youtube;
+
+pub use apple::*;
 pub use deezer::*;
 pub use notification::*;
 pub use playlist::*;

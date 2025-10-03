@@ -36,7 +36,7 @@ tauri-plugin-deep-link = "2"
 tauri-plugin-custom-tabs-manager = { git = "https://github.com/saurL/tauri-plugin-custom-tabs-manager"}
 tauri-plugin-safe-area-insets-css = { git ="https://github.com/saurL/tauri-plugin-safe-area-insets-css" }
 
-
+tauri-plugin-musickit = { git = "https://github.com/saurL/tauri-plugin-musickit"}
 [target.'cfg(target_os = "ios")'.dependencies]
 tauri-plugin-fullscreen = { git = "https://github.com/saurL/tauri-plugin-fullscreen" }
 

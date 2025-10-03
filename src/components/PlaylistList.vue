@@ -76,6 +76,32 @@
         </div>
       </div>
     </div>
+
+    <!-- Playlists Apple Music -->
+    <div class="space-y-3">
+      <h2 class="text-xl font-semibold text-white">Playlists Apple Music</h2>
+      <div v-if="isLoadingApple" class="flex justify-center">
+        <div
+          class="animate-spin rounded-full h-8 w-8 border-b-2 border-[#00CFE8]"
+        ></div>
+      </div>
+      <div v-else-if="appleError" class="text-red-500">
+        {{ appleError }}
+      </div>
+      <div v-else class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+        <div
+          v-for="playlist in applePlaylists"
+          :key="playlist.id"
+          class="bg-[#1E1E1E] p-4 rounded-lg hover:bg-[#2A2A2A] transition-colors"
+        >
+          <h3 class="text-lg font-medium text-white">{{ playlist.name }}</h3>
+          <p class="text-sm text-gray-400"></p>
+          <p v-if="playlist.description" class="text-sm text-gray-500 mt-2">
+            {{ playlist.description }}
+          </p>
+        </div>
+      </div>
+    </div>
   </div>
 </template>
 
@@ -101,12 +127,14 @@ const {
   isLoadingYouTube: isLoadingYoutubeMusic,
   isLoadingDeezer,
   isLoadingSpotify,
+  isLoadingApple,
 } = storeToRefs(appStore);
 
 const {
   youtubePlaylists: youtubeMusicPlaylists,
   deezerPlaylists,
   spotifyPlaylists,
+  applePlaylists,
 } = storeToRefs(userStore);
 info(
   "UserStore state on PlaylistList mount: " + JSON.stringify(userStore.$state)
@@ -117,8 +145,10 @@ info(
 const spotifyError = ref<string | null>(null);
 const deezerError = ref<string | null>(null);
 const youtubeMusicError = ref<string | null>(null);
+const appleError = ref<string | null>(null);
 
 let unlistenYoutubeMusicPlaylists: (() => void) | null = null;
+let unlistenApplePlaylists: (() => void) | null = null;
 
 const setupYoutubeMusicPlaylistsListener = async () => {
   unlistenYoutubeMusicPlaylists = await listen<PlaylistsResponse>(
@@ -127,6 +157,16 @@ const setupYoutubeMusicPlaylistsListener = async () => {
       userStore.setYoutubePlaylists(event.payload.vec);
     }
   );
+};
+
+const setupApplePlaylistsListener = async () => {
+  // TODO: Add event listener for apple_music_playlists when implemented
+  // unlistenApplePlaylists = await listen<PlaylistsResponse>(
+  //   "apple_music_playlists",
+  //   (event) => {
+  //     userStore.setApplePlaylists(event.payload.vec);
+  //   }
+  // );
 };
 
 const fetchYoutubeMusicPlaylists = async () => {
@@ -142,6 +182,22 @@ const fetchYoutubeMusicPlaylists = async () => {
     console.error("Error fetching YouTube Music playlists:", error);
   } finally {
     appStore.setLoading("youtube", false);
+  }
+};
+
+const fetchApplePlaylists = async () => {
+  try {
+    appStore.setLoading("apple", true);
+    appleError.value = null;
+    const response = await invoke<PlaylistsResponse>(
+      "get_apple_music_playlists"
+    );
+    userStore.setApplePlaylists(response.vec);
+  } catch (error) {
+    appleError.value = error as string;
+    console.error("Error fetching Apple Music playlists:", error);
+  } finally {
+    appStore.setLoading("apple", false);
   }
 };
 
@@ -199,9 +255,11 @@ onMounted(async () => {
     fetchSpotifyPlaylists(),
     fetchDeezerPlaylists(),
     fetchYoutubeMusicPlaylists(),
+    fetchApplePlaylists(),
     setupSpotifyPlaylistsListener(),
     setupDeezerPlaylistsListener(),
     setupYoutubeMusicPlaylistsListener(),
+    setupApplePlaylistsListener(),
   ]);
 });
 
@@ -215,5 +273,8 @@ onUnmounted(() => {
   if (unlistenYoutubeMusicPlaylists) {
     unlistenYoutubeMusicPlaylists();
   }
+  // if (unlistenApplePlaylists) {
+  //   unlistenApplePlaylists();
+  // }
 });
 </script>

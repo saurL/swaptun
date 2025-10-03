@@ -2,6 +2,29 @@
   <MainLayout>
     <GreetingCard :userName="userStore.username" />
 
+    <div class="relative flex items-center justify-center h-screen">
+      <!-- Bouton central -->
+      <button
+        @click="toggleMenu"
+        class="z-10 w-16 h-16 rounded-full bg-blue-500 text-white flex items-center justify-center"
+      >
+        🎵
+      </button>
+
+      <!-- Icônes circulaires -->
+      <transition-group name="fade" tag="div">
+        <div
+          v-for="(item, i) in platforms"
+          :key="item.name"
+          class="absolute w-12 h-12 rounded-full bg-white shadow-lg flex items-center justify-center cursor-pointer"
+          :style="circlePosition(i, platforms.length)"
+          @click="goToPlatform(item)"
+        >
+          <img :src="item.icon" alt="" class="w-6 h-6" />
+        </div>
+      </transition-group>
+    </div>
+
     <button @click="connectToSpotify" class="connect-button">
       Connect to Spotify
     </button>
@@ -15,6 +38,10 @@
     </button>
     <button @click="testSendPlaylist" class="connect-button">
       Tester l'envoi de playlist
+    </button>
+
+    <button @click="connectToAppleMusic" class="connect-button">
+      Connect to Apple Music
     </button>
 
     <div class="p-4 max-w-md mx-auto">
@@ -74,12 +101,52 @@ import { useRouter } from "vue-router";
 import {
   getFcmToken,
   requestPushPermission,
-  onNewFcmToken
+  onNewFcmToken,
 } from "tauri-plugin-push-notifications";
 
 // @ts-ignore
 import { debounce } from "lodash";
 import User from "@/models/user";
+import { onBeforeRouteLeave } from "vue-router";
+
+const isOpen = ref(false);
+
+const platforms = [
+  { name: "Spotify", icon: "/icons/spotify.svg" },
+  { name: "Deezer", icon: "/icons/deezer.svg" },
+  { name: "Apple Music", icon: "/icons/applemusic.svg" },
+  { name: "YouTube Music", icon: "/icons/youtubemusic.svg" },
+];
+
+// toggle menu
+function toggleMenu() {
+  isOpen.value = !isOpen.value;
+}
+
+// calcul de la position en cercle
+function circlePosition(index: number, total: number) {
+  if (!isOpen.value) return { display: "none" };
+
+  const angle = (index / total) * (2 * Math.PI);
+  const radius = 100; // distance du bouton central
+
+  return {
+    transform: `translate(${Math.cos(angle) * radius}px, ${
+      Math.sin(angle) * radius
+    }px)`,
+    transition: "transform 0.3s ease",
+  };
+}
+
+// action quand on clique sur une icône
+function goToPlatform(item: any) {
+  console.log("Ouvrir", item.name);
+}
+
+// si tu veux que ça disparaisse quand on change de route
+onBeforeRouteLeave(() => {
+  isOpen.value = false;
+});
 // Input de recherche
 const query = ref("");
 // Fonction qui simule une recherche d'utilisateur
@@ -118,6 +185,18 @@ const connectToSpotify = async () => {
 const connectToYoutube = async () => {
   info("actual url:" + window.location.href);
   await invoke("connect_youtube");
+  // window.location.href = url;
+};
+
+const connectToAppleMusic = async () => {
+  info("actual url:" + window.location.href);
+  invoke("connect_apple_music")
+    .then((response) => {
+      info("Apple Music authorization response: " + JSON.stringify(response));
+    })
+    .catch((error) => {
+      info("Error connecting to Apple Music: " + error);
+    });
   // window.location.href = url;
 };
 
@@ -163,39 +242,40 @@ const testSendPlaylist = async () => {
 onMounted(async () => {
   let onnewtoken = await onNewFcmToken((token) => {
     info("New FCM token received: " + token);
-    invoke("set_fcm_token", { token: token }).then((response) => {
-      info("FCM token set successfully: " + response);
-    })
-    .catch((error) => {
-      info("Error setting FCM token: " + error);
-    });
+    invoke("set_fcm_token", { token: token })
+      .then((response) => {
+        info("FCM token set successfully: " + response);
+      })
+      .catch((error) => {
+        info("Error setting FCM token: " + error);
+      });
   });
   console.log("HomePage mounted");
   const permission = await requestPushPermission();
   info("Push permission: " + permission);
-  getFcmToken().then((token) => {
-    info("Initial FCM token: " + token);
-  }).catch((error) => {
-    info("Error getting initial FCM token: " + error);
-  });
+  getFcmToken()
+    .then((token) => {
+      info("Initial FCM token: " + token);
+    })
+    .catch((error) => {
+      info("Error getting initial FCM token: " + error);
+    });
 
   info("Requesting FCM token...");
   try {
     const token = await getFcmToken();
     info("push token : " + token);
-    invoke("set_fcm_token", { token: token }).then((response) => {
-      info("FCM token set successfully: " + response);
-    })
-    .catch((error) => {
-      info("Error setting FCM token: ");
-
-    });
+    invoke("set_fcm_token", { token: token })
+      .then((response) => {
+        info("FCM token set successfully: " + response);
+      })
+      .catch((error) => {
+        info("Error setting FCM token: ");
+      });
   } catch (error) {
     info("Error getting FCM token: " + error);
-   info("Error object:" + JSON.stringify(error, null, 2));
-
+    info("Error object:" + JSON.stringify(error, null, 2));
   }
-    
 });
 </script>
 

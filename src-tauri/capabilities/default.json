@@ -12,6 +12,7 @@
     "core:event:default",
     "safe-area-insets-css:default",
     "push-notifications:default",
+    "musickit:allow-authorize",
     {
       "identifier": "http:default",
       "allow": [
@@ -23,4 +24,3 @@
     "deep-link:default"
   ]
 }
-    

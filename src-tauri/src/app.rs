@@ -1,11 +1,11 @@
 use std::sync::Arc;
 
+use crate::backend::AppleService;
 use crate::backend::DeezerClient;
 use crate::backend::NotificationService;
 use crate::backend::PlaylistService;
 use crate::backend::SpotifyClient;
 use crate::backend::UserService;
-
 use log::error;
 use log::info;
 
@@ -24,6 +24,8 @@ use tauri::http::StatusCode;
 use tauri::AppHandle;
 use tauri::Emitter;
 use tauri::Url;
+use tauri_plugin_musickit::AuthorizationResponse;
+use tauri_plugin_musickit::MusicKitExt;
 // use tauri_plugin_oauth::start;
 use crate::backend::YoutubeClient;
 use tauri_plugin_custom_tabs_manager::{CustomTabsManagerExt, OpenCustomTabSimpleRequest};
@@ -35,6 +37,7 @@ pub struct App {
     playlist_service: PlaylistService,
     youtube_service: YoutubeClient,
     notification_service: NotificationService,
+    apple_service: AppleService,
     ready: Mutex<bool>,
 }
 
@@ -48,6 +51,7 @@ impl App {
             playlist_service: PlaylistService::new(app_handle.clone()),
             youtube_service: YoutubeClient::new(app_handle.clone()),
             notification_service: NotificationService::new(app_handle.clone()),
+            apple_service: AppleService::new(app_handle.clone()),
             ready: Mutex::new(false),
         };
         let instance = Arc::new(instance);
@@ -327,5 +331,57 @@ impl App {
         &self,
     ) -> Result<Vec<UserBean>, Box<dyn std::error::Error + Send + Sync>> {
         self.user_service.get_friends().await
+    }
+
+    pub async fn synchronize_apple_playlists(
+        &self,
+    ) -> Result<StatusCode, Box<dyn std::error::Error + Send + Sync>> {
+        self.apple_service.synchronize_playlists().await
+    }
+
+    pub async fn connect_apple_music(
+        &self,
+    ) -> Result<AuthorizationResponse, Box<dyn std::error::Error + Send + Sync>> {
+        let developer_token = self.apple_service.get_developer_token().await?;
+        self.app_handle
+            .music_kit()
+            .set_developer_token(developer_token.developer_token)?;
+        let auth_response = self.app_handle.music_kit().authorize()?;
+        info!("Apple Music authorization response: {:?}", auth_response);
+        match auth_response.clone().status {
+            val if val == "authorized".to_string() => {
+                info!("Apple Music authorized");
+                let get_user_token_response = self.app_handle.music_kit().get_user_token()?;
+                if let Some(token) = get_user_token_response.token {
+                    info!("Apple Music user token: {}", token);
+                    self.send_user_token_apple_music(token).await?;
+                    self.synchronize_apple_playlists().await?;
+                } else {
+                    error!("Apple Music user token is None");
+                }
+            }
+            val if val == "notAuthorized".to_string() => error!("Apple Music not authorized"),
+            _ => error!("Apple Music authorization failed"),
+        }
+        Ok(auth_response)
+    }
+
+    pub async fn send_user_token_apple_music(
+        &self,
+        token: String,
+    ) -> Result<(), Box<dyn std::error::Error + Send + Sync>> {
+        let request = AddTokenRequest { token };
+        self.apple_service.send_authorization_token(request).await?;
+        Ok(())
+    }
+
+    pub async fn get_apple_music_playlists(
+        &self,
+    ) -> Result<GetPlaylistResponse, Box<dyn std::error::Error + Send + Sync>> {
+        let params = GetPlaylistsParams {
+            origin: Some(PlaylistOrigin::AppleMusic),
+        };
+        let response = self.playlist_service.get_playlists(params).await?;
+        Ok(response)
     }
 }

@@ -12,6 +12,7 @@ export const useUserStore = defineStore('user', {
     youtubePlaylists: [],
     deezerPlaylists: [],
     spotifyPlaylists: [],
+    applePlaylists: [],
     friends: [],
   }),
   actions: {
@@ -32,6 +33,9 @@ export const useUserStore = defineStore('user', {
     setSpotifyPlaylists(playlists: Playlist[]) {
       this.spotifyPlaylists = playlists;
     },
+    setApplePlaylists(playlists: Playlist[]) {
+      this.applePlaylists = playlists;
+    },
     reset() {
       // Reset all state values to their defaults
       this.id = null;
@@ -41,6 +45,7 @@ export const useUserStore = defineStore('user', {
       this.youtubePlaylists = [];
       this.deezerPlaylists = [];
       this.spotifyPlaylists = [];
+      this.applePlaylists = [];
       this.friends = [];
     },
     addFriend(user:User){
@@ -66,7 +71,7 @@ export const useUserStore = defineStore('user', {
   },
   getters: {
     allPlaylists: (state): Playlist[] => {
-      return [...state.youtubePlaylists, ...state.deezerPlaylists, ...state.spotifyPlaylists];
+      return [...state.youtubePlaylists, ...state.deezerPlaylists, ...state.spotifyPlaylists, ...state.applePlaylists];
     },
   },
   tauri: {

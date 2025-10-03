@@ -14,5 +14,6 @@ export interface UserState {
   youtubePlaylists: Playlist[];
   deezerPlaylists: Playlist[];
   spotifyPlaylists: Playlist[];
+  applePlaylists: Playlist[];
   friends: User[];
 }

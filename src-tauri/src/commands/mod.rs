@@ -1,12 +1,13 @@
 pub mod app;
+pub mod apple;
 pub mod auth;
 pub mod deezer;
 pub mod notifications;
 pub mod playlists;
 pub mod spotify;
 pub mod youtube;
-
 pub use app::*;
+pub use apple::*;
 pub use auth::*;
 pub use deezer::*;
 pub use notifications::*;

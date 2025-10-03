@@ -59,25 +59,14 @@ router.beforeEach((to, from, next) => {
 });
 
 await router.isReady();
-/*
+
 await invoke("check_opening_notification");
-  */
+  
 if (userStore.token == null) {
   router.replace({ name: 'Login' });
 }
 
 await invoke("check_opening_url");
-console.log("avant mount");
-// @ts-ignore
-if (window.setSafeAreaInsets) {
-// @ts-ignore
-    window.setSafeAreaInsets();
-    console.log("Safe area insets set");
-}
-else {
-    console.log("Safe area insets function not found");
-}
-
 
 app.mount("#app");
 
