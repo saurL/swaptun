@@ -9,21 +9,37 @@ pub struct SharedNotificationData {
     pub shared_by_username: String,
 }
 
-// Custom deserializer for shared_notification field
-// Deserializes from a JSON string into SharedNotificationData
 fn deserialize_shared_notification<'de, D>(
     deserializer: D,
 ) -> Result<Option<SharedNotificationData>, D::Error>
 where
     D: Deserializer<'de>,
 {
-    use serde::de::Error;
+    use serde::de::{Error, Unexpected};
+    use serde_json::Value;
 
-    let s: Option<String> = Option::deserialize(deserializer)?;
-    match s {
-        Some(json_str) => serde_json::from_str::<SharedNotificationData>(&json_str)
-            .map(Some)
-            .map_err(|e| Error::custom(format!("Failed to parse shared_notification: {}", e))),
+    // On commence par désérialiser en `serde_json::Value`
+    let val: Option<Value> = Option::deserialize(deserializer)?;
+
+    match val {
+        Some(Value::String(s)) => {
+            // Cas 1 : c’est une string contenant du JSON
+            serde_json::from_str::<SharedNotificationData>(&s)
+                .map(Some)
+                .map_err(|e| {
+                    Error::custom(format!("Failed to parse shared_notification string: {}", e))
+                })
+        }
+        Some(obj @ Value::Object(_)) => {
+            // Cas 2 : c’est déjà un objet JSON
+            serde_json::from_value(obj).map(Some).map_err(|e| {
+                Error::custom(format!("Failed to parse shared_notification object: {}", e))
+            })
+        }
+        Some(other) => Err(Error::invalid_type(
+            Unexpected::Other(&format!("{:?}", other)),
+            &"string or object for shared_notification",
+        )),
         None => Ok(None),
     }
 }

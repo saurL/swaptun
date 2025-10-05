@@ -56,19 +56,25 @@ fn finish_setup(builder: Builder<Wry>) {
             let app_handle_message = app_handle.clone();
 
             // Handle notification clicks (when app is closed)
-            app_handle
-                .push_notifications()
-                .on_notification_clicked(move |data: Notification| {
+            if let Err(e) = app_handle.push_notifications().on_notification_clicked(
+                move |data: Notification| {
                     handle_notification(&app_handle_navigation, data);
-                });
+                },
+            ) {
+                info!("Failed to listen for notification clicks: {}", e);
+            }
 
             // Handle notifications received while app is open
-            app_handle
-                .push_notifications()
-                .on_message_received(move |data: Notification| {
-                    info!("Push notification received while app is open: {:?}", data);
-                    handle_notification_data(&app_handle_message, data);
-                });
+            if let Err(e) =
+                app_handle
+                    .push_notifications()
+                    .on_message_received(move |data: Notification| {
+                        info!("Push notification received while app is open: {:?}", data);
+                        handle_notification_data(&app_handle_message, data);
+                    })
+            {
+                info!("Failed to listen for push notification messages: {}", e);
+            }
 
             let app = swaptun_app.clone();
 
@@ -102,7 +108,6 @@ fn finish_setup(builder: Builder<Wry>) {
             connect_youtube,
             get_playlists_youtubemusic,
             set_fcm_token,
-            send_test_notification,
             check_opening_notification,
             send_playlist,
             forgot_password,

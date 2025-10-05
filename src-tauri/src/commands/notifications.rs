@@ -9,6 +9,7 @@ use crate::{app::App, models::Notification};
 
 /// Handle notification data by emitting appropriate events
 pub fn handle_notification_data(app: &AppHandle, data: Notification) {
+    info!("Handling notification data: {:?}", data);
     if let Some(shared_playlist_notification) = data.shared_notification {
         if let Err(e) = app.emit("playlist_shared", shared_playlist_notification.clone()) {
             error!("Failed to emit playlist_shared event: {}", e);
@@ -18,6 +19,7 @@ pub fn handle_notification_data(app: &AppHandle, data: Notification) {
 
 /// Handle notification click (when app is closed and user clicks notification)
 pub fn handle_notification(app: &AppHandle, data: Notification) {
+    info!("Notification clicked with data: {:?}", data);
     if let Some(ref route) = data.route {
         info!("Navigating to route: {}", route);
         if let Err(e) = app.emit("routing", route.clone()) {
@@ -40,36 +42,6 @@ pub async fn set_fcm_token(app: State<'_, Arc<App>>, token: String) -> Result<bo
                 Ok(true)
             } else {
                 Err(format!("Failed to set FCM token, status: {}", status))
-            }
-        }
-        Err(e) => Err(e.to_string()),
-    }
-}
-
-#[command]
-pub async fn send_test_notification(
-    app: State<'_, Arc<App>>,
-    title: String,
-    body: String,
-    user_id: i32,
-) -> Result<bool, String> {
-    let mut data = std::collections::HashMap::new();
-    data.insert("route".to_string(), "/register".to_string());
-    let notification_data = SendTestNotificationRequest {
-        user_id,
-        title,
-        body,
-        data: Some(data),
-    };
-    match app.send_test_notification(notification_data).await {
-        Ok(status) => {
-            if status.is_success() {
-                Ok(true)
-            } else {
-                Err(format!(
-                    "Failed to send test notification, status: {}",
-                    status
-                ))
             }
         }
         Err(e) => Err(e.to_string()),

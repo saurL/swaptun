@@ -5755,7 +5755,7 @@ dependencies = [
 [[package]]
 name = "swaptun-api"
 version = "0.1.0"
-source = "git+ssh://git@github.com/saurL/swaptun_backend.git?branch=main#afab79914d34248730a127a770934098c05b648d"
+source = "git+ssh://git@github.com/saurL/swaptun_backend.git?branch=main#b3a49d2a21713e54e2c9d39ece32ac127c33ba8f"
 dependencies = [
  "swaptun-services",
 ]
@@ -5763,7 +5763,7 @@ dependencies = [
 [[package]]
 name = "swaptun-backend"
 version = "0.1.0"
-source = "git+ssh://git@github.com/saurL/swaptun_backend.git?branch=main#afab79914d34248730a127a770934098c05b648d"
+source = "git+ssh://git@github.com/saurL/swaptun_backend.git?branch=main#b3a49d2a21713e54e2c9d39ece32ac127c33ba8f"
 dependencies = [
  "google-fcm1",
  "swaptun-api",
@@ -5772,7 +5772,7 @@ dependencies = [
 [[package]]
 name = "swaptun-models"
 version = "0.1.0"
-source = "git+ssh://git@github.com/saurL/swaptun_backend.git?branch=main#afab79914d34248730a127a770934098c05b648d"
+source = "git+ssh://git@github.com/saurL/swaptun_backend.git?branch=main#b3a49d2a21713e54e2c9d39ece32ac127c33ba8f"
 dependencies = [
  "sea-orm",
  "serde",
@@ -5782,7 +5782,7 @@ dependencies = [
 [[package]]
 name = "swaptun-services"
 version = "0.1.0"
-source = "git+ssh://git@github.com/saurL/swaptun_backend.git?branch=main#afab79914d34248730a127a770934098c05b648d"
+source = "git+ssh://git@github.com/saurL/swaptun_backend.git?branch=main#b3a49d2a21713e54e2c9d39ece32ac127c33ba8f"
 dependencies = [
  "apple-music-api",
  "chrono",

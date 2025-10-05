@@ -2,11 +2,11 @@ use std::sync::Arc;
 
 use crate::app::App;
 
+use log::error;
 use swaptun_backend::GetPlaylistResponse;
 use swaptun_backend::SendPlaylistRequest;
 use swaptun_backend::SharedPlaylistsResponse;
 use tauri::{command, State};
-
 #[command]
 pub async fn send_playlist(
     app: State<'_, Arc<App>>,
@@ -49,7 +49,10 @@ pub async fn get_shared_playlists(
 ) -> Result<SharedPlaylistsResponse, String> {
     match app.get_shared_playlists().await {
         Ok(response) => Ok(response),
-        Err(e) => Err(e.to_string()),
+        Err(e) => {
+            error!("Failed to get shared playlists: {}", e);
+            Err(e.to_string())
+        }
     }
 }
 
