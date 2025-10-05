@@ -1,20 +1,21 @@
 <script setup lang="ts">
-import { ref, onMounted, onUnmounted } from 'vue';
-import { listen, type UnlistenFn } from '@tauri-apps/api/event';
-import { useSharedPlaylistsStore } from './store/sharedPlaylists';
-import ErrorNotification from './components/common/ErrorNotification.vue';
-import { info } from '@tauri-apps/plugin-log';
+import { ref, onMounted, onUnmounted } from "vue";
+import { listen, type UnlistenFn } from "@tauri-apps/api/event";
+import { useSharedPlaylistsStore } from "./store/sharedPlaylists";
+import ErrorNotification from "./components/common/ErrorNotification.vue";
+import { info } from "@tauri-apps/plugin-log";
 
 interface ErrorNotificationPayload {
-  type: 'server_error' | 'network_error';
+  type: "server_error" | "network_error";
   message: string;
 }
 
-interface PlaylistSharedNotification {
-  type: string;
-  route?: string;
-  playlist_id?: string;
-  playlist_name?: string;
+interface SharedNotificationData {
+  playlist_id: string;
+  playlist_name: string;
+  shared_by_id: string;
+  shared_by_username: string;
+  shared_by_name: string;
 }
 
 const currentError = ref<ErrorNotificationPayload | null>(null);
@@ -25,27 +26,45 @@ let unlistenPlaylistShared: UnlistenFn | null = null;
 
 onMounted(async () => {
   // Listen for error notifications
-  unlistenError = await listen<ErrorNotificationPayload>('error_notification', (event) => {
-    currentError.value = event.payload;
-  });
+  unlistenError = await listen<ErrorNotificationPayload>(
+    "error_notification",
+    (event) => {
+      currentError.value = event.payload;
+    }
+  );
 
   // Listen for playlist shared notifications
-  unlistenPlaylistShared = await listen<PlaylistSharedNotification>('playlist_shared', async (event) => {
-    info(`Playlist shared notification received: ${JSON.stringify(event.payload)}`);
-
-    const notification = event.payload;
-    if (notification.playlist_id && notification.playlist_name) {
-      // Add to shared playlists store
-      await sharedPlaylistsStore.addSharedPlaylist(
-        notification.playlist_id,
-        notification.playlist_name,
-        'A friend' // Username will be updated on refetch
+  unlistenPlaylistShared = await listen<SharedNotificationData>(
+    "playlist_shared",
+    async (event) => {
+      info(
+        `Playlist shared notification received: ${JSON.stringify(
+          event.payload
+        )}`
       );
 
-      // Show a success notification (optional - you could create a success notification component)
-      info(`New playlist shared: ${notification.playlist_name}`);
+      const notification = event.payload;
+      if (notification) {
+        try {
+          // Add to shared playlists store
+          await sharedPlaylistsStore.addSharedPlaylist(
+            notification.playlist_id,
+            notification.playlist_name,
+            Number(notification.shared_by_id),
+            notification.shared_by_username,
+            notification.shared_by_name
+          );
+
+          // Show a success notification (optional - you could create a success notification component)
+          info(
+            `New playlist shared: ${notification.playlist_name} by ${notification.shared_by_name}`
+          );
+        } catch (error) {
+          info(`Failed to parse shared notification: ${error}`);
+        }
+      }
     }
-  });
+  );
 });
 
 onUnmounted(() => {

@@ -7,7 +7,6 @@ use crate::backend::PlaylistService;
 use crate::backend::SpotifyClient;
 use crate::backend::UserService;
 use crate::backend::YoutubeClient;
-use crate::backend::playlist::{GetSharedPlaylistsResponse, SharedPlaylist};
 use crate::error::AppResult;
 use log::error;
 use log::info;
@@ -20,16 +19,17 @@ use swaptun_backend::{
     AddTokenRequest, CreateUserRequest, ForgotPasswordRequest, GetPlaylistResponse,
     GetPlaylistsParams, LoginEmailRequest, LoginRequest, LoginResponse, PlaylistOrigin,
     RegisterFcmTokenRequest, ResetPasswordRequest, SendPlaylistRequest,
-    SendTestNotificationRequest, SpotifyUrlResponse, VerifyTokenRequest, VerifyTokenResponse,
+    SendTestNotificationRequest, SharePlaylistRequest, SharedPlaylistsResponse, SpotifyUrlResponse,
+    VerifyTokenRequest, VerifyTokenResponse,
 };
 use tauri::async_runtime::Mutex;
 use tauri::http::StatusCode;
 use tauri::AppHandle;
 use tauri::Emitter;
 use tauri::Url;
+use tauri_plugin_custom_tabs_manager::{CustomTabsManagerExt, OpenCustomTabSimpleRequest};
 use tauri_plugin_musickit::AuthorizationResponse;
 use tauri_plugin_musickit::MusicKitExt;
-use tauri_plugin_custom_tabs_manager::{CustomTabsManagerExt, OpenCustomTabSimpleRequest};
 pub struct App {
     app_handle: AppHandle,
     spotify_client: SpotifyClient,
@@ -78,7 +78,10 @@ impl App {
         self.user_service.login_email(request).await
     }
 
-    pub async fn verify_token(&self, request: VerifyTokenRequest) -> AppResult<VerifyTokenResponse> {
+    pub async fn verify_token(
+        &self,
+        request: VerifyTokenRequest,
+    ) -> AppResult<VerifyTokenResponse> {
         self.user_service.verify_token(request).await
     }
 
@@ -242,24 +245,33 @@ impl App {
         self.youtube_service.add_token(req).await
     }
 
-    pub async fn set_fcm_token(&self, register_fcm_token_request: RegisterFcmTokenRequest) -> AppResult<StatusCode> {
+    pub async fn set_fcm_token(
+        &self,
+        register_fcm_token_request: RegisterFcmTokenRequest,
+    ) -> AppResult<StatusCode> {
         self.notification_service
             .set_fcm_token(register_fcm_token_request)
             .await
     }
 
-    pub async fn send_test_notification(&self, notification_request: SendTestNotificationRequest) -> AppResult<StatusCode> {
+    pub async fn send_test_notification(
+        &self,
+        notification_request: SendTestNotificationRequest,
+    ) -> AppResult<StatusCode> {
         self.notification_service
             .send_test_notification(notification_request)
             .await
     }
 
-    pub async fn send_playlist(&self, playlist_id: i32, req: SendPlaylistRequest) -> AppResult<StatusCode> {
+    pub async fn send_playlist(
+        &self,
+        playlist_id: i32,
+        req: SendPlaylistRequest,
+    ) -> AppResult<StatusCode> {
         self.playlist_service.send_playlist(playlist_id, req).await
     }
 
     pub async fn share_playlist(&self, playlist_id: i32, user_id: i32) -> AppResult<StatusCode> {
-        use crate::backend::playlist::SharePlaylistRequest;
         let req = SharePlaylistRequest { user_id };
         self.playlist_service.share_playlist(playlist_id, req).await
     }
@@ -268,7 +280,11 @@ impl App {
         self.user_service.forgot_password(req).await
     }
 
-    pub async fn reset_password(&self, req: ResetPasswordRequest, token: String) -> AppResult<StatusCode> {
+    pub async fn reset_password(
+        &self,
+        req: ResetPasswordRequest,
+        token: String,
+    ) -> AppResult<StatusCode> {
         self.user_service.reset_password(token, req).await
     }
 
@@ -288,12 +304,17 @@ impl App {
         self.user_service.get_friends().await
     }
 
-    pub async fn get_shared_playlists(&self) -> AppResult<GetSharedPlaylistsResponse> {
+    pub async fn get_shared_playlists(&self) -> AppResult<SharedPlaylistsResponse> {
         self.playlist_service.get_shared_playlists().await
     }
 
-    pub async fn mark_shared_playlist_viewed(&self, shared_playlist_id: i32) -> AppResult<StatusCode> {
-        self.playlist_service.mark_shared_playlist_viewed(shared_playlist_id).await
+    pub async fn mark_shared_playlist_viewed(
+        &self,
+        shared_playlist_id: i32,
+    ) -> AppResult<StatusCode> {
+        self.playlist_service
+            .mark_shared_playlist_viewed(shared_playlist_id)
+            .await
     }
 
     pub async fn synchronize_apple_playlists(&self) -> AppResult<StatusCode> {
@@ -322,7 +343,9 @@ impl App {
                             info!("Apple Music playlists retrieved successfully");
                             match self.app_handle.emit("apple_music_playlists", playlists) {
                                 Ok(_) => info!("apple_music_playlists event emitted"),
-                                Err(e) => error!("Error emitting apple_music_playlists event: {}", e),
+                                Err(e) => {
+                                    error!("Error emitting apple_music_playlists event: {}", e)
+                                }
                             };
                         }
                         Err(e) => {

@@ -1,22 +1,15 @@
 import { defineStore } from 'pinia';
 import { invoke } from '@tauri-apps/api/core';
 import { info, error as logError } from '@tauri-apps/plugin-log';
-
-export interface SharedPlaylist {
-  id: number;
-  playlist_id: number;
-  playlist_name: string;
-  shared_by_user_id: number;
-  shared_by_username: string;
-  shared_at: string;
-  viewed: boolean;
-}
+import { SharedPlaylist, SharedPlaylistsResponse } from '@/models/playlist';
+import { utcToLocal } from '@/utils/helpers';
 
 export interface SharedPlaylistsState {
   playlists: SharedPlaylist[];
   loading: boolean;
   lastFetch: number | null;
 }
+
 
 export const useSharedPlaylistsStore = defineStore('sharedPlaylists', {
   state: (): SharedPlaylistsState => ({
@@ -36,10 +29,13 @@ export const useSharedPlaylistsStore = defineStore('sharedPlaylists', {
 
       try {
         this.loading = true;
-        const playlists = await invoke<SharedPlaylist[]>('get_shared_playlists');
-        this.playlists = playlists;
+        const response = await invoke<SharedPlaylistsResponse>('get_shared_playlists');
+        this.playlists = response.vec.map((sharedPlaylist) => ({
+          ...sharedPlaylist,
+          viewed: sharedPlaylist.viewed ?? false,
+        }));
         this.lastFetch = now;
-        info(`Fetched ${playlists.length} shared playlists`);
+        info(`Fetched ${response.vec.length} shared playlists`);
       } catch (error) {
         logError(`Failed to fetch shared playlists: ${error}`);
         throw error;
@@ -48,14 +44,25 @@ export const useSharedPlaylistsStore = defineStore('sharedPlaylists', {
       }
     },
 
-    async addSharedPlaylist(playlistId: string, playlistName: string, sharedByUsername: string) {
+    async addSharedPlaylist(
+      playlistId: string,
+      playlistName: string,
+      sharedById: number,
+      sharedByUsername: string,
+      sharedByName: string
+    ) {
       // Add a new shared playlist to the list (from notification)
+      const [firstName, ...lastNameParts] = sharedByName.split(' ');
       const newSharedPlaylist: SharedPlaylist = {
-        id: Date.now(), // Temporary ID until we refetch
-        playlist_id: parseInt(playlistId, 10),
+        id: 0, // Temporary ID until we refetch
+        playlist_id: playlistId,
         playlist_name: playlistName,
-        shared_by_user_id: 0, // Will be updated on refetch
-        shared_by_username: sharedByUsername || 'A friend',
+        shared_by: {
+          id: sharedById,
+          username: sharedByUsername,
+          first_name: firstName,
+          last_name: lastNameParts.join(' '),
+        },
         shared_at: new Date().toISOString(),
         viewed: false,
       };
@@ -84,6 +91,13 @@ export const useSharedPlaylistsStore = defineStore('sharedPlaylists', {
         logError(`Failed to mark playlist as viewed: ${error}`);
         throw error;
       }
+    },
+
+    markAllAsViewed() {
+      // Mark all playlists as viewed in local state
+      this.playlists.forEach((p) => {
+        p.viewed = true;
+      });
     },
 
     reset() {

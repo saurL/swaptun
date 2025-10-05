@@ -112,13 +112,8 @@ import { listen } from "@tauri-apps/api/event";
 import { useAppStore } from "@/store/app";
 import { useUserStore } from "@/store/user";
 import { storeToRefs } from "pinia";
-import type Playlist from "@/models/playlist";
+import { PlaylistsResponse } from "@/models/playlist";
 import { info } from "@tauri-apps/plugin-log";
-
-interface PlaylistsResponse {
-  vec: Playlist[];
-  total: number;
-}
 
 const appStore = useAppStore();
 const userStore = useUserStore();

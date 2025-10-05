@@ -3,6 +3,7 @@ mod backend;
 mod commands;
 mod error;
 mod models;
+use log::info;
 use tauri::{async_runtime::spawn, Builder, Emitter, Manager, Wry};
 use tauri_plugin_log::{Target, TargetKind};
 
@@ -65,9 +66,8 @@ fn finish_setup(builder: Builder<Wry>) {
             app_handle
                 .push_notifications()
                 .on_message_received(move |data: Notification| {
-                    use log::info;
                     info!("Push notification received while app is open: {:?}", data);
-                    handle_notification_data(&app_handle_message, &data);
+                    handle_notification_data(&app_handle_message, data);
                 });
 
             let app = swaptun_app.clone();

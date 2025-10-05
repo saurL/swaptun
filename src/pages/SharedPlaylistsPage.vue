@@ -51,7 +51,7 @@
             <p class="text-sm text-[#7D7D7D] mt-1">
               Shared by
               <span class="font-medium text-[#CB5520]">{{
-                shared.shared_by_username
+                getSharedByName(shared)
               }}</span>
             </p>
             <p class="text-xs text-[#7D7D7D] mt-1">
@@ -87,14 +87,13 @@
 </template>
 
 <script setup lang="ts">
-import { computed, onMounted } from "vue";
+import { computed, onMounted, onUnmounted } from "vue";
 import { useRouter } from "vue-router";
 import { storeToRefs } from "pinia";
-import {
-  useSharedPlaylistsStore,
-  type SharedPlaylist,
-} from "@/store/sharedPlaylists";
+import { useSharedPlaylistsStore } from "@/store/sharedPlaylists";
+import type { SharedPlaylist } from "@/models/playlist";
 import { useSendPlaylist } from "@/composables/useSendPlaylist";
+import { formatRelativeTime, utcToLocal } from "@/utils/helpers";
 import LoadingSpinner from "@/components/common/LoadingSpinner.vue";
 
 const router = useRouter();
@@ -112,6 +111,11 @@ const sharedPlaylists = computed(() => sharedPlaylistsStore.sortedPlaylists);
 
 onMounted(async () => {
   await sharedPlaylistsStore.fetchSharedPlaylists();
+});
+
+// Mark all as viewed when leaving the page
+onUnmounted(() => {
+  sharedPlaylistsStore.markAllAsViewed();
 });
 
 const openPlaylist = async (shared: SharedPlaylist) => {
@@ -136,7 +140,7 @@ const sendPlaylist = async (shared: SharedPlaylist) => {
 
   // If only one platform is connected, send directly
   if (hasSinglePlatform.value) {
-    const success = await sendToDefaultPlatform(shared.playlist_id);
+    const success = await sendToDefaultPlatform(Number(shared.playlist_id));
     if (success) {
       console.log("Playlist sent successfully");
       // TODO: Show success toast
@@ -153,26 +157,13 @@ const sendPlaylist = async (shared: SharedPlaylist) => {
   }
 };
 
-const formatDate = (dateString: string): string => {
-  const date = new Date(dateString);
-  const now = new Date();
-  const diffMs = now.getTime() - date.getTime();
-  const diffMins = Math.floor(diffMs / 60000);
-  const diffHours = Math.floor(diffMs / 3600000);
-  const diffDays = Math.floor(diffMs / 86400000);
+const formatDate = (utcDateString: string): string => {
+  const localDate = utcToLocal(utcDateString);
+  return formatRelativeTime(localDate);
+};
 
-  if (diffMins < 60) {
-    return `${diffMins} minute${diffMins !== 1 ? "s" : ""} ago`;
-  } else if (diffHours < 24) {
-    return `${diffHours} hour${diffHours !== 1 ? "s" : ""} ago`;
-  } else if (diffDays < 7) {
-    return `${diffDays} day${diffDays !== 1 ? "s" : ""} ago`;
-  } else {
-    return date.toLocaleDateString("en-US", {
-      year: "numeric",
-      month: "short",
-      day: "numeric",
-    });
-  }
+const getSharedByName = (shared: SharedPlaylist): string => {
+  const { first_name, last_name } = shared.shared_by;
+  return `${first_name} ${last_name}`.trim();
 };
 </script>

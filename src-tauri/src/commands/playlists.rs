@@ -1,10 +1,11 @@
 use std::sync::Arc;
 
-use crate::backend::playlist::{GetSharedPlaylistsResponse, SharedPlaylist};
-use swaptun_backend::SendPlaylistRequest;
-use tauri::{command, State};
-
 use crate::app::App;
+
+use swaptun_backend::GetPlaylistResponse;
+use swaptun_backend::SendPlaylistRequest;
+use swaptun_backend::SharedPlaylistsResponse;
+use tauri::{command, State};
 
 #[command]
 pub async fn send_playlist(
@@ -45,9 +46,9 @@ pub async fn share_playlist(
 #[command]
 pub async fn get_shared_playlists(
     app: State<'_, Arc<App>>,
-) -> Result<Vec<SharedPlaylist>, String> {
+) -> Result<SharedPlaylistsResponse, String> {
     match app.get_shared_playlists().await {
-        Ok(response) => Ok(response.playlists),
+        Ok(response) => Ok(response),
         Err(e) => Err(e.to_string()),
     }
 }
@@ -62,7 +63,10 @@ pub async fn mark_shared_playlist_viewed(
             if status.is_success() {
                 Ok(true)
             } else {
-                Err(format!("Failed to mark playlist as viewed, status: {}", status))
+                Err(format!(
+                    "Failed to mark playlist as viewed, status: {}",
+                    status
+                ))
             }
         }
         Err(e) => Err(e.to_string()),

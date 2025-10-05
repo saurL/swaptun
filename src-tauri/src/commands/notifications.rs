@@ -8,53 +8,23 @@ use tauri_plugin_push_notifications::PushNotificationsExt;
 use crate::{app::App, models::Notification};
 
 /// Handle notification data by emitting appropriate events
-pub fn handle_notification_data(app: &AppHandle, data: &Notification) {
-    let route = data.get_route();
-    info!(
-        "Handling notification - Type: {}, Route: {}, Playlist: {:?}",
-        data.notification_type, route, data.playlist_name
-    );
-
-    // Emit the full notification data for the frontend to handle
-    if let Err(e) = app.emit("notification_data", data.clone()) {
-        error!("Failed to emit notification_data event: {}", e);
-    }
-
-    // Emit routing event if route is present
-    if !route.is_empty() {
-        if let Err(e) = app.emit("routing", route.clone()) {
-            error!("Failed to emit routing event: {}", e);
-        }
-    }
-
-    // Handle specific notification types
-    match data.notification_type.as_str() {
-        "playlist_shared" => {
-            info!(
-                "Playlist shared: {} (ID: {:?})",
-                data.playlist_name.as_ref().unwrap_or(&"Unknown".to_string()),
-                data.playlist_id
-            );
-            // Emit specific event for playlist shared
-            if let Err(e) = app.emit("playlist_shared", data.clone()) {
-                error!("Failed to emit playlist_shared event: {}", e);
-            }
-        }
-        _ => {
-            info!("Unknown notification type: {}", data.notification_type);
+pub fn handle_notification_data(app: &AppHandle, data: Notification) {
+    if let Some(shared_playlist_notification) = data.shared_notification {
+        if let Err(e) = app.emit("playlist_shared", shared_playlist_notification.clone()) {
+            error!("Failed to emit playlist_shared event: {}", e);
         }
     }
 }
 
 /// Handle notification click (when app is closed and user clicks notification)
 pub fn handle_notification(app: &AppHandle, data: Notification) {
-    info!("Notification clicked (app was closed)");
-    handle_notification_data(app, &data);
-
-    // Also emit clicked event for frontend tracking
-    if let Err(e) = app.emit("notification_clicked", data) {
-        error!("Failed to emit notification_clicked event: {}", e);
+    if let Some(ref route) = data.route {
+        info!("Navigating to route: {}", route);
+        if let Err(e) = app.emit("routing", route.clone()) {
+            error!("Failed to emit routing event: {}", e);
+        }
     }
+    handle_notification_data(app, data);
 }
 
 #[command]
@@ -125,4 +95,4 @@ pub async fn check_opening_notification(app: State<'_, Arc<App>>) -> Result<(), 
         }
     };
     Ok(())
-} 
+}

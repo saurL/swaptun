@@ -105,7 +105,7 @@ checksum = "b0674a1ddeecb70197781e945de4b3b8ffb61fa939a5597bcf48503737663100"
 [[package]]
 name = "apple-music-api"
 version = "0.1.0"
-source = "git+https://github.com/saurL/apple-music-api.git#e4e69cf36dc8cb9b8017764feccf3a6057121bff"
+source = "git+https://github.com/saurL/apple-music-api.git#012720de43591aa7abad1525b21cfa8bb5f947d1"
 dependencies = [
  "base64 0.21.7",
  "chrono",
@@ -3241,7 +3241,7 @@ version = "0.7.4"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "77e878c846a8abae00dd069496dbe8751b16ac1c3d6bd2a7283a938e8228f90d"
 dependencies = [
- "proc-macro-crate 2.0.2",
+ "proc-macro-crate 1.3.1",
  "proc-macro2",
  "quote",
  "syn 2.0.106",
@@ -5755,7 +5755,7 @@ dependencies = [
 [[package]]
 name = "swaptun-api"
 version = "0.1.0"
-source = "git+ssh://git@github.com/saurL/swaptun_backend.git?branch=main#83eeaaff4f02d28a7d213b700d3c4e4d1f59673b"
+source = "git+ssh://git@github.com/saurL/swaptun_backend.git?branch=main#afab79914d34248730a127a770934098c05b648d"
 dependencies = [
  "swaptun-services",
 ]
@@ -5763,7 +5763,7 @@ dependencies = [
 [[package]]
 name = "swaptun-backend"
 version = "0.1.0"
-source = "git+ssh://git@github.com/saurL/swaptun_backend.git?branch=main#83eeaaff4f02d28a7d213b700d3c4e4d1f59673b"
+source = "git+ssh://git@github.com/saurL/swaptun_backend.git?branch=main#afab79914d34248730a127a770934098c05b648d"
 dependencies = [
  "google-fcm1",
  "swaptun-api",
@@ -5772,7 +5772,7 @@ dependencies = [
 [[package]]
 name = "swaptun-models"
 version = "0.1.0"
-source = "git+ssh://git@github.com/saurL/swaptun_backend.git?branch=main#83eeaaff4f02d28a7d213b700d3c4e4d1f59673b"
+source = "git+ssh://git@github.com/saurL/swaptun_backend.git?branch=main#afab79914d34248730a127a770934098c05b648d"
 dependencies = [
  "sea-orm",
  "serde",
@@ -5782,7 +5782,7 @@ dependencies = [
 [[package]]
 name = "swaptun-services"
 version = "0.1.0"
-source = "git+ssh://git@github.com/saurL/swaptun_backend.git?branch=main#83eeaaff4f02d28a7d213b700d3c4e4d1f59673b"
+source = "git+ssh://git@github.com/saurL/swaptun_backend.git?branch=main#afab79914d34248730a127a770934098c05b648d"
 dependencies = [
  "apple-music-api",
  "chrono",

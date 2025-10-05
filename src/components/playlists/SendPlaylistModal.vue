@@ -10,7 +10,7 @@
     <div
       ref="modalRef"
       @click.stop
-      class="relative w-full max-w-2xl bg-white rounded-t-3xl shadow-2xl border-t border-secondary"
+      class="relative w-full max-w-2xl pb -safe bg-white rounded-t-3xl shadow-2xl border-t border-secondary"
       :class="{
         'animate-slide-up': isAnimating,
         'transition-none': isDragging,
@@ -30,7 +30,9 @@
       </div>
 
       <!-- Header -->
-      <div class="sticky top-0 z-10 bg-white border-b border-secondary px-6 pb-4">
+      <div
+        class="sticky top-0 z-10 bg-white border-b border-secondary px-6 pb-4"
+      >
         <div class="flex items-center justify-between mb-2">
           <h2 class="text-2xl font-bold text-text-primary">Send to platform</h2>
           <button
@@ -59,7 +61,10 @@
       </div>
 
       <!-- Platform List -->
-      <div class="overflow-y-auto p-6 pt-4" style="max-height: calc(75vh - 180px)">
+      <div
+        class="overflow-y-auto p-6 pt-4"
+        style="max-height: calc(75vh - 180px)"
+      >
         <LoadingSpinner v-if="sending" size="lg" container-class="py-12" />
 
         <div v-else-if="connectedPlatforms.length > 0" class="space-y-3">
@@ -145,11 +150,8 @@ import {
 const router = useRouter();
 const route = useRoute();
 
-const {
-  sending,
-  connectedPlatforms,
-  sendPlaylistToPlatform,
-} = useSendPlaylist();
+const { sending, connectedPlatforms, sendPlaylistToPlatform } =
+  useSendPlaylist();
 
 // Get playlist ID from route params
 const playlistId = computed<number>(() => {
