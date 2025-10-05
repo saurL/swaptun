@@ -24,6 +24,16 @@ export const useUserStore = defineStore('user', {
     setToken(token: string) {
       this.token = token;
     },
+    async fetchFriends() {
+      try {
+        const friends = await invoke<User[]>('get_friends');
+        this.friends = friends;
+        info(`Fetched ${friends.length} friends`);
+      } catch (error) {
+        info(`Error fetching friends: ${error}`);
+        throw error;
+      }
+    },
     setYoutubePlaylists(playlists: Playlist[]) {
       this.youtubePlaylists = playlists;
     },

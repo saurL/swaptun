@@ -15,7 +15,6 @@ interface SharedNotificationData {
   playlist_name: string;
   shared_by_id: number;
   shared_by_username: string;
-  shared_by_name: string;
 }
 
 const currentError = ref<ErrorNotificationPayload | null>(null);
@@ -36,35 +35,32 @@ onMounted(async () => {
   // Listen for playlist shared notifications
   unlistenPlaylistShared = await listen<SharedNotificationData>(
     "playlist_shared",
-    async (event) => {
-      info(
-        `Playlist shared notification received: ${JSON.stringify(
-          event.payload
-        )}`
-      );
-
+    (event) => {
       const notification = event.payload;
       //afficher tous les attributs de notification dans la console grâce a une boucle
-      for (const [key, value] of Object.entries(notification)) {
-        info(`Notification attribute: ${key} = ${value}`);
-      }
+
       if (notification) {
-        try {
-          // Add to shared playlists store
-          await sharedPlaylistsStore.addSharedPlaylist(
+        // Add to shared playlists store
+        console.log("Adding shared playlist:", notification);
+        console.log(
+          `Received shared playlist notification: ${JSON.stringify(
+            notification
+          )}`
+        );
+        console.log("typeof notificatio:", typeof notification);
+        sharedPlaylistsStore
+          .addSharedPlaylist(
             notification.playlist_id.toString(),
             notification.playlist_name,
             notification.shared_by_id,
             notification.shared_by_username
-          );
-
-          // Show a success notification (optional - you could create a success notification component)
-          info(
-            `New playlist shared: ${notification.playlist_name} by ${notification.shared_by_name}`
-          );
-        } catch (error) {
-          info(`Failed to parse shared notification: ${error}`);
-        }
+          )
+          .then(() => {
+            info(`Shared playlist added: ${notification.playlist_name}`);
+          })
+          .catch((e) => {
+            info(`Failed to add shared playlist: ${e}`);
+          });
       }
     }
   );

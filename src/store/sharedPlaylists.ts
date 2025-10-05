@@ -27,18 +27,29 @@ export const useSharedPlaylistsStore = defineStore('sharedPlaylists', {
         return;
       }
 
+      this.loading = true;
+
       try {
-        this.loading = true;
         const response = await invoke<SharedPlaylistResponse>('get_shared_playlists');
-        this.playlists = response.vec.map((sharedPlaylist) => ({
-          ...sharedPlaylist,
-          viewed: sharedPlaylist.viewed ?? false,
-        }));
+
+        // Create a map of existing playlists to preserve local state (viewed status)
+        const existingPlaylistsMap = new Map(
+          this.playlists.map(p => [p.id, p])
+        );
+
+        // Merge server data with local state
+        this.playlists = response.shared_playlists.map((sharedPlaylist) => {
+          const existing = existingPlaylistsMap.get(sharedPlaylist.id);
+
+          return {
+            ...sharedPlaylist,
+            // Preserve local viewed state if it exists, otherwise use server value or false
+            viewed: existing?.viewed ?? sharedPlaylist.viewed ?? false,
+          };
+        });
+
         this.lastFetch = now;
-        info(`Fetched ${response.vec.length} shared playlists`);
-      } catch (error) {
-        logError(`Failed to fetch shared playlists: ${error}`);
-        throw error;
+        info(`Fetched ${response.shared_playlists.length} shared playlists`);
       } finally {
         this.loading = false;
       }
@@ -49,21 +60,26 @@ export const useSharedPlaylistsStore = defineStore('sharedPlaylists', {
       playlistName: string,
       sharedById: number,
       sharedByUsername: string,
-      sharedByName: string
+      
     ) {
+      console.log("addSharedPlaylist called with:", playlistId, playlistName, sharedById, sharedByUsername);
       // Add a new shared playlist to the list (from notification)
-      const [firstName, ...lastNameParts] = sharedByName.split(' ');
       const newSharedPlaylist: SharedPlaylist = {
         id: 0, // Temporary ID until we refetch
-        playlist_id: playlistId,
-        playlist_name: playlistName,
+        playlist: {
+          id: playlistId,
+          name: playlistName,
+          description: '',
+          artwork: '',
+          musics: [],
+          source: null,
+        },
         shared_by: {
           id: sharedById,
           username: sharedByUsername,
-          first_name: firstName,
-          last_name: lastNameParts.join(' '),
+         
         },
-        shared_at: new Date().toISOString(),
+        shared_at: new Date(),
         viewed: false,
       };
 

@@ -8,13 +8,18 @@ import { listen } from "@tauri-apps/api/event";
 import { invoke } from "@tauri-apps/api/core";
 import "tauri-plugin-safe-area-insets-css-api";
 import { useUserStore } from "./store/user";
+import { useSharedPlaylistsStore } from "./store/sharedPlaylists";
 const pinia = createPinia();
 pinia.use(createPlugin());
 
 let app = createApp(App).use(pinia);
 const userStore = useUserStore();
+const sharedPlaylistsStore = useSharedPlaylistsStore();
 await userStore.$tauri.start();
+await sharedPlaylistsStore.$tauri.start();
+
 app = app.use(router);
+
 listen<string>("routing", (event) => {
   const route = event.payload;
   console.log("Received route event with query:", route);
@@ -23,9 +28,20 @@ listen<string>("routing", (event) => {
 
 await router.isReady();
 
+// Check if app was opened from notification or URL
 await invoke("check_opening_notification");
-
 await invoke("check_opening_url");
+
+// Fetch shared playlists and friends at app start if user is authenticated
+if (userStore.token) {
+  sharedPlaylistsStore.fetchSharedPlaylists(true).catch((error) => {
+    console.error("Failed to fetch shared playlists at app start:", error);
+  });
+
+  userStore.fetchFriends().catch((error) => {
+    console.error("Failed to fetch friends at app start:", error);
+  });
+}
 
 app.mount("#app");
 

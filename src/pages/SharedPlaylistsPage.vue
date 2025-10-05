@@ -46,7 +46,7 @@
           </div>
           <div class="flex-1 min-w-0">
             <h3 class="text-lg font-semibold text-[#2E2E2E] truncate">
-              {{ shared.playlist_name }}
+              {{ shared.playlist.name }}
             </h3>
             <p class="text-sm text-[#7D7D7D] mt-1">
               Shared by
@@ -55,7 +55,7 @@
               }}</span>
             </p>
             <p class="text-xs text-[#7D7D7D] mt-1">
-              {{ formatDate(shared.shared_at) }}
+              {{ formatDate(shared.shared_at.toString()) }}
             </p>
           </div>
         </div>
@@ -107,7 +107,13 @@ const { hasConnectedPlatforms, hasSinglePlatform, sendToDefaultPlatform } =
 const sharedPlaylists = computed(() => sharedPlaylistsStore.sortedPlaylists);
 
 onMounted(async () => {
-  await sharedPlaylistsStore.fetchSharedPlaylists();
+  // Fetch only if data is stale (respects cache timeout)
+  sharedPlaylistsStore
+    .fetchSharedPlaylists(false)
+    .then()
+    .catch((error) => {
+      console.error("Failed to fetch shared playlists:", error);
+    });
 });
 
 // Mark all as viewed when leaving the page
@@ -129,7 +135,7 @@ const openPlaylist = async (shared: SharedPlaylist) => {
 const viewPlaylist = async (shared: SharedPlaylist) => {
   await openPlaylist(shared);
   // TODO: Navigate to playlist details page or open playlist modal
-  console.log("View playlist:", shared.playlist_id);
+  console.log("View playlist:", shared.playlist.id);
 };
 
 const sendPlaylist = async (shared: SharedPlaylist) => {
@@ -137,7 +143,7 @@ const sendPlaylist = async (shared: SharedPlaylist) => {
 
   // If only one platform is connected, send directly
   if (hasSinglePlatform.value) {
-    const success = await sendToDefaultPlatform(Number(shared.playlist_id));
+    const success = await sendToDefaultPlatform(Number(shared.playlist.id));
     if (success) {
       console.log("Playlist sent successfully");
       // TODO: Show success toast
@@ -149,7 +155,7 @@ const sendPlaylist = async (shared: SharedPlaylist) => {
     // Multiple platforms - show modal to choose
     router.push({
       name: "send-playlist",
-      params: { playlistId: shared.playlist_id },
+      params: { playlistId: shared.playlist.id },
     });
   }
 };

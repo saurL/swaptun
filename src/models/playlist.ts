@@ -18,20 +18,16 @@ export interface PlaylistsResponse {
 export interface SharedBy {
   id: number;
   username: string;
-  first_name: string;
-  last_name: string;
 }
 
 export interface SharedPlaylist {
   id: number;
-  playlist_id: string;
-  playlist_name: string;
+  playlist: Playlist;
   shared_by: SharedBy;
-  shared_at: string; // ISO 8601 UTC datetime
+  shared_at: Date; // ISO 8601 UTC datetime
   viewed?: boolean; // Local state, not from backend
 }
 
 export interface SharedPlaylistResponse {
-  vec: SharedPlaylist[];
-  total: number;
+  shared_playlists: SharedPlaylist[];
 }
