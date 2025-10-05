@@ -43,3 +43,11 @@ pub async fn get_playlists_spotify(
         Err(e) => Err(e.to_string()),
     }
 }
+
+#[command]
+pub async fn disconnect_spotify(app: State<'_, Arc<App>>) -> Result<(), String> {
+    match app.disconnect_spotify().await {
+        Ok(_) => Ok(()),
+        Err(e) => Err(e.to_string()),
+    }
+}

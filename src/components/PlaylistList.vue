@@ -160,13 +160,12 @@ const setupYoutubeMusicPlaylistsListener = async () => {
 };
 
 const setupApplePlaylistsListener = async () => {
-  // TODO: Add event listener for apple_music_playlists when implemented
-  // unlistenApplePlaylists = await listen<PlaylistsResponse>(
-  //   "apple_music_playlists",
-  //   (event) => {
-  //     userStore.setApplePlaylists(event.payload.vec);
-  //   }
-  // );
+  unlistenApplePlaylists = await listen<PlaylistsResponse>(
+    "apple_music_playlists",
+    (event) => {
+      userStore.setApplePlaylists(event.payload.vec);
+    }
+  );
 };
 
 const fetchYoutubeMusicPlaylists = async () => {

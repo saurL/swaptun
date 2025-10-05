@@ -6,6 +6,9 @@ use crate::backend::NotificationService;
 use crate::backend::PlaylistService;
 use crate::backend::SpotifyClient;
 use crate::backend::UserService;
+use crate::backend::YoutubeClient;
+use crate::backend::playlist::{GetSharedPlaylistsResponse, SharedPlaylist};
+use crate::error::AppResult;
 use log::error;
 use log::info;
 
@@ -26,8 +29,6 @@ use tauri::Emitter;
 use tauri::Url;
 use tauri_plugin_musickit::AuthorizationResponse;
 use tauri_plugin_musickit::MusicKitExt;
-// use tauri_plugin_oauth::start;
-use crate::backend::YoutubeClient;
 use tauri_plugin_custom_tabs_manager::{CustomTabsManagerExt, OpenCustomTabSimpleRequest};
 pub struct App {
     app_handle: AppHandle,
@@ -61,37 +62,23 @@ impl App {
         &self.app_handle
     }
 
-    pub async fn get_autorization_url_spotify(
-        &self,
-    ) -> Result<SpotifyUrlResponse, Box<dyn std::error::Error + Send + Sync>> {
+    pub async fn get_autorization_url_spotify(&self) -> AppResult<SpotifyUrlResponse> {
         self.spotify_client.get_auth_url().await
     }
 
-    pub async fn register(
-        &self,
-        request: CreateUserRequest,
-    ) -> Result<StatusCode, Box<dyn std::error::Error + Send + Sync>> {
+    pub async fn register(&self, request: CreateUserRequest) -> AppResult<StatusCode> {
         self.user_service.register(request).await
     }
 
-    pub async fn login(
-        &self,
-        request: LoginRequest,
-    ) -> Result<LoginResponse, Box<dyn std::error::Error + Send + Sync>> {
+    pub async fn login(&self, request: LoginRequest) -> AppResult<LoginResponse> {
         self.user_service.login(request).await
     }
 
-    pub async fn login_email(
-        &self,
-        request: LoginEmailRequest,
-    ) -> Result<LoginResponse, Box<dyn std::error::Error + Send + Sync>> {
+    pub async fn login_email(&self, request: LoginEmailRequest) -> AppResult<LoginResponse> {
         self.user_service.login_email(request).await
     }
 
-    pub async fn verify_token(
-        &self,
-        request: VerifyTokenRequest,
-    ) -> Result<VerifyTokenResponse, Box<dyn std::error::Error + Send + Sync>> {
+    pub async fn verify_token(&self, request: VerifyTokenRequest) -> AppResult<VerifyTokenResponse> {
         self.user_service.verify_token(request).await
     }
 
@@ -202,40 +189,32 @@ impl App {
         };
     }
 
-    pub async fn import_playlist_backend_request(
-        &self,
-    ) -> Result<StatusCode, Box<dyn std::error::Error + Send + Sync>> {
+    pub async fn import_playlist_backend_request(&self) -> AppResult<StatusCode> {
         self.spotify_client.import_playlist_backend_request().await
     }
 
-    pub async fn get_playlists_spotify(
-        &self,
-    ) -> Result<GetPlaylistResponse, Box<dyn std::error::Error + Send + Sync>> {
+    pub async fn get_playlists_spotify(&self) -> AppResult<GetPlaylistResponse> {
         let params = GetPlaylistsParams {
             origin: Some(PlaylistOrigin::Spotify),
         };
         self.playlist_service.get_playlists(params).await
     }
 
-    pub async fn get_playlists_deezer(
-        &self,
-    ) -> Result<GetPlaylistResponse, Box<dyn std::error::Error + Send + Sync>> {
+    pub async fn get_playlists_deezer(&self) -> AppResult<GetPlaylistResponse> {
         let params = GetPlaylistsParams {
             origin: Some(PlaylistOrigin::Deezer),
         };
         self.playlist_service.get_playlists(params).await
     }
-    pub async fn get_playlists_youtube(
-        &self,
-    ) -> Result<GetPlaylistResponse, Box<dyn std::error::Error + Send + Sync>> {
+
+    pub async fn get_playlists_youtube(&self) -> AppResult<GetPlaylistResponse> {
         let params = GetPlaylistsParams {
             origin: Some(PlaylistOrigin::YoutubeMusic),
         };
         self.playlist_service.get_playlists(params).await
     }
-    pub async fn connect_youtube(
-        self: &Self,
-    ) -> Result<(), Box<dyn std::error::Error + Send + Sync>> {
+
+    pub async fn connect_youtube(&self) -> AppResult<()> {
         let url_response = self.youtube_service.get_auth_url().await;
         match url_response {
             Ok(response) => {
@@ -256,92 +235,72 @@ impl App {
         }
     }
 
-    pub async fn set_youtube_token(
-        &self,
-        token: String,
-    ) -> Result<StatusCode, Box<dyn std::error::Error + Send + Sync>> {
+    pub async fn set_youtube_token(&self, token: String) -> AppResult<StatusCode> {
         let req = AddTokenRequest {
             token: token.to_string(),
         };
         self.youtube_service.add_token(req).await
     }
-    pub async fn set_fcm_token(
-        &self,
-        register_fcm_token_request: RegisterFcmTokenRequest,
-    ) -> Result<StatusCode, Box<dyn std::error::Error + Send + Sync>> {
+
+    pub async fn set_fcm_token(&self, register_fcm_token_request: RegisterFcmTokenRequest) -> AppResult<StatusCode> {
         self.notification_service
             .set_fcm_token(register_fcm_token_request)
             .await
     }
 
-    pub async fn send_test_notification(
-        &self,
-        notification_request: SendTestNotificationRequest,
-    ) -> Result<StatusCode, Box<dyn std::error::Error + Send + Sync>> {
+    pub async fn send_test_notification(&self, notification_request: SendTestNotificationRequest) -> AppResult<StatusCode> {
         self.notification_service
             .send_test_notification(notification_request)
             .await
     }
 
-    pub async fn send_playlist(
-        &self,
-        playlist_id: i32,
-        req: SendPlaylistRequest,
-    ) -> Result<StatusCode, Box<dyn std::error::Error + Send + Sync>> {
+    pub async fn send_playlist(&self, playlist_id: i32, req: SendPlaylistRequest) -> AppResult<StatusCode> {
         self.playlist_service.send_playlist(playlist_id, req).await
     }
 
-    pub async fn forgot_password(
-        &self,
-        req: ForgotPasswordRequest,
-    ) -> Result<StatusCode, Box<dyn std::error::Error + Send + Sync>> {
+    pub async fn share_playlist(&self, playlist_id: i32, user_id: i32) -> AppResult<StatusCode> {
+        use crate::backend::playlist::SharePlaylistRequest;
+        let req = SharePlaylistRequest { user_id };
+        self.playlist_service.share_playlist(playlist_id, req).await
+    }
+
+    pub async fn forgot_password(&self, req: ForgotPasswordRequest) -> AppResult<StatusCode> {
         self.user_service.forgot_password(req).await
     }
 
-    pub async fn reset_password(
-        &self,
-        req: ResetPasswordRequest,
-        token: String,
-    ) -> Result<StatusCode, Box<dyn std::error::Error + Send + Sync>> {
+    pub async fn reset_password(&self, req: ResetPasswordRequest, token: String) -> AppResult<StatusCode> {
         self.user_service.reset_password(token, req).await
     }
 
-    pub async fn search_users(
-        &self,
-        request: GetUsersRequest,
-    ) -> Result<Vec<UserBean>, Box<dyn std::error::Error + Send + Sync>> {
+    pub async fn search_users(&self, request: GetUsersRequest) -> AppResult<Vec<UserBean>> {
         self.user_service.get_users(request).await
     }
 
-    pub async fn add_friend(
-        &self,
-        request: AddFriendRequest,
-    ) -> Result<(), Box<dyn std::error::Error + Send + Sync>> {
+    pub async fn add_friend(&self, request: AddFriendRequest) -> AppResult<()> {
         self.user_service.add_friend(request).await
     }
 
-    pub async fn remove_friend(
-        &self,
-        request: RemoveFriendRequest,
-    ) -> Result<(), Box<dyn std::error::Error + Send + Sync>> {
+    pub async fn remove_friend(&self, request: RemoveFriendRequest) -> AppResult<()> {
         self.user_service.remove_friend(request).await
     }
 
-    pub async fn get_friends(
-        &self,
-    ) -> Result<Vec<UserBean>, Box<dyn std::error::Error + Send + Sync>> {
+    pub async fn get_friends(&self) -> AppResult<Vec<UserBean>> {
         self.user_service.get_friends().await
     }
 
-    pub async fn synchronize_apple_playlists(
-        &self,
-    ) -> Result<StatusCode, Box<dyn std::error::Error + Send + Sync>> {
+    pub async fn get_shared_playlists(&self) -> AppResult<GetSharedPlaylistsResponse> {
+        self.playlist_service.get_shared_playlists().await
+    }
+
+    pub async fn mark_shared_playlist_viewed(&self, shared_playlist_id: i32) -> AppResult<StatusCode> {
+        self.playlist_service.mark_shared_playlist_viewed(shared_playlist_id).await
+    }
+
+    pub async fn synchronize_apple_playlists(&self) -> AppResult<StatusCode> {
         self.apple_service.synchronize_playlists().await
     }
 
-    pub async fn connect_apple_music(
-        &self,
-    ) -> Result<AuthorizationResponse, Box<dyn std::error::Error + Send + Sync>> {
+    pub async fn connect_apple_music(&self) -> AppResult<AuthorizationResponse> {
         let developer_token = self.apple_service.get_developer_token().await?;
         self.app_handle
             .music_kit()
@@ -356,6 +315,20 @@ impl App {
                     info!("Apple Music user token: {}", token);
                     self.send_user_token_apple_music(token).await?;
                     self.synchronize_apple_playlists().await?;
+
+                    // Récupérer et émettre les playlists Apple Music
+                    match self.get_apple_music_playlists().await {
+                        Ok(playlists) => {
+                            info!("Apple Music playlists retrieved successfully");
+                            match self.app_handle.emit("apple_music_playlists", playlists) {
+                                Ok(_) => info!("apple_music_playlists event emitted"),
+                                Err(e) => error!("Error emitting apple_music_playlists event: {}", e),
+                            };
+                        }
+                        Err(e) => {
+                            error!("Error getting Apple Music playlists: {}", e);
+                        }
+                    }
                 } else {
                     error!("Apple Music user token is None");
                 }
@@ -366,22 +339,29 @@ impl App {
         Ok(auth_response)
     }
 
-    pub async fn send_user_token_apple_music(
-        &self,
-        token: String,
-    ) -> Result<(), Box<dyn std::error::Error + Send + Sync>> {
+    pub async fn send_user_token_apple_music(&self, token: String) -> AppResult<()> {
         let request = AddTokenRequest { token };
         self.apple_service.send_authorization_token(request).await?;
         Ok(())
     }
 
-    pub async fn get_apple_music_playlists(
-        &self,
-    ) -> Result<GetPlaylistResponse, Box<dyn std::error::Error + Send + Sync>> {
+    pub async fn get_apple_music_playlists(&self) -> AppResult<GetPlaylistResponse> {
         let params = GetPlaylistsParams {
             origin: Some(PlaylistOrigin::AppleMusic),
         };
         let response = self.playlist_service.get_playlists(params).await?;
         Ok(response)
+    }
+
+    pub async fn disconnect_spotify(&self) -> AppResult<StatusCode> {
+        self.spotify_client.disconnect().await
+    }
+
+    pub async fn disconnect_youtube(&self) -> AppResult<StatusCode> {
+        self.youtube_service.disconnect().await
+    }
+
+    pub async fn disconnect_apple_music(&self) -> AppResult<StatusCode> {
+        self.apple_service.disconnect().await
     }
 }

@@ -1,3 +1,26 @@
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
+
+@layer utilities {
+  .pt-safe {
+    padding-top: var(--safe-area-inset-top);
+  }
+
+  .pb-safe {
+    padding-bottom: var(--safe-area-inset-bottom);
+  }
+
+  .pt-safe-plus {
+    padding-top: calc(1rem + var(--safe-area-inset-top));
+  }
+
+  .pb-safe-plus-nav {
+    /* Padding bottom = nav height (80px) + safe area + extra spacing (1.5rem) */
+    padding-bottom: calc(80px + var(--safe-area-inset-bottom) + 1.5rem);
+  }
+
+  .h-screen-safe {
+    height: calc(100vh - var(--safe-area-inset-top) - var(--safe-area-inset-bottom));
+  }
+}

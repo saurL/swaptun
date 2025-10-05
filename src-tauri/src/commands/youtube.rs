@@ -22,3 +22,11 @@ pub async fn get_playlists_youtubemusic(
         Err(e) => Err(e.to_string()),
     }
 }
+
+#[command]
+pub async fn disconnect_youtube(app: State<'_, Arc<App>>) -> Result<(), String> {
+    match app.disconnect_youtube().await {
+        Ok(_) => Ok(()),
+        Err(e) => Err(e.to_string()),
+    }
+}

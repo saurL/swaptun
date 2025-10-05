@@ -1,4 +1,5 @@
 use crate::backend::backend::BackendClient;
+use crate::error::AppResult;
 use serde::Deserialize;
 use tauri::{http::StatusCode, AppHandle};
 
@@ -23,27 +24,27 @@ impl SpotifyClient {
         }
     }
 
-    pub async fn get_auth_url(
-        &self,
-    ) -> Result<SpotifyUrlResponse, Box<dyn std::error::Error + Send + Sync>> {
+    pub async fn get_auth_url(&self) -> AppResult<SpotifyUrlResponse> {
         self.backend_client
             .get::<SpotifyUrlResponse>("spotify/authorization-url")
             .await
     }
 
-    pub async fn add_token(
-        &self,
-        req: AddTokenRequest,
-    ) -> Result<StatusCode, Box<dyn std::error::Error + Send + Sync>> {
+    pub async fn add_token(&self, req: AddTokenRequest) -> AppResult<StatusCode> {
         self.backend_client
             .post("spotify/token", serde_json::to_string(&req).unwrap())
             .await
     }
-    pub async fn import_playlist_backend_request(
-        &self,
-    ) -> Result<StatusCode, Box<dyn std::error::Error + Send + Sync>> {
+
+    pub async fn import_playlist_backend_request(&self) -> AppResult<StatusCode> {
         self.backend_client
             .post("spotify/playlist", Body::from(""))
+            .await
+    }
+
+    pub async fn disconnect(&self) -> AppResult<StatusCode> {
+        self.backend_client
+            .delete("spotify/disconnect")
             .await
     }
 }

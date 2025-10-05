@@ -1,7 +1,8 @@
 use serde::Deserialize;
-use tauri_plugin_http::reqwest;
 
 use crate::backend::backend::BackendClient;
+use crate::error::AppResult;
+
 /*
     Cette structure est une structure Généré par Copilot pour l'exemple
 */
@@ -29,7 +30,7 @@ impl DeezerClient {
         app_id: &str,
         app_secret: &str,
         code: &str,
-    ) -> Result<(), reqwest::Error> {
+    ) -> AppResult<()> {
         let _url = format!(
             "https://connect.deezer.com/oauth/access_token.php?app_id={}&secret={}&code={}&output=json",
             app_id, app_secret, code
@@ -39,6 +40,4 @@ impl DeezerClient {
 
         Ok(())
     }
-
-
 }

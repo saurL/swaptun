@@ -1,7 +1,7 @@
 use crate::App;
-use core::error;
 use log::error;
 use std::sync::Arc;
+use swaptun_backend::GetPlaylistResponse;
 use tauri::{command, State};
 use tauri_plugin_musickit::AuthorizationResponse;
 #[command]
@@ -25,6 +25,17 @@ pub async fn get_apple_music_playlists(
         Ok(playlists) => Ok(playlists),
         Err(e) => {
             error!("Failed to get Apple Music playlists: {}", e);
+            Err(e.to_string())
+        }
+    }
+}
+
+#[command]
+pub async fn disconnect_apple_music(app: State<'_, Arc<App>>) -> Result<(), String> {
+    match app.disconnect_apple_music().await {
+        Ok(_) => Ok(()),
+        Err(e) => {
+            error!("Failed to disconnect from Apple Music: {}", e);
             Err(e.to_string())
         }
     }

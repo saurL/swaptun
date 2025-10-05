@@ -1,4 +1,5 @@
 use crate::backend::backend::BackendClient;
+use crate::error::AppResult;
 use log::info;
 use swaptun_backend::{
     AddFriendRequest, CreateUserRequest, ForgotPasswordRequest, GetUsersRequest, LoginEmailRequest,
@@ -7,6 +8,7 @@ use swaptun_backend::{
 };
 use tauri::AppHandle;
 use tauri_plugin_http::reqwest::StatusCode;
+
 pub struct UserService {
     backend_client: BackendClient,
 }
@@ -18,19 +20,13 @@ impl UserService {
         }
     }
 
-    pub async fn register(
-        &self,
-        request: CreateUserRequest,
-    ) -> Result<StatusCode, Box<dyn std::error::Error + Send + Sync>> {
+    pub async fn register(&self, request: CreateUserRequest) -> AppResult<StatusCode> {
         self.backend_client
             .post("register", serde_json::to_string(&request).unwrap())
             .await
     }
 
-    pub async fn login(
-        &self,
-        login_request: LoginRequest,
-    ) -> Result<LoginResponse, Box<dyn std::error::Error + Send + Sync>> {
+    pub async fn login(&self, login_request: LoginRequest) -> AppResult<LoginResponse> {
         self.backend_client
             .post_with_return::<LoginResponse, _>(
                 "auth/login",
@@ -39,10 +35,7 @@ impl UserService {
             .await
     }
 
-    pub async fn login_email(
-        &self,
-        login_request: LoginEmailRequest,
-    ) -> Result<LoginResponse, Box<dyn std::error::Error + Send + Sync>> {
+    pub async fn login_email(&self, login_request: LoginEmailRequest) -> AppResult<LoginResponse> {
         self.backend_client
             .post_with_return::<LoginResponse, _>(
                 "auth/login_email",
@@ -51,10 +44,7 @@ impl UserService {
             .await
     }
 
-    pub async fn verify_token(
-        &self,
-        request: VerifyTokenRequest,
-    ) -> Result<VerifyTokenResponse, Box<dyn std::error::Error + Send + Sync>> {
+    pub async fn verify_token(&self, request: VerifyTokenRequest) -> AppResult<VerifyTokenResponse> {
         let response = self
             .backend_client
             .post_with_return::<VerifyTokenResponse, _>(
@@ -65,21 +55,14 @@ impl UserService {
         Ok(response)
     }
 
-    pub async fn forgot_password(
-        &self,
-        req: ForgotPasswordRequest,
-    ) -> Result<StatusCode, Box<dyn std::error::Error + Send + Sync>> {
+    pub async fn forgot_password(&self, req: ForgotPasswordRequest) -> AppResult<StatusCode> {
         self.backend_client
             .post("auth/forgot-password", serde_json::to_string(&req).unwrap())
             .await
     }
 
-    pub async fn reset_password(
-        &self,
-        token: String,
-        request: ResetPasswordRequest,
-    ) -> Result<StatusCode, Box<dyn std::error::Error + Send + Sync>> {
-        self.backend_client.add_temporary_token(token).await;
+    pub async fn reset_password(&self, token: String, request: ResetPasswordRequest) -> AppResult<StatusCode> {
+        self.backend_client.set_temporary_token(token).await;
         self.backend_client
             .post(
                 "users/reset-password",
@@ -87,26 +70,19 @@ impl UserService {
             )
             .await
     }
-    pub async fn get_users(
-        &self,
-        request: GetUsersRequest,
-    ) -> Result<Vec<UserBean>, Box<dyn std::error::Error + Send + Sync>> {
+
+    pub async fn get_users(&self, request: GetUsersRequest) -> AppResult<Vec<UserBean>> {
         info!("Fetching users with request: {:?}", request);
         self.backend_client
             .get_with_body("users", serde_json::to_string(&request).unwrap())
             .await
     }
 
-    pub async fn get_friends(
-        &self,
-    ) -> Result<Vec<UserBean>, Box<dyn std::error::Error + Send + Sync>> {
+    pub async fn get_friends(&self) -> AppResult<Vec<UserBean>> {
         self.backend_client.get("users/friends").await
     }
 
-    pub async fn add_friend(
-        &self,
-        request: AddFriendRequest,
-    ) -> Result<(), Box<dyn std::error::Error + Send + Sync>> {
+    pub async fn add_friend(&self, request: AddFriendRequest) -> AppResult<()> {
         self.backend_client
             .post(
                 "users/friends/add",
@@ -116,10 +92,7 @@ impl UserService {
         Ok(())
     }
 
-    pub async fn remove_friend(
-        &self,
-        request: RemoveFriendRequest,
-    ) -> Result<(), Box<dyn std::error::Error + Send + Sync>> {
+    pub async fn remove_friend(&self, request: RemoveFriendRequest) -> AppResult<()> {
         self.backend_client
             .post(
                 "users/friends/remove",

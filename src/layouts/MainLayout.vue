@@ -1,36 +1,42 @@
 <template>
-  <header class="p-4 text-lg font-bold text-[#FFC436]">Swaply</header>
+  <div class="flex flex-col min-h-screen w-full bg-background">
+    <!-- Header -->
+    <header
+      class="flex-shrink-0 px-6 pb-4 pt-safe-plus border-b border-secondary shadow-sm sticky top-0 z-20"
+    >
+      <div class="flex items-center justify-between">
+        <div class="flex items-center gap-3">
+          <img
+            src="/src/assets/images/icon.svg"
+            alt="Swaply"
+            class="h-10 w-10"
+          />
+          <h1
+            class="text-2xl font-bold bg-gradient-to-r from-primary via-primary-light to-primary-lighter bg-clip-text text-transparent"
+          >
+            Swaply
+          </h1>
+        </div>
 
-  <!-- Lien vers la page de login -->
-  <a
-    href="/login"
-    class="absolute top-4 right-4 text-[#00CFE8] hover:text-[#FFC436] text-sm font-medium transition-all"
-  >
-    Login
-  </a>
+        <!-- Actions header (optionnel pour plus tard) -->
+        <div class="flex items-center gap-4">
+          <slot name="header-actions" />
+        </div>
+      </div>
+    </header>
 
-  <div class="px-4 pt-2 flex-1 flex flex-col min-h-0 overflow-y-auto">
-    <slot />
+    <!-- Main content area with bottom padding to prevent content from being hidden under nav -->
+    <main class="flex-1 overflow-y-auto px-6 py-6 pb-safe-plus-nav">
+      <div class="max-w-7xl mx-auto">
+        <slot />
+      </div>
+    </main>
+
+    <!-- Bottom Navigation -->
+    <BottomNav class="flex-shrink-0" />
   </div>
-  <BottomNav />
 </template>
 
-<script setup>
-import BottomNav from "../components/nav/BottomNav.vue";
-import { onMounted } from "vue";
-const setMinHeight = () => {
-  const header = document.querySelector("header");
-  const bottomNav = document.querySelector(".bottom-nav");
-  const main = document.querySelector("main");
-  if (header && bottomNav && main) {
-    const headerHeight = header.offsetHeight;
-    const bottomNavHeight = bottomNav.offsetHeight;
-    const minHeight = `calc(100vh - ${headerHeight + bottomNavHeight}px)`;
-    main.style.minHeight = minHeight;
-  }
-};
-
-onMounted(() => {
-  setMinHeight();
-});
+<script setup lang="ts">
+import BottomNav from "@/components/nav/BottomNav.vue";
 </script>

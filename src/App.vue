@@ -1,34 +1,73 @@
 <script setup lang="ts">
+import { ref, onMounted, onUnmounted } from 'vue';
+import { listen, type UnlistenFn } from '@tauri-apps/api/event';
+import { useSharedPlaylistsStore } from './store/sharedPlaylists';
+import ErrorNotification from './components/common/ErrorNotification.vue';
+import { info } from '@tauri-apps/plugin-log';
 
-/*
-import loadingAppAnimation from "./components/LoadingAppAnimation.vue";
-import { onMounted } from "vue";
-import { useAppStore } from "./store/app";
-import { storeToRefs } from "pinia";
+interface ErrorNotificationPayload {
+  type: 'server_error' | 'network_error';
+  message: string;
+}
 
-const appStore = useAppStore();
+interface PlaylistSharedNotification {
+  type: string;
+  route?: string;
+  playlist_id?: string;
+  playlist_name?: string;
+}
 
-const { isAppReady } = storeToRefs(appStore);
+const currentError = ref<ErrorNotificationPayload | null>(null);
+const sharedPlaylistsStore = useSharedPlaylistsStore();
+
+let unlistenError: UnlistenFn | null = null;
+let unlistenPlaylistShared: UnlistenFn | null = null;
 
 onMounted(async () => {
-  
-  isAppReady.value = true;
-});
-*/
+  // Listen for error notifications
+  unlistenError = await listen<ErrorNotificationPayload>('error_notification', (event) => {
+    currentError.value = event.payload;
+  });
 
+  // Listen for playlist shared notifications
+  unlistenPlaylistShared = await listen<PlaylistSharedNotification>('playlist_shared', async (event) => {
+    info(`Playlist shared notification received: ${JSON.stringify(event.payload)}`);
+
+    const notification = event.payload;
+    if (notification.playlist_id && notification.playlist_name) {
+      // Add to shared playlists store
+      await sharedPlaylistsStore.addSharedPlaylist(
+        notification.playlist_id,
+        notification.playlist_name,
+        'A friend' // Username will be updated on refetch
+      );
+
+      // Show a success notification (optional - you could create a success notification component)
+      info(`New playlist shared: ${notification.playlist_name}`);
+    }
+  });
+});
+
+onUnmounted(() => {
+  if (unlistenError) {
+    unlistenError();
+  }
+  if (unlistenPlaylistShared) {
+    unlistenPlaylistShared();
+  }
+});
+
+const dismissError = () => {
+  currentError.value = null;
+};
 </script>
 <template>
-
   <div
-    class=" h-screen bg-[#121212] text-white flex flex-col max-h-screen w-screen max-w-full overflow-y-scroll overflow-x-hidden items-center justify-center"
+    class="h-screen flex flex-col max-h-screen w-screen max-w-full overflow-y-scroll overflow-x-hidden items-center justify-center"
   >
-
-    <!--<loadingAppAnimation v-if="!isAppReady" />-->
+    <ErrorNotification :error="currentError" @dismiss="dismissError" />
     <RouterView />
-
-
   </div>
-
 </template>
 
 <style lang="css">
@@ -47,7 +86,6 @@ body {
   top: 0;
   left: 0;
 }
-
 
 div,
 span {

@@ -1,6 +1,8 @@
 use crate::backend::backend::BackendClient;
+use crate::error::AppResult;
 use swaptun_backend::{AddTokenRequest, GetDeveloperToken};
 use tauri::http::StatusCode;
+
 pub struct AppleService {
     backend_client: BackendClient,
 }
@@ -12,18 +14,13 @@ impl AppleService {
         }
     }
 
-    pub async fn get_developer_token(
-        &self,
-    ) -> Result<GetDeveloperToken, Box<dyn std::error::Error + Send + Sync>> {
+    pub async fn get_developer_token(&self) -> AppResult<GetDeveloperToken> {
         self.backend_client
             .get::<GetDeveloperToken>("apple/developer-token")
             .await
     }
 
-    pub async fn send_authorization_token(
-        &self,
-        request: AddTokenRequest,
-    ) -> Result<(), Box<dyn std::error::Error + Send + Sync>> {
+    pub async fn send_authorization_token(&self, request: AddTokenRequest) -> AppResult<()> {
         let url = "apple/token";
         self.backend_client
             .post(url, serde_json::to_string(&request).unwrap())
@@ -31,12 +28,16 @@ impl AppleService {
         Ok(())
     }
 
-    pub async fn synchronize_playlists(
-        &self,
-    ) -> Result<StatusCode, Box<dyn std::error::Error + Send + Sync>> {
+    pub async fn synchronize_playlists(&self) -> AppResult<StatusCode> {
         let url = "apple/synchronize";
         self.backend_client
             .post(url, serde_json::to_string(&()).unwrap())
+            .await
+    }
+
+    pub async fn disconnect(&self) -> AppResult<StatusCode> {
+        self.backend_client
+            .delete("apple/disconnect")
             .await
     }
 }

@@ -1,11 +1,12 @@
 use log::info;
 use serde_json;
-use std::error::Error;
 use tauri::AppHandle;
 use tauri_plugin_http::reqwest::StatusCode;
 
 use crate::backend::backend::BackendClient;
+use crate::error::AppResult;
 use swaptun_backend::{RegisterFcmTokenRequest, SendTestNotificationRequest};
+
 pub struct NotificationService {
     backend_client: BackendClient,
 }
@@ -17,10 +18,7 @@ impl NotificationService {
         }
     }
 
-    pub async fn set_fcm_token(
-        &self,
-        register_fcm_token_request: RegisterFcmTokenRequest,
-    ) -> Result<StatusCode, Box<dyn Error + Send + Sync>> {
+    pub async fn set_fcm_token(&self, register_fcm_token_request: RegisterFcmTokenRequest) -> AppResult<StatusCode> {
         info!("Setting FCM token");
         let body = serde_json::to_string(&register_fcm_token_request)?;
         self.backend_client
@@ -28,10 +26,7 @@ impl NotificationService {
             .await
     }
 
-    pub async fn send_test_notification(
-        &self,
-        notification_request: SendTestNotificationRequest,
-    ) -> Result<StatusCode, Box<dyn Error + Send + Sync>> {
+    pub async fn send_test_notification(&self, notification_request: SendTestNotificationRequest) -> AppResult<StatusCode> {
         info!("Sending test notification");
         let body = serde_json::to_string(&notification_request)?;
         self.backend_client

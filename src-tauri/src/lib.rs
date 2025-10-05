@@ -1,8 +1,8 @@
 mod app;
 mod backend;
 mod commands;
+mod error;
 mod models;
-
 use tauri::{async_runtime::spawn, Builder, Emitter, Manager, Wry};
 use tauri_plugin_log::{Target, TargetKind};
 
@@ -52,18 +52,24 @@ fn finish_setup(builder: Builder<Wry>) {
             let swaptun_app = App::new(app_handle.clone());
 
             let app_handle_navigation = app_handle.clone();
+            let app_handle_message = app_handle.clone();
 
+            // Handle notification clicks (when app is closed)
             app_handle
                 .push_notifications()
                 .on_notification_clicked(move |data: Notification| {
                     handle_notification(&app_handle_navigation, data);
                 });
 
+            // Handle notifications received while app is open
             app_handle
                 .push_notifications()
                 .on_message_received(move |data: Notification| {
-                    println!("Push notification received: {:?}", data);
+                    use log::info;
+                    info!("Push notification received while app is open: {:?}", data);
+                    handle_notification_data(&app_handle_message, &data);
                 });
+
             let app = swaptun_app.clone();
 
             app_handle.deep_link().on_open_url(move |event| {
@@ -109,7 +115,13 @@ fn finish_setup(builder: Builder<Wry>) {
             remove_friend,
             search_non_friends_users,
             connect_apple_music,
-            get_apple_music_playlistsn
+            get_apple_music_playlists,
+            disconnect_spotify,
+            disconnect_youtube,
+            disconnect_apple_music,
+            share_playlist,
+            get_shared_playlists,
+            mark_shared_playlist_viewed
         ])
         .run(tauri::generate_context!())
         .expect("error while running tauri application");

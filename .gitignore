@@ -50,3 +50,4 @@ logs
 **/keystore.properties
 
 # Tauri plugin
+.claude

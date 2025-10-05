@@ -29,7 +29,7 @@ log="0.4.27"
 #tauri-plugin-admob = "0.0.4"
 tauri-plugin-http =  { version = "2", features = ["json", "rustls-tls", "blocking"] }
 dotenv = "0.15"
-tauri-plugin-pinia = {git = "https://github.com/saurL/tauri-store", branch = "sandboxedPath"}
+tauri-plugin-pinia = "1.0"
 tauri-plugin-push-notifications = { git = "https://github.com/saurL/tauri-plugin-push-notifications", features = ["ios-fcm"] }
 rspotify = { version = "0.14.0",    default-features = false,    features = ["client-reqwest", "reqwest-rustls-tls", "cli"] }
 tauri-plugin-deep-link = "2"
@@ -37,6 +37,7 @@ tauri-plugin-custom-tabs-manager = { git = "https://github.com/saurL/tauri-plugi
 tauri-plugin-safe-area-insets-css = { git ="https://github.com/saurL/tauri-plugin-safe-area-insets-css" }
 
 tauri-plugin-musickit = { git = "https://github.com/saurL/tauri-plugin-musickit"}
+tokio = "1.47.1"
 [target.'cfg(target_os = "ios")'.dependencies]
 tauri-plugin-fullscreen = { git = "https://github.com/saurL/tauri-plugin-fullscreen" }
 

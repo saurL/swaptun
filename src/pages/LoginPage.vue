@@ -1,126 +1,139 @@
-<script setup lang="ts">
-import { useUserStore } from "@/store/user";
-import { ref } from "vue";
-import { invoke } from "@tauri-apps/api/core";
-import { useRouter } from "vue-router";
-import { info, error } from "@tauri-apps/plugin-log";
-const store = useUserStore();
-const email = ref("");
-const password = ref("");
-const errorMessage = ref("");
-import LoginResponse from "@/models/dto";
-
-const router = useRouter();
-info("Router state in login: " + JSON.stringify(router.currentRoute.value));
-info("history state in login: " + JSON.stringify(window.history));
-
-
-const handleLogin = async () => {
-  invoke<LoginResponse>("login_email", {
-    request: {
-      email: email.value,
-      password: password.value,
-    },
-  })
-    .then(async (response) => {
-      try {
-        store.setToken(response.token);
-      } catch (e) {
-        info("setToken failed: " + e);
-      }
-
-      info("UserStore after setting token: " + JSON.stringify(store.$state));
-      try {
-        store.setUserInfo(response.user.id, response.user.username);
-        info("setUserInfo succeeded");
-      } catch (e) {
-        info("setUserInfo failed: " + e);
-      }
-      info(
-        "UserStore after setting user info: " + JSON.stringify(store.$state)
-      );
-      router.replace("/");
-    })
-    .catch((err) => {
-      error(err);
-    });
-};
-</script>
-
 <template>
-  <!-- Lien vers la homepage -->
-  <router-link
-    to="/homepage"
-    class="absolute top-4 left-4 text-[#00CFE8] hover:text-[#FFC436] text-sm font-medium transition-all"
-  >
-    Lien vers l'accueil
-  </router-link>
-  <div
-    class="bg-white/10 backdrop-blur-md shadow-lg rounded-2xl w-full max-w-md p-8 border border-white/10"
-  >
-    <!-- LOGO -->
-    <div class="flex justify-center mb-6">
-      <img
-        src="/src/assets/images/icon.ico"
-        alt="Swaply Logo"
-        class="h-16 w-16"
-      />
+  <div class="min-h-screen bg-background flex items-center justify-center p-4">
+    <div class="w-full max-w-md">
+      <Card variant="white" padding="lg">
+        <!-- LOGO -->
+        <div class="flex justify-center mb-6">
+          <img
+            src="/src/assets/images/icon.svg"
+            alt="Swaply Logo"
+            class="h-20 w-20"
+          />
+        </div>
+
+        <h1 class="text-3xl font-bold text-center text-text-primary mb-2">
+          Welcome to Swaply
+        </h1>
+        <p class="text-sm text-text-secondary text-center mb-8">
+          Share your vibe with your friends.
+        </p>
+
+        <!-- Messages d'erreur -->
+        <div
+          v-if="errorMessage"
+          class="mb-4 p-3 rounded-lg bg-error/10 border border-error/20"
+        >
+          <p class="text-error text-sm text-center">{{ errorMessage }}</p>
+        </div>
+
+        <form @submit.prevent="handleLogin" class="space-y-5">
+          <div>
+            <label class="block text-sm font-medium text-text-primary mb-2"
+              >Email</label
+            >
+            <input
+              type="email"
+              v-model="email"
+              required
+              class="w-full px-4 py-3 rounded-xl bg-background-secondary text-text-primary placeholder-text-secondary border border-secondary focus:outline-none focus:ring-2 focus:ring-primary focus:border-primary focus:shadow-glow transition-all"
+              placeholder="your@email.com"
+            />
+          </div>
+
+          <div>
+            <label class="block text-sm font-medium text-text-primary mb-2"
+              >Password</label
+            >
+            <input
+              type="password"
+              v-model="password"
+              required
+              class="w-full px-4 py-3 rounded-xl bg-background-secondary text-text-primary placeholder-text-secondary border border-secondary focus:outline-none focus:ring-2 focus:ring-primary focus:border-primary focus:shadow-glow transition-all"
+              placeholder="••••••••"
+            />
+          </div>
+
+          <Button
+            type="submit"
+            variant="primary"
+            size="lg"
+            :loading="isLoading"
+            class="w-full"
+          >
+            Sign In
+          </Button>
+
+          <div class="text-center">
+            <router-link
+              to="/forgot-password"
+              class="text-sm text-primary hover:text-primary-light hover:underline transition-colors"
+            >
+              Forgot password?
+            </router-link>
+          </div>
+        </form>
+
+        <div class="mt-8 pt-6 border-t border-secondary">
+          <p class="text-center text-sm text-text-secondary">
+            Don't have an account yet?
+            <router-link
+              to="/register"
+              class="text-primary hover:text-primary-light hover:underline font-medium transition-colors"
+            >
+              Create account
+            </router-link>
+          </p>
+        </div>
+      </Card>
     </div>
-
-    <h1 class="text-2xl font-bold text-center text-white mb-4">
-      Bienvenue sur Swaply
-    </h1>
-    <p class="text-sm text-gray-300 text-center mb-8">
-      Partage ta vibe avec tes amis.
-    </p>
-
-    <form class="space-y-5">
-      <div>
-        <label class="block text-sm font-medium text-gray-300">Email</label>
-        <input
-          type="email"
-          v-model="email"
-          class="w-full mt-1 px-4 py-2 rounded-lg bg-[#2A2A2A] text-white placeholder-gray-500 border border-gray-600 focus:outline-none focus:ring-2 focus:ring-[#00CFE8]"
-          placeholder="melomane@swaptun.app"
-        />
-      </div>
-      <div>
-        <label class="block text-sm font-medium text-gray-300"
-          >Mot de passe</label
-        >
-        <input
-          type="password"
-          v-model="password"
-          class="w-full mt-1 px-4 py-2 rounded-lg bg-[#2A2A2A] text-white placeholder-gray-500 border border-gray-600 focus:outline-none focus:ring-2 focus:ring-[#00CFE8]"
-          placeholder="••••••••"
-        />
-      </div>
-      <button
-        type="submit"
-        class="w-full bg-[#00CFE8] hover:bg-[#FFC436] text-[#1E1E1E] font-semibold py-2 px-4 rounded-lg transition"
-        @click.prevent="handleLogin"
-      >
-        Se connecter
-      </button>
-
-      <p class="text-center text-sm text-gray-400 mt-4">
-        <router-link
-          to="/forgot-password"
-          class="text-[#00CFE8] hover:text-[#FFC436] hover:underline"
-          >Mot de passe oublié ?</router-link
-        >
-      </p>
-    </form>
-
-    <p class="text-center text-sm text-gray-400 mt-6">
-      Pas encore de compte ?
-      <router-link
-        to="/register"
-        class="text-[#00CFE8] hover:text-[#FFC436] hover:underline"
-        >Créer un compte</router-link
-      >
-    </p>
   </div>
 </template>
 
-<style scoped></style>
+<script setup lang="ts">
+import { ref } from "vue";
+import { useRouter } from "vue-router";
+import { invoke } from "@tauri-apps/api/core";
+import { info, error as logError } from "@tauri-apps/plugin-log";
+import { useUserStore } from "@/store/user";
+import Card from "@/components/common/Card.vue";
+import Button from "@/components/common/Button.vue";
+import type LoginResponse from "@/models/dto";
+
+const router = useRouter();
+const store = useUserStore();
+
+const email = ref("");
+const password = ref("");
+const errorMessage = ref("");
+const isLoading = ref(false);
+
+const handleLogin = async () => {
+  if (!email.value || !password.value) {
+    errorMessage.value = "Please fill in all fields";
+    return;
+  }
+
+  try {
+    isLoading.value = true;
+    errorMessage.value = "";
+
+    const response = await invoke<LoginResponse>("login_email", {
+      request: {
+        email: email.value,
+        password: password.value,
+      },
+    });
+
+    store.setToken(response.token);
+    store.setUserInfo(response.user.id, response.user.username);
+
+    info("User logged in successfully");
+    router.replace("/");
+  } catch (err) {
+    logError("Login error: " + err);
+    errorMessage.value = "Incorrect email or password";
+  } finally {
+    isLoading.value = false;
+  }
+};
+</script>

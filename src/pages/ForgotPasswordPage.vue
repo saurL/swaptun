@@ -1,6 +1,85 @@
+<template>
+  <div class="min-h-screen bg-background flex items-center justify-center p-4">
+    <div class="w-full max-w-md">
+      <Card variant="white" padding="lg">
+        <!-- LOGO -->
+        <div class="flex justify-center mb-6">
+          <img
+            src="/src/assets/images/icon.svg"
+            alt="Swaply Logo"
+            class="h-20 w-20"
+          />
+        </div>
+
+        <h1 class="text-3xl font-bold text-center text-text-primary mb-2">
+          Forgot password?
+        </h1>
+        <p class="text-sm text-text-secondary text-center mb-8">
+          Enter your email address to receive a reset link
+        </p>
+
+        <!-- Messages -->
+        <div
+          v-if="errorMessage"
+          class="mb-4 p-3 rounded-lg bg-error/10 border border-error/20"
+        >
+          <p class="text-error text-sm text-center">{{ errorMessage }}</p>
+        </div>
+
+        <div
+          v-if="successMessage"
+          class="mb-4 p-3 rounded-lg bg-success/10 border border-success/20"
+        >
+          <p class="text-success text-sm text-center">{{ successMessage }}</p>
+        </div>
+
+        <form @submit.prevent="handleForgotPassword" class="space-y-5">
+          <div>
+            <label class="block text-sm font-medium text-text-primary mb-2"
+              >Email</label
+            >
+            <input
+              type="email"
+              v-model="email"
+              required
+              class="w-full px-4 py-3 rounded-xl bg-background-secondary text-text-primary placeholder-text-secondary border border-secondary focus:outline-none focus:ring-2 focus:ring-primary focus:border-primary focus:shadow-glow transition-all"
+              placeholder="melomane@swaptun.app"
+            />
+          </div>
+
+          <Button
+            type="submit"
+            variant="primary"
+            size="lg"
+            :loading="isSubmitting"
+            class="w-full"
+          >
+            Send link
+          </Button>
+        </form>
+
+        <div class="mt-8 pt-6 border-t border-secondary">
+          <p class="text-center text-sm text-text-secondary">
+            Remember your password?
+            <router-link
+              to="/login"
+              class="text-primary hover:text-primary-light hover:underline font-medium transition-colors"
+            >
+              Sign in
+            </router-link>
+          </p>
+        </div>
+      </Card>
+    </div>
+  </div>
+</template>
+
 <script setup lang="ts">
 import { ref } from "vue";
 import { invoke } from "@tauri-apps/api/core";
+import Card from "@/components/common/Card.vue";
+import Button from "@/components/common/Button.vue";
+
 const email = ref("");
 const errorMessage = ref("");
 const successMessage = ref("");
@@ -8,101 +87,30 @@ const isSubmitting = ref(false);
 
 const handleForgotPassword = async () => {
   if (!email.value) {
-    errorMessage.value = "Veuillez entrer votre adresse email";
+    errorMessage.value = "Please enter your email address";
     return;
   }
 
-  isSubmitting.value = true;
-  errorMessage.value = "";
-  successMessage.value = "";
-  invoke<boolean>("forgot_password", { request: { email: email.value } })
-    .then((response: boolean) => {
-      isSubmitting.value = false;
-      if (response) {
-        successMessage.value =
-          "Un lien de réinitialisation a été envoyé à votre adresse email.";
-        email.value = ""; // Clear the input field
-      } else {
-        errorMessage.value =
-          "Une erreur est survenue lors de l'envoi du lien de réinitialisation.";
-      }
-    })
-    .catch((error: any) => {
-      isSubmitting.value = false;
-      errorMessage.value = `Erreur: ${error.message}`;
+  try {
+    isSubmitting.value = true;
+    errorMessage.value = "";
+    successMessage.value = "";
+
+    const response = await invoke<boolean>("forgot_password", {
+      request: { email: email.value },
     });
+
+    if (response) {
+      successMessage.value =
+        "A reset link has been sent to your email address.";
+      email.value = "";
+    } else {
+      errorMessage.value = "An error occurred while sending the reset link.";
+    }
+  } catch (error: any) {
+    errorMessage.value = `Error: ${error.message || "An error occurred"}`;
+  } finally {
+    isSubmitting.value = false;
+  }
 };
 </script>
-
-<template>
-  <!-- Lien vers la page de connexion -->
-  <a
-    href="/login"
-    class="absolute top-4 left-4 text-[#00CFE8] hover:text-[#FFC436] text-sm font-medium transition-all"
-  >
-    ← Retour à la connexion
-  </a>
-  <div
-    class="bg-white/10 backdrop-blur-md shadow-lg rounded-2xl w-full max-w-md p-8 border border-white/10"
-  >
-    <!-- LOGO -->
-    <div class="flex justify-center mb-6">
-      <img
-        src="/src/assets/images/icon.ico"
-        alt="Swaply Logo"
-        class="h-16 w-16"
-      />
-    </div>
-
-    <h1 class="text-2xl font-bold text-center text-white mb-4">
-      Mot de passe oublié ?
-    </h1>
-    <p class="text-sm text-gray-300 text-center mb-8">
-      Entrez votre adresse email pour recevoir un lien de réinitialisation
-    </p>
-
-    <form class="space-y-5">
-      <div>
-        <label class="block text-sm font-medium text-gray-300">Email</label>
-        <input
-          type="email"
-          v-model="email"
-          class="w-full mt-1 px-4 py-2 rounded-lg bg-[#2A2A2A] text-white placeholder-gray-500 border border-gray-600 focus:outline-none focus:ring-2 focus:ring-[#00CFE8]"
-          placeholder="melomane@swaptun.app"
-        />
-      </div>
-
-      <div v-if="errorMessage" class="text-red-400 text-sm text-center">
-        {{ errorMessage }}
-      </div>
-
-      <div v-if="successMessage" class="text-green-400 text-sm text-center">
-        {{ successMessage }}
-      </div>
-
-      <button
-        type="submit"
-        class="w-full bg-[#00CFE8] hover:bg-[#FFC436] text-[#1E1E1E] font-semibold py-2 px-4 rounded-lg transition"
-        @click.prevent="handleForgotPassword"
-        :disabled="isSubmitting"
-      >
-        {{
-          isSubmitting
-            ? "Envoi en cours..."
-            : "Envoyer le lien de réinitialisation"
-        }}
-      </button>
-    </form>
-
-    <p class="text-center text-sm text-gray-400 mt-6">
-      Vous vous souvenez de votre mot de passe ?
-      <a
-        href="/login"
-        class="text-[#00CFE8] hover:text-[#FFC436] hover:underline"
-        >Se connecter</a
-      >
-    </p>
-  </div>
-</template>
-
-<style scoped></style>
