@@ -51,7 +51,7 @@
             <p class="text-sm text-[#7D7D7D] mt-1">
               Shared by
               <span class="font-medium text-[#CB5520]">{{
-                getSharedByName(shared)
+                shared.shared_by.username
               }}</span>
             </p>
             <p class="text-xs text-[#7D7D7D] mt-1">
@@ -100,11 +100,8 @@ const router = useRouter();
 const sharedPlaylistsStore = useSharedPlaylistsStore();
 const { loading } = storeToRefs(sharedPlaylistsStore);
 
-const {
-  hasConnectedPlatforms,
-  hasSinglePlatform,
-  sendToDefaultPlatform,
-} = useSendPlaylist();
+const { hasConnectedPlatforms, hasSinglePlatform, sendToDefaultPlatform } =
+  useSendPlaylist();
 
 // Use the sorted playlists from the store (unviewed first, then by date)
 const sharedPlaylists = computed(() => sharedPlaylistsStore.sortedPlaylists);
@@ -160,10 +157,5 @@ const sendPlaylist = async (shared: SharedPlaylist) => {
 const formatDate = (utcDateString: string): string => {
   const localDate = utcToLocal(utcDateString);
   return formatRelativeTime(localDate);
-};
-
-const getSharedByName = (shared: SharedPlaylist): string => {
-  const { first_name, last_name } = shared.shared_by;
-  return `${first_name} ${last_name}`.trim();
 };
 </script>

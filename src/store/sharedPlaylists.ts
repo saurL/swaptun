@@ -1,7 +1,7 @@
 import { defineStore } from 'pinia';
 import { invoke } from '@tauri-apps/api/core';
 import { info, error as logError } from '@tauri-apps/plugin-log';
-import { SharedPlaylist, SharedPlaylistsResponse } from '@/models/playlist';
+import { SharedPlaylist, SharedPlaylistResponse } from '@/models/playlist';
 import { utcToLocal } from '@/utils/helpers';
 
 export interface SharedPlaylistsState {
@@ -29,7 +29,7 @@ export const useSharedPlaylistsStore = defineStore('sharedPlaylists', {
 
       try {
         this.loading = true;
-        const response = await invoke<SharedPlaylistsResponse>('get_shared_playlists');
+        const response = await invoke<SharedPlaylistResponse>('get_shared_playlists');
         this.playlists = response.vec.map((sharedPlaylist) => ({
           ...sharedPlaylist,
           viewed: sharedPlaylist.viewed ?? false,

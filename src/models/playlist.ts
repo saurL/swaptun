@@ -31,7 +31,7 @@ export interface SharedPlaylist {
   viewed?: boolean; // Local state, not from backend
 }
 
-export interface SharedPlaylistsResponse {
+export interface SharedPlaylistResponse {
   vec: SharedPlaylist[];
   total: number;
 }

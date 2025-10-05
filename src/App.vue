@@ -11,9 +11,9 @@ interface ErrorNotificationPayload {
 }
 
 interface SharedNotificationData {
-  playlist_id: string;
+  playlist_id: number;
   playlist_name: string;
-  shared_by_id: string;
+  shared_by_id: number;
   shared_by_username: string;
   shared_by_name: string;
 }
@@ -44,15 +44,18 @@ onMounted(async () => {
       );
 
       const notification = event.payload;
+      //afficher tous les attributs de notification dans la console grâce a une boucle
+      for (const [key, value] of Object.entries(notification)) {
+        info(`Notification attribute: ${key} = ${value}`);
+      }
       if (notification) {
         try {
           // Add to shared playlists store
           await sharedPlaylistsStore.addSharedPlaylist(
-            notification.playlist_id,
+            notification.playlist_id.toString(),
             notification.playlist_name,
-            Number(notification.shared_by_id),
-            notification.shared_by_username,
-            notification.shared_by_name
+            notification.shared_by_id,
+            notification.shared_by_username
           );
 
           // Show a success notification (optional - you could create a success notification component)
