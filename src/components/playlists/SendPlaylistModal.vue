@@ -1,4 +1,7 @@
 <template>
+  <!-- Loading Overlay -->
+  <LoadingOverlay :show="sending" message="Sending playlist..." />
+
   <div
     class="fixed inset-0 z-50 flex items-end justify-center"
     @click="handleClose"
@@ -65,9 +68,7 @@
         class="overflow-y-auto p-6 pt-4"
         style="max-height: calc(75vh - 180px)"
       >
-        <LoadingSpinner v-if="sending" size="lg" container-class="py-12" />
-
-        <div v-else-if="connectedPlatforms.length > 0" class="space-y-3">
+        <div v-if="connectedPlatforms.length > 0" class="space-y-3">
           <button
             v-for="platform in connectedPlatforms"
             :key="platform.name"
@@ -141,7 +142,7 @@
 <script setup lang="ts">
 import { ref, computed, onMounted } from "vue";
 import { useRouter, useRoute } from "vue-router";
-import LoadingSpinner from "@/components/common/LoadingSpinner.vue";
+import LoadingOverlay from "@/components/common/LoadingOverlay.vue";
 import {
   useSendPlaylist,
   type ConnectedPlatform,

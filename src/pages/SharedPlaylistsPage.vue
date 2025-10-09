@@ -1,5 +1,8 @@
 <template>
   <div class="flex flex-col h-full bg-[#FFFFFF] overflow-y-auto">
+    <!-- Loading Overlay -->
+    <LoadingOverlay :show="sending" message="Sending playlist..." />
+
     <!-- Router View for Modal -->
     <router-view />
 
@@ -95,13 +98,15 @@ import type { SharedPlaylist } from "@/models/playlist";
 import { useSendPlaylist } from "@/composables/useSendPlaylist";
 import { formatRelativeTime, utcToLocal } from "@/utils/helpers";
 import LoadingSpinner from "@/components/common/LoadingSpinner.vue";
+import LoadingOverlay from "@/components/common/LoadingOverlay.vue";
 
 const router = useRouter();
 const sharedPlaylistsStore = useSharedPlaylistsStore();
 const { loading } = storeToRefs(sharedPlaylistsStore);
 
-const { hasConnectedPlatforms, hasSinglePlatform, sendToDefaultPlatform } =
-  useSendPlaylist();
+const sendPlaylistComposable = useSendPlaylist();
+const { sending, hasConnectedPlatforms, hasSinglePlatform, sendToDefaultPlatform } =
+  sendPlaylistComposable;
 
 // Use the sorted playlists from the store (unviewed first, then by date)
 const sharedPlaylists = computed(() => sharedPlaylistsStore.sortedPlaylists);

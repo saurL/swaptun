@@ -3,8 +3,16 @@
     <!-- Share Playlist Modal (nested route) -->
     <router-view />
 
+    <!-- Global Loading State (when first loading all playlists) -->
+    <div
+      v-if="isInitialLoading"
+      class="flex justify-center items-center py-20"
+    >
+      <LoadingSpinner size="xl" />
+    </div>
+
     <!-- Affichage conditionnel : bouton + OU playlists + autres sections -->
-    <div v-if="hasPlaylists">
+    <div v-else-if="hasPlaylists">
       <!-- Barre de recherche -->
       <div class="mb-4">
         <SearchInput
@@ -105,6 +113,7 @@ import { usePlatformConnect } from "@/composables/usePlatformConnect";
 import { usePlaylistManagement } from "@/composables/usePlaylistManagement";
 import { useFuzzySearch } from "@/composables/useFuzzySearch";
 import SearchInput from "@/components/common/SearchInput.vue";
+import LoadingSpinner from "@/components/common/LoadingSpinner.vue";
 import PlatformSelector from "@/components/platforms/PlatformSelector.vue";
 import PlaylistSection from "@/components/playlists/PlaylistSection.vue";
 import type Playlist from "@/models/playlist";
@@ -130,6 +139,29 @@ const activeFilters = ref<string[]>([]);
 const spotifyPlaylists = computed(() => userStore.spotifyPlaylists);
 const youtubePlaylists = computed(() => userStore.youtubePlaylists);
 const applePlaylists = computed(() => userStore.applePlaylists);
+
+// Vérifie si l'utilisateur a des playlists
+const hasPlaylists = computed(() => {
+  return (
+    userStore.spotifyPlaylists.length > 0 ||
+    userStore.youtubePlaylists.length > 0 ||
+    userStore.applePlaylists.length > 0
+  );
+});
+
+// Track if we're doing the initial load (all platforms loading at once)
+const isInitialLoading = computed(() => {
+  const loadingCount = [
+    appStore.isLoadingSpotify,
+    appStore.isLoadingApple,
+    appStore.isLoadingYouTube,
+  ].filter(Boolean).length;
+
+  const hasNoPlaylists = !hasPlaylists.value;
+
+  // Show global loading if we're loading multiple platforms and have no playlists yet
+  return loadingCount >= 2 && hasNoPlaylists;
+});
 
 // Available filters based on playlists that exist
 const availableFilters = computed(() => {
@@ -197,15 +229,6 @@ const { filteredItems: filteredApplePlaylists } = useFuzzySearch(
   searchQuery,
   (playlist) => playlist.name
 );
-
-// Vérifie si l'utilisateur a des playlists
-const hasPlaylists = computed(() => {
-  return (
-    userStore.spotifyPlaylists.length > 0 ||
-    userStore.youtubePlaylists.length > 0 ||
-    userStore.applePlaylists.length > 0
-  );
-});
 
 // Liste des plateformes avec leur état de connexion
 const platformsList = ref(

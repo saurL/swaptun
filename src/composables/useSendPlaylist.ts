@@ -69,6 +69,9 @@ export function useSendPlaylist() {
         req: { destination },
       });
 
+      // Keep loading state for a moment to show success
+      await new Promise(resolve => setTimeout(resolve, 500));
+
       return true;
     } catch (err) {
       error.value = err as string;

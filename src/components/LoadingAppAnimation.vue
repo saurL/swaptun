@@ -1,6 +1,12 @@
 <template>
   <div class="loading-container">
-    <div class="spinner"></div>
+    <div class="logo-spinner">
+      <img
+        src="/src/assets/images/icon.svg"
+        alt="Loading"
+        class="w-24 h-24"
+      />
+    </div>
   </div>
 </template>
 
@@ -8,7 +14,7 @@
 defineExpose();
 </script>
 
-<style>
+<style scoped>
 .loading-container {
   display: flex;
   justify-content: center;
@@ -16,20 +22,18 @@ defineExpose();
   height: 100%;
 }
 
-.spinner {
-  width: 40px;
-  height: 40px;
-  border: 4px solid transparent;
-  border-top: 4px solid #00cfe8;
-  border-radius: 50%;
-  animation: spin 1s linear infinite;
+.logo-spinner {
+  animation: spin-ease 2s cubic-bezier(0.4, 0, 0.2, 1) infinite;
 }
 
-@keyframes spin {
-  from {
+@keyframes spin-ease {
+  0% {
     transform: rotate(0deg);
   }
-  to {
+  50% {
+    transform: rotate(180deg);
+  }
+  100% {
     transform: rotate(360deg);
   }
 }

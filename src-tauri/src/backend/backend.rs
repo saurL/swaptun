@@ -24,7 +24,6 @@ impl BackendClient {
         info!("Backend URL initialized: {}", base_url);
 
         let client = Client::builder()
-            .timeout(std::time::Duration::from_secs(10))
             .build()
             .expect("Failed to build HTTP client");
 
