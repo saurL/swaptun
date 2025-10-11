@@ -1,0 +1,2 @@
+package_name("com.swaptun.app")
+# json_key is now handled directly in Fastfile using json_key_data from ENV

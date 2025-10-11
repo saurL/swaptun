@@ -2,6 +2,16 @@
   <!-- Loading Overlay -->
   <LoadingOverlay :show="sending" message="Sending playlist..." />
 
+  <!-- Success Dialog -->
+  <ImportSuccessDialog
+    ref="successDialogRef"
+    :platform-label="selectedPlatform?.label || ''"
+    :platform-icon="selectedPlatform?.icon"
+    :platform-name="selectedPlatform?.name || ''"
+    @open-app="handleOpenApp"
+    @close="handleSuccessDialogClose"
+  />
+
   <div
     class="fixed inset-0 z-50 flex items-end justify-center"
     @click="handleClose"
@@ -142,7 +152,9 @@
 <script setup lang="ts">
 import { ref, computed, onMounted } from "vue";
 import { useRouter, useRoute } from "vue-router";
+import { invoke } from "@tauri-apps/api/core";
 import LoadingOverlay from "@/components/common/LoadingOverlay.vue";
+import ImportSuccessDialog from "@/components/common/ImportSuccessDialog.vue";
 import {
   useSendPlaylist,
   type ConnectedPlatform,
@@ -153,6 +165,9 @@ const route = useRoute();
 
 const { sending, connectedPlatforms, sendPlaylistToPlatform } =
   useSendPlaylist();
+
+const successDialogRef = ref<InstanceType<typeof ImportSuccessDialog> | null>(null);
+const selectedPlatform = ref<ConnectedPlatform | null>(null);
 
 // Get playlist ID from route params
 const playlistId = computed<number>(() => {
@@ -304,14 +319,32 @@ const handleClose = () => {
 const handleSendToPlatform = async (platform: ConnectedPlatform) => {
   if (sending.value) return;
 
+  selectedPlatform.value = platform;
   const success = await sendPlaylistToPlatform(playlistId.value, platform.name);
 
   if (success) {
     console.log(`Playlist sent to ${platform.label} successfully`);
     handleClose();
+    // Show success dialog after modal is closed
+    setTimeout(() => {
+      successDialogRef.value?.show();
+    }, 300);
   } else {
     console.error(`Failed to send playlist to ${platform.label}`);
+    selectedPlatform.value = null;
   }
+};
+
+const handleOpenApp = async (platformName: string) => {
+  try {
+    await invoke("open_external_app", { platform: platformName });
+  } catch (error) {
+    console.error("Error opening app:", error);
+  }
+};
+
+const handleSuccessDialogClose = () => {
+  selectedPlatform.value = null;
 };
 
 onMounted(() => {

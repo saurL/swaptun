@@ -2,80 +2,80 @@
   <div class="space-y-6">
     <p></p>
     <!-- Informations utilisateur -->
-    <Card variant="white" padding="lg">
-      <div class="flex items-center gap-4 mb-6">
-        <div
-          class="w-20 h-20 rounded-full bg-gradient-to-br from-primary to-primary-lighter flex items-center justify-center text-white text-3xl font-bold"
-        >
-          {{ userStore.username?.charAt(0).toUpperCase() }}
-        </div>
-        <div>
-          <h2 class="text-2xl font-bold text-text-primary">
-            {{ userStore.username }}
-          </h2>
-          <p class="text-text-secondary">{{ userStore.email }}</p>
-        </div>
+    <div class="flex items-center gap-4 mb-6">
+      <div
+        class="w-20 h-20 rounded-full bg-gradient-to-br from-primary to-primary-lighter flex items-center justify-center text-white text-3xl font-bold"
+      >
+        {{ userStore.username?.charAt(0).toUpperCase() }}
       </div>
+      <div>
+        <h2 class="text-2xl font-bold text-text-primary">
+          {{ userStore.username }}
+        </h2>
+        <p class="text-text-secondary">{{ userStore.email }}</p>
+      </div>
+    </div>
 
-      <!-- Statistiques -->
-      <div class="grid grid-cols-2 gap-4">
-        <div class="bg-background-secondary rounded-lg p-4 text-center border border-secondary">
-          <div class="text-3xl font-bold text-primary">
-            {{ totalPlaylists }}
-          </div>
-          <div class="text-text-secondary text-sm mt-1">Playlists</div>
+    <!-- Statistiques -->
+    <div class="grid grid-cols-2 gap-4">
+      <div
+        class="bg-background-secondary rounded-lg p-4 text-center border border-secondary"
+      >
+        <div class="text-3xl font-bold text-primary">
+          {{ totalPlaylists }}
         </div>
-        <div class="bg-background-secondary rounded-lg p-4 text-center border border-secondary">
-          <div class="text-3xl font-bold text-primary-light">
-            {{ userStore.friends.length }}
-          </div>
-          <div class="text-text-secondary text-sm mt-1">Friends</div>
-        </div>
+        <div class="text-text-secondary text-sm mt-1">Playlists</div>
       </div>
-    </Card>
+      <div
+        class="bg-background-secondary rounded-lg p-4 text-center border border-secondary"
+      >
+        <div class="text-3xl font-bold text-primary-light">
+          {{ userStore.friends.length }}
+        </div>
+        <div class="text-text-secondary text-sm mt-1">Friends</div>
+      </div>
+    </div>
 
     <!-- Platforms -->
-    <Card variant="white" padding="lg">
-      <h3 class="text-xl font-bold text-text-primary mb-4">Platforms</h3>
-      <div class="space-y-3">
-        <div
-          v-for="platform in platforms"
-          :key="platform.id"
-          class="flex items-center justify-between p-3 bg-background-secondary rounded-lg border transition-all"
-          :class="platform.connected ? 'border-success/30' : 'border-secondary'"
-        >
-          <div class="flex items-center gap-3">
-            <img
-              v-if="platform.icon"
-              :src="platform.icon"
-              :alt="platform.name"
-              class="w-8 h-8"
-            />
-            <span class="text-text-primary font-medium">{{ platform.name }}</span>
-          </div>
-
-          <!-- Connected state - show disconnect button -->
-          <Button
-            v-if="platform.connected"
-            variant="outline"
-            size="sm"
-            @click="handleDisconnectPlatform(platform.id)"
-          >
-            Disconnect
-          </Button>
-
-          <!-- Not connected - show connect button -->
-          <Button
-            v-else
-            variant="primary"
-            size="sm"
-            @click="handleConnectPlatform(platform.id)"
-          >
-            Connect
-          </Button>
+    <h3 class="text-xl font-bold text-text-primary mb-4">Platforms</h3>
+    <div class="space-y-3">
+      <div
+        v-for="platform in platforms"
+        :key="platform.id"
+        class="flex items-center justify-between p-3 bg-background-secondary rounded-lg border transition-all"
+        :class="platform.connected ? 'border-success/30' : 'border-secondary'"
+      >
+        <div class="flex items-center gap-3">
+          <img
+            v-if="platform.icon"
+            :src="platform.icon"
+            :alt="platform.name"
+            class="w-8 h-8"
+          />
+          <span class="text-text-primary font-medium">{{ platform.name }}</span>
         </div>
+
+        <!-- Connected state - show disconnect button -->
+        <Button
+          v-if="platform.connected"
+          variant="outline"
+          size="sm"
+          @click="handleDisconnectPlatform(platform.id)"
+        >
+          Disconnect
+        </Button>
+
+        <!-- Not connected - show connect button -->
+        <Button
+          v-else
+          variant="primary"
+          size="sm"
+          @click="handleConnectPlatform(platform.id)"
+        >
+          Connect
+        </Button>
       </div>
-    </Card>
+    </div>
 
     <!-- Bouton de déconnexion -->
     <div class="flex justify-center">
@@ -89,7 +89,10 @@ import { computed } from "vue";
 import { useRouter } from "vue-router";
 import { invoke } from "@tauri-apps/api/core";
 import { useUserStore } from "@/store/user";
-import { usePlatformConnect, type Platform } from "@/composables/usePlatformConnect";
+import {
+  usePlatformConnect,
+  type Platform,
+} from "@/composables/usePlatformConnect";
 import { PLATFORMS } from "@/utils/constants";
 import Card from "@/components/common/Card.vue";
 import Button from "@/components/common/Button.vue";

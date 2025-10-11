@@ -8,6 +8,7 @@
         <button
           @click="navigateTo('HomeTab')"
           class="relative group transition-all duration-300"
+          data-tour="home-tab"
           :class="isActive('HomeTab') ? 'scale-110' : 'scale-100'"
         >
           <div
@@ -43,6 +44,7 @@
         <!-- Shared Playlists -->
         <button
           @click="navigateTo('SharedPlaylistsTab')"
+          data-tour="shared-tab"
           class="relative group transition-all duration-300"
           :class="isActive('SharedPlaylistsTab') ? 'scale-110' : 'scale-100'"
         >
@@ -51,14 +53,14 @@
             v-if="unviewedCount > 0"
             class="absolute -top-1 -right-1 z-50 bg-[#CB5520] text-white text-xs font-bold rounded-full min-w-[20px] h-5 flex items-center justify-center px-1.5 shadow-lg"
           >
-            {{ unviewedCount > 9 ? '9+' : unviewedCount }}
+            {{ unviewedCount > 9 ? "9+" : unviewedCount }}
           </div>
 
           <div
             class="p-3.5 rounded-2xl transition-all duration-300"
             :class="
               isActive('SharedPlaylistsTab')
-                ? 'bg-primary-light shadow-lg shadow-primary-light/30'
+                ? 'bg-primary shadow-lg shadow-primary/30'
                 : 'bg-transparent group-hover:bg-secondary'
             "
           >
@@ -68,7 +70,7 @@
               :class="
                 isActive('SharedPlaylistsTab')
                   ? 'text-white'
-                  : 'text-text-secondary group-hover:text-primary-light group-hover:scale-110'
+                  : 'text-text-secondary group-hover:text-primary group-hover:scale-110'
               "
               fill="none"
               viewBox="0 0 24 24"
@@ -87,6 +89,7 @@
         <!-- Amis -->
         <button
           @click="navigateTo('FriendsTab')"
+          data-tour="friends-tab"
           class="relative group transition-all duration-300"
           :class="isActive('FriendsTab') ? 'scale-110' : 'scale-100'"
         >
@@ -94,7 +97,7 @@
             class="p-3.5 rounded-2xl transition-all duration-300"
             :class="
               isActive('FriendsTab')
-                ? 'bg-primary-light shadow-lg shadow-primary-light/30'
+                ? 'bg-primary shadow-lg shadow-primary/30'
                 : 'bg-transparent group-hover:bg-secondary'
             "
           >
@@ -104,7 +107,7 @@
               :class="
                 isActive('FriendsTab')
                   ? 'text-white'
-                  : 'text-text-secondary group-hover:text-primary-light group-hover:scale-110'
+                  : 'text-text-secondary group-hover:text-primary group-hover:scale-110'
               "
               fill="none"
               viewBox="0 0 24 24"
@@ -123,6 +126,7 @@
         <!-- Profil -->
         <button
           @click="navigateTo('ProfileTab')"
+          data-tour="profile-tab"
           class="relative group transition-all duration-300"
           :class="isActive('ProfileTab') ? 'scale-110' : 'scale-100'"
         >
@@ -130,7 +134,7 @@
             class="p-3.5 rounded-2xl transition-all duration-300"
             :class="
               isActive('ProfileTab')
-                ? 'bg-primary-lighter shadow-lg shadow-primary-lighter/30'
+                ? 'bg-primary shadow-lg shadow-primary/30'
                 : 'bg-transparent group-hover:bg-secondary'
             "
           >
@@ -140,7 +144,7 @@
               :class="
                 isActive('ProfileTab')
                   ? 'text-white'
-                  : 'text-text-secondary group-hover:text-primary-lighter group-hover:scale-110'
+                  : 'text-text-secondary group-hover:text-primary group-hover:scale-110'
               "
               fill="none"
               viewBox="0 0 24 24"
@@ -176,7 +180,8 @@ const isActive = (routeName: string) => {
   return computed(() => route.name === routeName).value;
 };
 
-const navigateTo = (routeName: string) => {
+const navigateTo = async (routeName: string) => {
+  // Light haptic feedback for navigation
   // Utilise push pour créer l'historique de navigation
   router.push({ name: routeName });
 };

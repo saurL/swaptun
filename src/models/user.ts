@@ -11,6 +11,7 @@ export interface UserState {
   token: string | null;
   information_loaded: boolean;
   username: string | null;
+  isFirstLogin: boolean;
   youtubePlaylists: Playlist[];
   deezerPlaylists: Playlist[];
   spotifyPlaylists: Playlist[];

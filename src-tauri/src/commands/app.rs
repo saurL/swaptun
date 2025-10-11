@@ -97,3 +97,31 @@ pub async fn search_non_friends_users(
         Err(e) => Err(format!("Error fetching users: {}", e)),
     }
 }
+
+#[command]
+pub async fn open_external_app(platform: String) -> Result<(), String> {
+    let url = match platform.as_str() {
+        "Spotify" => "spotify://",
+        "YoutubeMusic" => {
+            #[cfg(target_os = "android")]
+            {
+                "vnd.youtube://music"
+            }
+            #[cfg(not(target_os = "android"))]
+            {
+                "youtubemusic://"
+            }
+        }
+        "AppleMusic" => "music://",
+        "Deezer" => "deezer://",
+        _ => return Err(format!("Unknown platform: {}", platform)),
+    };
+
+    // Use open::that which works cross-platform
+    if let Err(e) = open::that(url) {
+        error!("Failed to open external app: {}", e);
+        return Err(format!("Failed to open {}: {}", platform, e));
+    }
+
+    Ok(())
+}

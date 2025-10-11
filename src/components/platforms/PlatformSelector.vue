@@ -1,55 +1,57 @@
 <template>
-  <div class="space-y-4">
-    <h2 class="text-xl font-bold text-text-primary mb-4">Music platforms</h2>
-
-    <!-- Backdrop pour fermer le menu -->
-    <div
-      v-if="isOpen"
-      @click="closeMenu"
-      class="fixed top-0 left-0 right-0 bottom-0 z-50"
-      style="margin: 0; padding: 0"
-    ></div>
-
-    <!-- Container pour le bouton + et le menu radial -->
-    <div class="relative flex justify-center items-center h-64">
-      <!-- Boutons des plateformes en cercle -->
+  <div class="flex flex-col items-center justify-center flex-1">
+    <div class="space-y-4">
+      <p class="text-text-primary text-lg mb-4">Select a music platform</p>
+      <!-- Backdrop pour fermer le menu -->
       <div
-        class="absolute inset-0 flex justify-center items-center pointer-events-none"
-      >
-        <button
-          v-for="(platform, index) in platforms"
-          :key="platform.id"
-          :style="getRadialPosition(index, platforms.length, isOpen)"
-          class="fixed w-16 h-16 rounded-full bg-white border-2 border-secondary flex items-center justify-center transition-all duration-500 ease-out hover:scale-110 hover:border-primary z-[60] pointer-events-auto shadow-lg tap-highlight-transparent"
-          :class="{ 'opacity-0 scale-0': !isOpen }"
-          :disabled="platform.loading || !isOpen"
-          @click.stop="handlePlatformClick(platform.id)"
+        v-if="isOpen"
+        @click="closeMenu"
+        class="fixed top-0 left-0 right-0 bottom-0 z-50"
+        style="margin: 0; padding: 0"
+      ></div>
+
+      <!-- Container pour le bouton + et le menu radial -->
+      <div class="relative flex justify-center items-center h-64">
+        <!-- Boutons des plateformes en cercle -->
+        <div
+          class="absolute inset-0 flex justify-center items-center pointer-events-none"
         >
-          <img
-            v-if="platform.icon"
-            :src="platform.icon"
-            :alt="platform.name"
-            class="w-10 h-10 object-contain"
-          />
-          <div
-            v-if="platform.loading"
-            class="absolute inset-0 flex items-center justify-center bg-white/90 rounded-full"
+          <button
+            v-for="(platform, index) in platforms"
+            :key="platform.id"
+            :style="getRadialPosition(index, platforms.length, isOpen)"
+            class="fixed w-16 h-16 rounded-full bg-white border-2 border-secondary flex items-center justify-center transition-all duration-500 ease-out hover:scale-110 hover:border-primary z-[60] pointer-events-auto shadow-lg tap-highlight-transparent"
+            :class="{ 'opacity-0 scale-0': !isOpen }"
+            :disabled="platform.loading || !isOpen"
+            @click.stop="handlePlatformClick(platform.id)"
           >
+            <img
+              v-if="platform.icon"
+              :src="platform.icon"
+              :alt="platform.name"
+              class="w-10 h-10 object-contain"
+            />
             <div
-              class="w-6 h-6 border-2 border-primary border-t-transparent rounded-full animate-spin"
-            ></div>
-          </div>
+              v-if="platform.loading"
+              class="absolute inset-0 flex items-center justify-center bg-white/90 rounded-full"
+            >
+              <div
+                class="w-6 h-6 border-2 border-primary border-t-transparent rounded-full animate-spin"
+              ></div>
+            </div>
+          </button>
+        </div>
+
+        <!-- Bouton + central -->
+        <button
+          @click.stop="toggleMenu"
+          data-tour="platform-button"
+          class="relative z-30 w-20 h-20 rounded-full bg-gradient-to-br from-primary to-primary-light hover:from-primary-light hover:to-primary-lighter transition-all duration-300 flex items-center justify-center text-white text-4xl font-light shadow-lg"
+          :class="{ 'rotate-45': isOpen }"
+        >
+          +
         </button>
       </div>
-
-      <!-- Bouton + central -->
-      <button
-        @click.stop="toggleMenu"
-        class="relative z-30 w-20 h-20 rounded-full bg-gradient-to-br from-primary to-primary-light hover:from-primary-light hover:to-primary-lighter transition-all duration-300 flex items-center justify-center text-white text-4xl font-light shadow-lg"
-        :class="{ 'rotate-45': isOpen }"
-      >
-        +
-      </button>
     </div>
   </div>
 </template>

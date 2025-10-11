@@ -6,12 +6,12 @@
 
 <script setup lang="ts">
 import { onMounted, onUnmounted } from "vue";
-import { useUserStore } from "@/store/user";
 import { useNotifications } from "@/composables/useNotifications";
 import { usePlaylistManagement } from "@/composables/usePlaylistManagement";
+import { useTour } from "@/composables/useTour";
 import MainLayout from "@/layouts/MainLayout.vue";
 
-const userStore = useUserStore();
+const { hasSeenTour, awaitTourEnd } = useTour();
 
 const { setupNotifications, cleanup: cleanupNotifications } =
   useNotifications();
@@ -22,7 +22,10 @@ const {
 } = usePlaylistManagement();
 
 onMounted(async () => {
-  // Setup notifications
+  // Setup notifications only if user has seen the tour
+  console.log("hasSeenTour:", hasSeenTour.value);
+  await awaitTourEnd();
+  console.log("User has seen the tour, setting up notifications.");
   await setupNotifications();
 
   // Setup playlist listeners

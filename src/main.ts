@@ -9,6 +9,8 @@ import { invoke } from "@tauri-apps/api/core";
 import "tauri-plugin-safe-area-insets-css-api";
 import { useUserStore } from "./store/user";
 import { useSharedPlaylistsStore } from "./store/sharedPlaylists";
+import { impactFeedback } from "@tauri-apps/plugin-haptics";
+
 const pinia = createPinia();
 pinia.use(createPlugin());
 
@@ -20,9 +22,15 @@ await sharedPlaylistsStore.$tauri.start();
 
 app = app.use(router);
 
-listen<string>("routing", (event) => {
+listen<string>("routing", async (event) => {
   const route = event.payload;
   console.log("Received route event with query:", route);
+  // Light haptic for routing from notifications
+  try {
+    await impactFeedback("light");
+  } catch (error) {
+    console.warn("Haptic feedback not available:", error);
+  }
   router.push(route);
 });
 

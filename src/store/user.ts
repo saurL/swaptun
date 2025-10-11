@@ -9,6 +9,7 @@ export const useUserStore = defineStore('user', {
     token: null,
     username: null,
     information_loaded: false,
+    isFirstLogin: false,
     youtubePlaylists: [],
     deezerPlaylists: [],
     spotifyPlaylists: [],
@@ -16,13 +17,17 @@ export const useUserStore = defineStore('user', {
     friends: [],
   }),
   actions: {
-    setUserInfo(id: number, username: string) {
+    setUserInfo(id: number, username: string, isFirstLogin: boolean = false) {
       this.id = id;
       this.username = username;
       this.information_loaded = true;
+      this.isFirstLogin = isFirstLogin;
     },
     setToken(token: string) {
       this.token = token;
+    },
+    markTourSeen() {
+      this.isFirstLogin = false;
     },
     async fetchFriends() {
       try {

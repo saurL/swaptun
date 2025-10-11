@@ -2,7 +2,11 @@
 import { ref, onMounted, onUnmounted } from "vue";
 import { listen, type UnlistenFn } from "@tauri-apps/api/event";
 import { useSharedPlaylistsStore } from "./store/sharedPlaylists";
+import { useHaptics } from "./composables/useHaptics";
 import ErrorNotification from "./components/common/ErrorNotification.vue";
+import ToastContainer from "./components/common/ToastContainer.vue";
+import OfflineIndicator from "./components/common/OfflineIndicator.vue";
+import AppTour from "./components/tour/AppTour.vue";
 import { info } from "@tauri-apps/plugin-log";
 
 interface ErrorNotificationPayload {
@@ -19,6 +23,7 @@ interface SharedNotificationData {
 
 const currentError = ref<ErrorNotificationPayload | null>(null);
 const sharedPlaylistsStore = useSharedPlaylistsStore();
+const haptics = useHaptics();
 
 let unlistenError: UnlistenFn | null = null;
 let unlistenPlaylistShared: UnlistenFn | null = null;
@@ -27,19 +32,23 @@ onMounted(async () => {
   // Listen for error notifications
   unlistenError = await listen<ErrorNotificationPayload>(
     "error_notification",
-    (event) => {
+    async (event) => {
       currentError.value = event.payload;
+      await haptics.error();
     }
   );
 
   // Listen for playlist shared notifications
   unlistenPlaylistShared = await listen<SharedNotificationData>(
     "playlist_shared",
-    (event) => {
+    async (event) => {
       const notification = event.payload;
       //afficher tous les attributs de notification dans la console grâce a une boucle
 
       if (notification) {
+        // Trigger success haptic for receiving a shared playlist
+        await haptics.success();
+
         // Add to shared playlists store
         console.log("Adding shared playlist:", notification);
         console.log(
@@ -83,7 +92,10 @@ const dismissError = () => {
   <div
     class="h-screen flex flex-col max-h-screen w-screen max-w-full overflow-y-scroll overflow-x-hidden items-center justify-center"
   >
+    <OfflineIndicator />
     <ErrorNotification :error="currentError" @dismiss="dismissError" />
+    <ToastContainer />
+    <AppTour />
     <RouterView />
   </div>
 </template>

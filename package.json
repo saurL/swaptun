@@ -12,13 +12,14 @@
   },
   "dependencies": {
     "@tauri-apps/api": "^2.5.0",
+    "@tauri-apps/plugin-haptics": "^2.3.0",
     "@tauri-apps/plugin-log": "^2.3.1",
     "@tauri-store/pinia": "^3.3.0",
     "lodash": "^4.17.21",
     "pinia": "^3.0.3",
+    "tauri-plugin-apple-music-kit-api": "github:saurL/tauri-plugin-musickit",
     "tauri-plugin-push-notifications": "github:saurL/tauri-plugin-push-notifications",
     "tauri-plugin-safe-area-insets-css-api": "github:saurL/tauri-plugin-safe-area-insets-css",
-    "tauri-plugin-apple-music-kit-api": "github:saurL/tauri-plugin-musickit",
     "vue": "^3.5.13",
     "vue-router": "^4.5.0"
   },

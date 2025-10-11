@@ -3241,7 +3241,7 @@ version = "0.7.4"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "77e878c846a8abae00dd069496dbe8751b16ac1c3d6bd2a7283a938e8228f90d"
 dependencies = [
- "proc-macro-crate 1.3.1",
+ "proc-macro-crate 2.0.2",
  "proc-macro2",
  "quote",
  "syn 2.0.106",
@@ -5732,6 +5732,7 @@ version = "0.1.0"
 dependencies = [
  "dotenv",
  "log",
+ "open",
  "rspotify",
  "serde",
  "serde_json",
@@ -5742,6 +5743,7 @@ dependencies = [
  "tauri-plugin-custom-tabs-manager",
  "tauri-plugin-deep-link",
  "tauri-plugin-fullscreen",
+ "tauri-plugin-haptics",
  "tauri-plugin-http",
  "tauri-plugin-log",
  "tauri-plugin-musickit",
@@ -6206,6 +6208,20 @@ version = "0.1.0"
 source = "git+https://github.com/saurL/tauri-plugin-fullscreen#907d158808e341c09aaa7657b70c1ab7051907f2"
 dependencies = [
  "serde",
+ "tauri",
+ "tauri-plugin",
+ "thiserror 2.0.16",
+]
+
+[[package]]
+name = "tauri-plugin-haptics"
+version = "2.3.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "b60b57d4d3add75483c5ce448b82a3af50ebcaaed369f2856fb8290eb3a69294"
+dependencies = [
+ "log",
+ "serde",
+ "serde_json",
  "tauri",
  "tauri-plugin",
  "thiserror 2.0.16",

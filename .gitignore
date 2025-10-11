@@ -49,5 +49,14 @@ logs
 !.env.example
 **/keystore.properties
 
+# Google Play credentials (should never be committed)
+google-play-key.json
+
+# Fastlane
+fastlane/report.xml
+fastlane/Preview.html
+fastlane/screenshots
+fastlane/test_output
+
 # Tauri plugin
 .claude

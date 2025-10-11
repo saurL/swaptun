@@ -22,7 +22,7 @@
       </div>
 
       <!-- Filter Chips (only show if multiple platforms available) -->
-      <div v-if="availableFilters.length > 1" class="flex gap-2 mb-6 flex-wrap">
+      <div v-if="availableFilters.length > 1" data-tour="playlists-navigation" class="flex gap-2 mb-6 flex-wrap">
         <button
           v-for="filter in availableFilters"
           :key="filter.id"
@@ -46,7 +46,7 @@
       </div>
 
       <!-- Toutes les playlists groupées -->
-      <div class="space-y-6">
+      <div data-tour="playlists-section" class="space-y-6">
         <PlaylistSection
           v-if="
             shouldShowPlatform('spotify') &&

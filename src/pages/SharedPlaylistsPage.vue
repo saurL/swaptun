@@ -1,5 +1,5 @@
 <template>
-  <div class="flex flex-col h-full bg-[#FFFFFF] overflow-y-auto">
+  <div class="flex flex-col h-full bg-[#FFFFFF]">
     <!-- Loading Overlay -->
     <LoadingOverlay :show="sending" message="Sending playlist..." />
 
@@ -105,8 +105,12 @@ const sharedPlaylistsStore = useSharedPlaylistsStore();
 const { loading } = storeToRefs(sharedPlaylistsStore);
 
 const sendPlaylistComposable = useSendPlaylist();
-const { sending, hasConnectedPlatforms, hasSinglePlatform, sendToDefaultPlatform } =
-  sendPlaylistComposable;
+const {
+  sending,
+  hasConnectedPlatforms,
+  hasSinglePlatform,
+  sendToDefaultPlatform,
+} = sendPlaylistComposable;
 
 // Use the sorted playlists from the store (unviewed first, then by date)
 const sharedPlaylists = computed(() => sharedPlaylistsStore.sortedPlaylists);

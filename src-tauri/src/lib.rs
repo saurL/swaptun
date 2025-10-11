@@ -23,6 +23,7 @@ pub fn run() {
         .level(log::LevelFilter::Info)
         .build();
     builder = builder
+        .plugin(tauri_plugin_haptics::init())
         .plugin(tauri_plugin_custom_tabs_manager::init())
         .plugin(tauri_plugin_deep_link::init())
         .plugin(tauri_plugin_http::init())
@@ -126,7 +127,8 @@ fn finish_setup(builder: Builder<Wry>) {
             disconnect_apple_music,
             share_playlist,
             get_shared_playlists,
-            mark_shared_playlist_viewed
+            mark_shared_playlist_viewed,
+            open_external_app
         ])
         .run(tauri::generate_context!())
         .expect("error while running tauri application");

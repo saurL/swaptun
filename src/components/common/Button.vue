@@ -8,7 +8,7 @@
       disabled ? 'opacity-50 cursor-not-allowed' : '',
     ]"
     :disabled="disabled || loading"
-    @click="$emit('click', $event)"
+    @click.stop="handleClick"
   >
     <span v-if="loading" class="inline-block animate-spin mr-2">⚙</span>
     <slot />
@@ -17,12 +17,14 @@
 
 <script setup lang="ts">
 import { computed } from "vue";
+import { useHaptics } from "@/composables/useHaptics";
 
 interface Props {
   variant?: "primary" | "secondary" | "outline" | "danger";
   size?: "sm" | "md" | "lg";
   disabled?: boolean;
   loading?: boolean;
+  hapticIntensity?: "light" | "medium" | "heavy";
 }
 
 const props = withDefaults(defineProps<Props>(), {
@@ -30,11 +32,38 @@ const props = withDefaults(defineProps<Props>(), {
   size: "md",
   disabled: false,
   loading: false,
+  hapticIntensity: "medium",
 });
 
-defineEmits<{
+const emit = defineEmits<{
   click: [event: MouseEvent];
 }>();
+
+const haptics = useHaptics();
+
+const handleClick = async (event: MouseEvent) => {
+  if (props.disabled || props.loading) return;
+
+  // Trigger haptic feedback based on variant and intensity
+  if (props.variant === "danger") {
+    await haptics.heavy();
+  } else {
+    switch (props.hapticIntensity) {
+      case "light":
+        await haptics.light();
+        break;
+      case "heavy":
+        await haptics.heavy();
+        break;
+      case "medium":
+      default:
+        await haptics.medium();
+        break;
+    }
+  }
+
+  emit("click", event);
+};
 
 const variantClasses = computed(() => {
   switch (props.variant) {

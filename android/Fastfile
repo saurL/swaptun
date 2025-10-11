@@ -1,0 +1,33 @@
+default_platform(:android)
+
+platform :android do
+  desc "Deploy to Google Play Internal Testing"
+  lane :closed_testing do
+    # Use json_key_data from environment variable for better security
+    # Falls back to json_key file if the env var is not set (for local testing only)
+    upload_to_play_store(
+      track: 'internal',
+      aab: '../src-tauri/gen/android/app/build/outputs/bundle/universalRelease/app-universal-release.aab',
+      json_key_data: ENV['GOOGLE_PLAY_JSON_KEY'] || File.read('../google-play-key.json'),
+      skip_upload_apk: true,
+      skip_upload_metadata: true,
+      skip_upload_images: true,
+      skip_upload_screenshots: true
+    )
+  end
+
+  desc "Deploy to Google Play Production"
+  lane :production do
+    # Use json_key_data from environment variable for better security
+    # Falls back to json_key file if the env var is not set (for local testing only)
+    upload_to_play_store(
+      track: 'production',
+      aab: '../src-tauri/gen/android/app/build/outputs/bundle/universalRelease/app-universal-release.aab',
+      json_key_data: ENV['GOOGLE_PLAY_JSON_KEY'] || File.read('../google-play-key.json'),
+      skip_upload_apk: true,
+      skip_upload_metadata: true,
+      skip_upload_images: true,
+      skip_upload_screenshots: true
+    )
+  end
+end
