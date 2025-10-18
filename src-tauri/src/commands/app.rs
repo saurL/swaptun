@@ -4,8 +4,9 @@ use log::error;
 use swaptun_backend::{
     AddFriendRequest, GetUsersRequest, RemoveFriendRequest, SearchField, UserBean,
 };
-use tauri::{command, State};
+use tauri::{command, AppHandle, State};
 use tauri_plugin_deep_link::DeepLinkExt;
+use tauri_plugin_opener::OpenerExt;
 
 use crate::app::App;
 
@@ -42,6 +43,7 @@ pub async fn search_users(
         offset: None,
         friends_priority: false,
         exclude_friends: false,
+        exclude_self: Some(true),
     };
 
     match app.search_users(request).await {
@@ -90,6 +92,7 @@ pub async fn search_non_friends_users(
         offset: None,
         friends_priority: true,
         exclude_friends: true,
+        exclude_self: Some(true),
     };
 
     match app.search_users(request).await {
@@ -99,26 +102,68 @@ pub async fn search_non_friends_users(
 }
 
 #[command]
-pub async fn open_external_app(platform: String) -> Result<(), String> {
+pub async fn open_external_app(
+    app_handle: AppHandle,
+    platform: String,
+    playlist_id: Option<String>,
+) -> Result<(), String> {
     let url = match platform.as_str() {
-        "Spotify" => "spotify://",
+        "Spotify" => {
+            if let Some(id) = playlist_id {
+                // Spotify uses: spotify://playlist/{id}
+                format!("spotify://playlist/{}", id)
+            } else {
+                "spotify://".to_string()
+            }
+        }
         "YoutubeMusic" => {
             #[cfg(target_os = "android")]
             {
-                "vnd.youtube://music"
+                if let Some(id) = playlist_id {
+                    // YouTube Music on Android uses: vnd.youtube://music/playlist?list={id}
+                    format!("vnd.youtube://music/playlist?list={}", id)
+                } else {
+                    "vnd.youtube://music".to_string()
+                }
             }
             #[cfg(not(target_os = "android"))]
             {
-                "youtubemusic://"
+                if let Some(id) = playlist_id {
+                    // YouTube Music on iOS: https://music.youtube.com/playlist?list={id}
+                    format!("https://music.youtube.com/playlist?list={}", id)
+                } else {
+                    "https://music.youtube.com".to_string()
+                }
             }
         }
-        "AppleMusic" => "music://",
-        "Deezer" => "deezer://",
+        "AppleMusic" => {
+            if let Some(id) = playlist_id {
+                // Apple Music uses: music://playlist/{id} or https://music.apple.com/library/playlist/{id}
+                #[cfg(target_os = "ios")]
+                {
+                    format!("music://library/playlist/{}", id)
+                }
+                #[cfg(not(target_os = "ios"))]
+                {
+                    format!("https://music.apple.com/library/playlist/{}", id)
+                }
+            } else {
+                "music://".to_string()
+            }
+        }
+        "Deezer" => {
+            if let Some(id) = playlist_id {
+                // Deezer uses: deezer://www.deezer.com/playlist/{id}
+                format!("deezer://www.deezer.com/playlist/{}", id)
+            } else {
+                "deezer://".to_string()
+            }
+        }
         _ => return Err(format!("Unknown platform: {}", platform)),
     };
 
-    // Use open::that which works cross-platform
-    if let Err(e) = open::that(url) {
+    // Use opener plugin which works cross-platform
+    if let Err(e) = app_handle.opener().open_url(url.clone(), None::<&str>) {
         error!("Failed to open external app: {}", e);
         return Err(format!("Failed to open {}: {}", platform, e));
     }

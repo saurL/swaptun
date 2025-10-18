@@ -1,8 +1,7 @@
 import { defineStore } from 'pinia';
 import { invoke } from '@tauri-apps/api/core';
 import { info, error as logError } from '@tauri-apps/plugin-log';
-import { SharedPlaylist, SharedPlaylistResponse } from '@/models/playlist';
-import { utcToLocal } from '@/utils/helpers';
+import Playlist, { SharedPlaylist, SharedPlaylistsResponse, SharedBy,  adaptSharedPlaylist } from '@/models/playlist';
 
 export interface SharedPlaylistsState {
   playlists: SharedPlaylist[];
@@ -30,21 +29,22 @@ export const useSharedPlaylistsStore = defineStore('sharedPlaylists', {
       this.loading = true;
 
       try {
-        const response = await invoke<SharedPlaylistResponse>('get_shared_playlists');
+        const response = await invoke<SharedPlaylistsResponse>('get_shared_playlists');
 
         // Create a map of existing playlists to preserve local state (viewed status)
         const existingPlaylistsMap = new Map(
           this.playlists.map(p => [p.id, p])
         );
 
-        // Merge server data with local state
-        this.playlists = response.shared_playlists.map((sharedPlaylist) => {
-          const existing = existingPlaylistsMap.get(sharedPlaylist.id);
+        // Adapt API response to frontend format and merge with local state
+        this.playlists = response.shared_playlists.map((apiPlaylist) => {
+          const adaptedPlaylist = adaptSharedPlaylist(apiPlaylist);
+          const existing = existingPlaylistsMap.get(adaptedPlaylist.id);
 
           return {
-            ...sharedPlaylist,
-            // Preserve local viewed state if it exists, otherwise use server value or false
-            viewed: existing?.viewed ?? sharedPlaylist.viewed ?? false,
+            ...adaptedPlaylist,
+            // Preserve local viewed state if it exists
+            viewed: existing?.viewed ?? false,
           };
         });
 
@@ -55,29 +55,74 @@ export const useSharedPlaylistsStore = defineStore('sharedPlaylists', {
       }
     },
 
+    async addSharedPlaylistFromNotification(
+      playlistWithMusics: Playlist,
+      sharedBy: SharedBy
+    ) {
+      console.log("addSharedPlaylistFromNotification called with:", playlistWithMusics.playlist.name, sharedBy.username);
+
+      // Convert PlaylistWithMusics to frontend Playlist format
+      const playlist: Playlist = {
+        playlist: {
+        id: playlistWithMusics.playlist.id.toString(),
+        user_id: playlistWithMusics.playlist.user_id.toString(),
+        name: playlistWithMusics.playlist.name,
+        description: playlistWithMusics.playlist.description,
+        origin: playlistWithMusics.playlist.origin,
+        origin_id: playlistWithMusics.playlist.origin_id,
+        created_on: playlistWithMusics.playlist.created_on,
+        updated_on: playlistWithMusics.playlist.updated_on,
+        },
+        musics: playlistWithMusics.musics || [],
+      };
+
+      const newSharedPlaylist: SharedPlaylist = {
+        id: 0, // Temporary ID until we refetch
+        playlist: playlist,
+        shared_by: sharedBy,
+        shared_at: new Date(),
+        viewed: false,
+      };
+
+      // Add to beginning of array (most recent first)
+      this.playlists.unshift(newSharedPlaylist);
+      info(`Added new shared playlist: ${playlist.playlist.name} with ${playlist.musics.length} musics`);
+
+      // Refetch in background to get accurate data with real ID
+      this.fetchSharedPlaylists(true).catch((error) => {
+        logError(`Failed to refetch after adding: ${error}`);
+      });
+    },
+
+    // Legacy method for backwards compatibility
     async addSharedPlaylist(
       playlistId: string,
       playlistName: string,
       sharedById: number,
       sharedByUsername: string,
-      
     ) {
-      console.log("addSharedPlaylist called with:", playlistId, playlistName, sharedById, sharedByUsername);
+      console.log("addSharedPlaylist (legacy) called with:", playlistId, playlistName, sharedById, sharedByUsername);
       // Add a new shared playlist to the list (from notification)
+      let playlist: Playlist = {
+        playlist: {
+        id: playlistId,
+        user_id: '', // Unknown
+        name: playlistName,
+        description: '',
+        origin: '',
+        origin_id: '',
+        created_on: new Date().toISOString(),
+        updated_on: new Date().toISOString(),
+        },
+        musics: [],
+
+      };
       const newSharedPlaylist: SharedPlaylist = {
         id: 0, // Temporary ID until we refetch
-        playlist: {
-          id: playlistId,
-          name: playlistName,
-          description: '',
-          artwork: '',
-          musics: [],
-          source: null,
-        },
+        playlist: playlist,
         shared_by: {
           id: sharedById,
           username: sharedByUsername,
-         
         },
         shared_at: new Date(),
         viewed: false,

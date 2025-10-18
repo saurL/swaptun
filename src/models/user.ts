@@ -1,4 +1,4 @@
-import Playlist from "@/models/playlist";
+import  Playlist from "@/models/playlist";
 
 export default interface User {
   id: number;

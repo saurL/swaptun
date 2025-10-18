@@ -112,7 +112,7 @@ import { listen } from "@tauri-apps/api/event";
 import { useAppStore } from "@/store/app";
 import { useUserStore } from "@/store/user";
 import { storeToRefs } from "pinia";
-import { PlaylistsResponse } from "@/models/playlist";
+import { PlaylistsResponse, GetPlaylistResponse, adaptPlaylistResponse } from "@/models/playlist";
 import { info } from "@tauri-apps/plugin-log";
 
 const appStore = useAppStore();
@@ -146,19 +146,19 @@ let unlistenYoutubeMusicPlaylists: (() => void) | null = null;
 let unlistenApplePlaylists: (() => void) | null = null;
 
 const setupYoutubeMusicPlaylistsListener = async () => {
-  unlistenYoutubeMusicPlaylists = await listen<PlaylistsResponse>(
+  unlistenYoutubeMusicPlaylists = await listen<GetPlaylistResponse>(
     "youtubemusic_playlists",
     (event) => {
-      userStore.setYoutubePlaylists(event.payload.vec);
+      userStore.setYoutubePlaylists(adaptPlaylistResponse(event.payload));
     }
   );
 };
 
 const setupApplePlaylistsListener = async () => {
-  unlistenApplePlaylists = await listen<PlaylistsResponse>(
+  unlistenApplePlaylists = await listen<GetPlaylistResponse>(
     "apple_music_playlists",
     (event) => {
-      userStore.setApplePlaylists(event.payload.vec);
+      userStore.setApplePlaylists(adaptPlaylistResponse(event.payload));
     }
   );
 };
@@ -167,10 +167,10 @@ const fetchYoutubeMusicPlaylists = async () => {
   try {
     appStore.setLoading("youtube", true);
     youtubeMusicError.value = null;
-    const response = await invoke<PlaylistsResponse>(
+    const response = await invoke<GetPlaylistResponse>(
       "get_playlists_youtubemusic"
     );
-    userStore.setYoutubePlaylists(response.vec);
+    userStore.setYoutubePlaylists(adaptPlaylistResponse(response));
   } catch (error) {
     youtubeMusicError.value = error as string;
     console.error("Error fetching YouTube Music playlists:", error);
@@ -183,10 +183,10 @@ const fetchApplePlaylists = async () => {
   try {
     appStore.setLoading("apple", true);
     appleError.value = null;
-    const response = await invoke<PlaylistsResponse>(
+    const response = await invoke<GetPlaylistResponse>(
       "get_apple_music_playlists"
     );
-    userStore.setApplePlaylists(response.vec);
+    userStore.setApplePlaylists(adaptPlaylistResponse(response));
   } catch (error) {
     appleError.value = error as string;
     console.error("Error fetching Apple Music playlists:", error);
@@ -199,19 +199,19 @@ let unlistenSpotifyPlaylists: (() => void) | null = null;
 let unlistenDeezerPlaylists: (() => void) | null = null;
 
 const setupSpotifyPlaylistsListener = async () => {
-  unlistenSpotifyPlaylists = await listen<PlaylistsResponse>(
+  unlistenSpotifyPlaylists = await listen<GetPlaylistResponse>(
     "spotify_playlists",
     (event) => {
-      userStore.setSpotifyPlaylists(event.payload.vec);
+      userStore.setSpotifyPlaylists(adaptPlaylistResponse(event.payload));
     }
   );
 };
 
 const setupDeezerPlaylistsListener = async () => {
-  unlistenDeezerPlaylists = await listen<PlaylistsResponse>(
+  unlistenDeezerPlaylists = await listen<GetPlaylistResponse>(
     "deezer_playlists",
     (event) => {
-      userStore.setDeezerPlaylists(event.payload.vec);
+      userStore.setDeezerPlaylists(adaptPlaylistResponse(event.payload));
     }
   );
 };
@@ -220,8 +220,8 @@ const fetchSpotifyPlaylists = async () => {
   try {
     appStore.setLoading("spotify", true);
     spotifyError.value = null;
-    const response = await invoke<PlaylistsResponse>("get_playlists_spotify");
-    userStore.setSpotifyPlaylists(response.vec);
+    const response = await invoke<GetPlaylistResponse>("get_playlists_spotify");
+    userStore.setSpotifyPlaylists(adaptPlaylistResponse(response));
   } catch (error) {
     spotifyError.value = error as string;
     console.error("Error fetching Spotify playlists:", error);
@@ -234,8 +234,8 @@ const fetchDeezerPlaylists = async () => {
   try {
     appStore.setLoading("deezer", true);
     deezerError.value = null;
-    const response = await invoke<PlaylistsResponse>("get_playlists_deezer");
-    userStore.setDeezerPlaylists(response.vec);
+    const response = await invoke<GetPlaylistResponse>("get_playlists_deezer");
+    userStore.setDeezerPlaylists(adaptPlaylistResponse(response));
   } catch (error) {
     deezerError.value = error as string;
     console.error("Error fetching Deezer playlists:", error);

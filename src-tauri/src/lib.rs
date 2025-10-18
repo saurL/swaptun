@@ -128,6 +128,7 @@ fn finish_setup(builder: Builder<Wry>) {
             share_playlist,
             get_shared_playlists,
             mark_shared_playlist_viewed,
+            get_playlist_musics,
             open_external_app
         ])
         .run(tauri::generate_context!())

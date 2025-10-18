@@ -2,7 +2,10 @@
   <section class="space-y-4">
     <LoadingSpinner v-if="loading" size="lg" container-class="py-12" />
 
-    <div v-else-if="error" class="p-6 rounded-xl bg-error/10 border border-error/20">
+    <div
+      v-else-if="error"
+      class="p-6 rounded-xl bg-error/10 border border-error/20"
+    >
       <p class="text-error text-center">{{ error }}</p>
     </div>
 
@@ -30,15 +33,18 @@
     <PlaylistGrid v-else>
       <PlaylistCard
         v-for="playlist in playlists"
-        :key="playlist.id"
+        :key="playlist.playlist.id"
         :playlist="playlist"
+        :expanded-playlist-id="expandedPlaylistId"
         @share="$emit('share', playlist)"
+        @expand="handleExpand"
       />
     </PlaylistGrid>
   </section>
 </template>
 
 <script setup lang="ts">
+import { ref } from "vue";
 import LoadingSpinner from "@/components/common/LoadingSpinner.vue";
 import PlaylistGrid from "./PlaylistGrid.vue";
 import PlaylistCard from "./PlaylistCard.vue";
@@ -65,4 +71,10 @@ withDefaults(defineProps<Props>(), {
 defineEmits<{
   share: [playlist: Playlist];
 }>();
+
+const expandedPlaylistId = ref<string | null>(null);
+
+const handleExpand = (playlistId: string | null) => {
+  expandedPlaylistId.value = playlistId;
+};
 </script>

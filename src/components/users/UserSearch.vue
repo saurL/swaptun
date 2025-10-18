@@ -46,12 +46,11 @@ import SearchInputBackend from "@/components/common/SearchInputBackend.vue";
 import LoadingSpinner from "@/components/common/LoadingSpinner.vue";
 import UserCard from "./UserCard.vue";
 import type User from "@/models/user";
-
 defineEmits<{
   add: [user: User];
 }>();
 
 const searchUsers = async (term: string): Promise<User[]> => {
-  return await invoke<User[]>("search_users", { search: term });
+  return await invoke<User[]>("search_non_friends_users", { search: term });
 };
 </script>

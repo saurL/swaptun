@@ -5,7 +5,7 @@
   >
     <div>
       <h3 class="text-white font-semibold">{{ playlist.name }}</h3>
-      <p class="text-gray-400 text-sm">{{ playlist.tracks }} titres</p>
+      <p class="text-gray-400 text-sm">{{ playlist.musics.length }} titres</p>
     </div>
     <button
       class="text-[#00CFE8] hover:text-[#FFC436] transition active:scale-90"
@@ -17,31 +17,27 @@
 </template>
 
 <script setup lang="ts">
-import { useHaptics } from '@/composables/useHaptics'
-
-interface Playlist {
-  name: string
-  tracks: number
-}
+import { useHaptics } from "@/composables/useHaptics";
+import Playlist from "@/models/playlist";
 
 const props = defineProps<{
-  playlist: Playlist
-}>()
+  playlist: Playlist;
+}>();
 
 const emit = defineEmits<{
-  click: []
-  send: []
-}>()
+  click: [];
+  send: [];
+}>();
 
-const haptics = useHaptics()
+const haptics = useHaptics();
 
 const handleCardClick = async () => {
-  await haptics.light()
-  emit('click')
-}
+  await haptics.light();
+  emit("click");
+};
 
 const handleSendClick = async () => {
-  await haptics.medium()
-  emit('send')
-}
+  await haptics.medium();
+  emit("send");
+};
 </script>

@@ -3,12 +3,8 @@ import { invoke } from "@tauri-apps/api/core";
 import { listen } from "@tauri-apps/api/event";
 import { useUserStore } from "@/store/user";
 import { useAppStore } from "@/store/app";
-import type Playlist from "@/models/playlist";
+import { PlaylistsResponse } from "@/models/playlist";
 
-interface PlaylistsResponse {
-  vec: Playlist[];
-  total: number;
-}
 
 export function usePlaylistManagement() {
   const userStore = useUserStore();
@@ -27,7 +23,7 @@ export function usePlaylistManagement() {
       appStore.setLoading("spotify", true);
       spotifyError.value = null;
       const response = await invoke<PlaylistsResponse>("get_playlists_spotify");
-      userStore.setSpotifyPlaylists(response.vec);
+      userStore.setSpotifyPlaylists(response.playlists);
     } catch (error) {
       spotifyError.value = error as string;
       console.error("Error fetching Spotify playlists:", error);
@@ -41,7 +37,7 @@ export function usePlaylistManagement() {
       appStore.setLoading("deezer", true);
       deezerError.value = null;
       const response = await invoke<PlaylistsResponse>("get_playlists_deezer");
-      userStore.setDeezerPlaylists(response.vec);
+      userStore.setDeezerPlaylists(response.playlists);
     } catch (error) {
       deezerError.value = error as string;
       console.error("Error fetching Deezer playlists:", error);
@@ -55,7 +51,7 @@ export function usePlaylistManagement() {
       appStore.setLoading("youtube", true);
       youtubeError.value = null;
       const response = await invoke<PlaylistsResponse>("get_playlists_youtubemusic");
-      userStore.setYoutubePlaylists(response.vec);
+      userStore.setYoutubePlaylists(response.playlists);
     } catch (error) {
       youtubeError.value = error as string;
       console.error("Error fetching YouTube Music playlists:", error);
@@ -69,7 +65,7 @@ export function usePlaylistManagement() {
       appStore.setLoading("apple", true);
       appleError.value = null;
       const response = await invoke<PlaylistsResponse>("get_apple_music_playlists");
-      userStore.setApplePlaylists(response.vec);
+      userStore.setApplePlaylists(response.playlists);
     } catch (error) {
       appleError.value = error as string;
       console.error("Error fetching Apple Music playlists:", error);
@@ -81,19 +77,20 @@ export function usePlaylistManagement() {
   // Event listeners setup
   const setupPlaylistListeners = async () => {
     const spotifyUnlisten = await listen<PlaylistsResponse>("spotify_playlists", (event) => {
-      userStore.setSpotifyPlaylists(event.payload.vec);
+      console.log("Received Spotify playlists event:", event);
+      userStore.setSpotifyPlaylists(event.payload.playlists);
     });
 
     const deezerUnlisten = await listen<PlaylistsResponse>("deezer_playlists", (event) => {
-      userStore.setDeezerPlaylists(event.payload.vec);
+      userStore.setDeezerPlaylists(event.payload.playlists);
     });
 
     const youtubeUnlisten = await listen<PlaylistsResponse>("youtubemusic_playlists", (event) => {
-      userStore.setYoutubePlaylists(event.payload.vec);
+      userStore.setYoutubePlaylists(event.payload.playlists);
     });
 
     const appleUnlisten = await listen<PlaylistsResponse>("apple_music_playlists", (event) => {
-      userStore.setApplePlaylists(event.payload.vec);
+      userStore.setApplePlaylists(event.payload.playlists);
     });
 
     unlisteners = [spotifyUnlisten, deezerUnlisten, youtubeUnlisten, appleUnlisten];

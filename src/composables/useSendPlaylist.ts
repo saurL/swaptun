@@ -1,6 +1,7 @@
 import { ref, computed } from "vue";
 import { invoke } from "@tauri-apps/api/core";
 import { useUserStore } from "@/store/user";
+import { useAppStore } from "@/store/app";
 
 export type Platform = "Spotify" | "YoutubeMusic" | "AppleMusic" | "Deezer";
 
@@ -10,8 +11,14 @@ export interface ConnectedPlatform {
   icon: string;
 }
 
+export interface SendPlaylistResponse {
+  platform: Platform;
+  playlist_id: string;
+}
+
 export function useSendPlaylist() {
   const userStore = useUserStore();
+  const appStore = useAppStore();
   const sending = ref(false);
   const error = ref<string | null>(null);
 
@@ -59,12 +66,17 @@ export function useSendPlaylist() {
   const hasSinglePlatform = computed(() => connectedPlatforms.value.length === 1);
   const hasMultiplePlatforms = computed(() => connectedPlatforms.value.length > 1);
 
-  const sendPlaylistToPlatform = async (playlistId: number, destination: Platform): Promise<boolean> => {
+  const sendPlaylistToPlatform = async (
+    playlistId: number,
+    destination: Platform,
+    platformInfo?: ConnectedPlatform
+  ): Promise<SendPlaylistResponse | null> => {
     try {
       sending.value = true;
       error.value = null;
+      appStore.setSendingPlaylist(true);
 
-      await invoke("send_playlist", {
+      const response = await invoke<SendPlaylistResponse>("send_playlist", {
         playlistId,
         req: { destination },
       });
@@ -72,24 +84,35 @@ export function useSendPlaylist() {
       // Keep loading state for a moment to show success
       await new Promise(resolve => setTimeout(resolve, 500));
 
-      return true;
+      // Set success state if platform info is provided
+      if (platformInfo) {
+        appStore.setPlaylistSendSuccess({
+          platformLabel: platformInfo.label,
+          platformIcon: platformInfo.icon,
+          platformName: platformInfo.name,
+          playlistId: response.playlist_id,
+        });
+      }
+
+      return response;
     } catch (err) {
       error.value = err as string;
       console.error("Error sending playlist:", err);
-      return false;
+      return null;
     } finally {
       sending.value = false;
+      appStore.setSendingPlaylist(false);
     }
   };
 
-  const sendToDefaultPlatform = async (playlistId: number): Promise<boolean> => {
+  const sendToDefaultPlatform = async (playlistId: number): Promise<SendPlaylistResponse | null> => {
     if (!hasSinglePlatform.value) {
       error.value = "Cannot send to default platform - multiple platforms connected";
-      return false;
+      return null;
     }
 
     const platform = connectedPlatforms.value[0];
-    return sendPlaylistToPlatform(playlistId, platform.name);
+    return sendPlaylistToPlatform(playlistId, platform.name, platform);
   };
 
   return {

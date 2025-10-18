@@ -16,11 +16,11 @@ use swaptun_backend::GetUsersRequest;
 use swaptun_backend::RemoveFriendRequest;
 use swaptun_backend::UserBean;
 use swaptun_backend::{
-    AddTokenRequest, CreateUserRequest, ForgotPasswordRequest, GetPlaylistResponse,
-    GetPlaylistsParams, LoginEmailRequest, LoginRequest, LoginResponse, PlaylistOrigin,
-    RegisterFcmTokenRequest, ResetPasswordRequest, SendPlaylistRequest,
-    SendTestNotificationRequest, SharePlaylistRequest, SharedPlaylistsResponse, SpotifyUrlResponse,
-    VerifyTokenRequest, VerifyTokenResponse,
+    AddTokenRequest, CreateUserRequest, ForgotPasswordRequest, GetPlaylistMusicsResponse,
+    GetPlaylistResponse, GetPlaylistsParams, LoginEmailRequest, LoginRequest, LoginResponse,
+    PlaylistOrigin, RegisterFcmTokenRequest, ResetPasswordRequest, SendPlaylistRequest,
+    SendPlaylistResponse, SendTestNotificationRequest, SharePlaylistRequest,
+    SharedPlaylistsResponse, SpotifyUrlResponse, VerifyTokenRequest, VerifyTokenResponse,
 };
 use tauri::async_runtime::Mutex;
 use tauri::http::StatusCode;
@@ -199,6 +199,7 @@ impl App {
     pub async fn get_playlists_spotify(&self) -> AppResult<GetPlaylistResponse> {
         let params = GetPlaylistsParams {
             origin: Some(PlaylistOrigin::Spotify),
+            include_musics: true,
         };
         self.playlist_service.get_playlists(params).await
     }
@@ -206,6 +207,7 @@ impl App {
     pub async fn get_playlists_deezer(&self) -> AppResult<GetPlaylistResponse> {
         let params = GetPlaylistsParams {
             origin: Some(PlaylistOrigin::Deezer),
+            include_musics: true,
         };
         self.playlist_service.get_playlists(params).await
     }
@@ -213,6 +215,7 @@ impl App {
     pub async fn get_playlists_youtube(&self) -> AppResult<GetPlaylistResponse> {
         let params = GetPlaylistsParams {
             origin: Some(PlaylistOrigin::YoutubeMusic),
+            include_musics: true,
         };
         self.playlist_service.get_playlists(params).await
     }
@@ -267,7 +270,7 @@ impl App {
         &self,
         playlist_id: i32,
         req: SendPlaylistRequest,
-    ) -> AppResult<StatusCode> {
+    ) -> AppResult<SendPlaylistResponse> {
         self.playlist_service.send_playlist(playlist_id, req).await
     }
 
@@ -315,6 +318,13 @@ impl App {
         self.playlist_service
             .mark_shared_playlist_viewed(shared_playlist_id)
             .await
+    }
+
+    pub async fn get_playlist_musics(
+        &self,
+        playlist_id: i32,
+    ) -> AppResult<GetPlaylistMusicsResponse> {
+        self.playlist_service.get_playlist_musics(playlist_id).await
     }
 
     pub async fn synchronize_apple_playlists(&self) -> AppResult<StatusCode> {
@@ -371,6 +381,7 @@ impl App {
     pub async fn get_apple_music_playlists(&self) -> AppResult<GetPlaylistResponse> {
         let params = GetPlaylistsParams {
             origin: Some(PlaylistOrigin::AppleMusic),
+            include_musics: true,
         };
         let response = self.playlist_service.get_playlists(params).await?;
         Ok(response)

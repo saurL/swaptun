@@ -14,11 +14,18 @@ interface ErrorNotificationPayload {
   message: string;
 }
 
+import type { PlaylistWithMusics } from "./models/playlist";
+
 interface SharedNotificationData {
-  playlist_id: number;
-  playlist_name: string;
-  shared_by_id: number;
-  shared_by_username: string;
+  type: "playlist_shared";
+  shared_notification: {
+    playlist: PlaylistWithMusics;
+    shared_by: {
+      id: number;
+      username: string;
+    };
+  };
+  route: string;
 }
 
 const currentError = ref<ErrorNotificationPayload | null>(null);
@@ -43,29 +50,27 @@ onMounted(async () => {
     "playlist_shared",
     async (event) => {
       const notification = event.payload;
-      //afficher tous les attributs de notification dans la console grâce a une boucle
 
-      if (notification) {
+      if (notification && notification.shared_notification) {
         // Trigger success haptic for receiving a shared playlist
         await haptics.success();
 
-        // Add to shared playlists store
-        console.log("Adding shared playlist:", notification);
-        console.log(
-          `Received shared playlist notification: ${JSON.stringify(
-            notification
-          )}`
-        );
-        console.log("typeof notificatio:", typeof notification);
+        const { playlist, shared_by } = notification.shared_notification;
+
+        console.log("Received shared playlist notification:", {
+          playlistName: playlist.playlist.name,
+          sharedBy: shared_by.username,
+          musicsCount: playlist.musics?.length || 0
+        });
+
+        // Add to shared playlists store with full playlist data
         sharedPlaylistsStore
-          .addSharedPlaylist(
-            notification.playlist_id.toString(),
-            notification.playlist_name,
-            notification.shared_by_id,
-            notification.shared_by_username
+          .addSharedPlaylistFromNotification(
+            playlist,
+            shared_by
           )
           .then(() => {
-            info(`Shared playlist added: ${notification.playlist_name}`);
+            info(`Shared playlist added: ${playlist.playlist.name}`);
           })
           .catch((e) => {
             info(`Failed to add shared playlist: ${e}`);

@@ -3,16 +3,10 @@
     <p></p>
     <!-- Informations utilisateur -->
     <div class="flex items-center gap-4 mb-6">
-      <div
-        class="w-20 h-20 rounded-full bg-gradient-to-br from-primary to-primary-lighter flex items-center justify-center text-white text-3xl font-bold"
-      >
-        {{ userStore.username?.charAt(0).toUpperCase() }}
-      </div>
       <div>
         <h2 class="text-2xl font-bold text-text-primary">
           {{ userStore.username }}
         </h2>
-        <p class="text-text-secondary">{{ userStore.email }}</p>
       </div>
     </div>
 
@@ -42,7 +36,7 @@
       <div
         v-for="platform in platforms"
         :key="platform.id"
-        class="flex items-center justify-between p-3 bg-background-secondary rounded-lg border transition-all"
+        class="flex items-center justify-between p-3 transition-all"
         :class="platform.connected ? 'border-success/30' : 'border-secondary'"
       >
         <div class="flex items-center gap-3">
@@ -94,7 +88,6 @@ import {
   type Platform,
 } from "@/composables/usePlatformConnect";
 import { PLATFORMS } from "@/utils/constants";
-import Card from "@/components/common/Card.vue";
 import Button from "@/components/common/Button.vue";
 
 const router = useRouter();

@@ -4,10 +4,7 @@
     <router-view />
 
     <!-- Global Loading State (when first loading all playlists) -->
-    <div
-      v-if="isInitialLoading"
-      class="flex justify-center items-center py-20"
-    >
+    <div v-if="isInitialLoading" class="flex justify-center items-center py-20">
       <LoadingSpinner size="xl" />
     </div>
 
@@ -22,7 +19,11 @@
       </div>
 
       <!-- Filter Chips (only show if multiple platforms available) -->
-      <div v-if="availableFilters.length > 1" data-tour="playlists-navigation" class="flex gap-2 mb-6 flex-wrap">
+      <div
+        v-if="availableFilters.length > 1"
+        data-tour="playlists-navigation"
+        class="flex gap-2 mb-6 flex-wrap"
+      >
         <button
           v-for="filter in availableFilters"
           :key="filter.id"
@@ -31,7 +32,7 @@
             'flex items-center gap-2 px-4 py-2 rounded-full text-sm font-medium transition-all',
             activeFilters.includes(filter.id)
               ? 'bg-gradient-primary text-white shadow-button'
-              : 'bg-background-secondary text-text-primary border border-secondary hover:border-primary'
+              : 'bg-background-secondary text-text-primary border border-secondary hover:border-primary',
           ]"
         >
           <img
@@ -126,11 +127,7 @@ const userStore = useUserStore();
 const appStore = useAppStore();
 
 const { connectToPlatform } = usePlatformConnect();
-const {
-  spotifyError,
-  youtubeError,
-  appleError,
-} = usePlaylistManagement();
+const { spotifyError, youtubeError, appleError } = usePlaylistManagement();
 
 const searchQuery = ref("");
 const activeFilters = ref<string[]>([]);
@@ -142,10 +139,14 @@ const applePlaylists = computed(() => userStore.applePlaylists);
 
 // Vérifie si l'utilisateur a des playlists
 const hasPlaylists = computed(() => {
+  console.log("Checking for playlists...");
+  console.log("Spotify Playlists:", userStore.spotifyPlaylists);
+  console.log("YouTube Playlists:", userStore.youtubePlaylists);
+  console.log("Apple Music Playlists:", userStore.applePlaylists);
   return (
-    userStore.spotifyPlaylists.length > 0 ||
-    userStore.youtubePlaylists.length > 0 ||
-    userStore.applePlaylists.length > 0
+    (userStore.spotifyPlaylists?.length ?? 0) > 0 ||
+    (userStore.youtubePlaylists?.length ?? 0) > 0 ||
+    (userStore.applePlaylists?.length ?? 0) > 0
   );
 });
 
@@ -167,7 +168,7 @@ const isInitialLoading = computed(() => {
 const availableFilters = computed(() => {
   const filters = [];
 
-  if (spotifyPlaylists.value.length > 0) {
+  if ((spotifyPlaylists.value?.length ?? 0) > 0) {
     filters.push({
       id: "spotify",
       name: "Spotify",
@@ -176,7 +177,7 @@ const availableFilters = computed(() => {
     });
   }
 
-  if (applePlaylists.value.length > 0) {
+  if ((applePlaylists.value?.length ?? 0) > 0) {
     filters.push({
       id: "appleMusic",
       name: "Apple Music",
@@ -185,7 +186,7 @@ const availableFilters = computed(() => {
     });
   }
 
-  if (youtubePlaylists.value.length > 0) {
+  if ((youtubePlaylists.value?.length ?? 0) > 0) {
     filters.push({
       id: "youtube",
       name: "YouTube Music",
@@ -217,17 +218,17 @@ const shouldShowPlatform = (platformId: string) => {
 const { filteredItems: filteredSpotifyPlaylists } = useFuzzySearch(
   spotifyPlaylists,
   searchQuery,
-  (playlist) => playlist.name
+  (playlist) => playlist.playlist.name
 );
 const { filteredItems: filteredYoutubePlaylists } = useFuzzySearch(
   youtubePlaylists,
   searchQuery,
-  (playlist) => playlist.name
+  (playlist) => playlist.playlist.name
 );
 const { filteredItems: filteredApplePlaylists } = useFuzzySearch(
   applePlaylists,
   searchQuery,
-  (playlist) => playlist.name
+  (playlist) => playlist.playlist.name
 );
 
 // Liste des plateformes avec leur état de connexion
@@ -257,7 +258,7 @@ const handlePlatformConnect = async (platformId: string) => {
 const handleSharePlaylist = (playlist: Playlist) => {
   router.push({
     name: "SharePlaylist",
-    params: { playlistId: playlist.id },
+    params: { playlistId: playlist.playlist.id },
   });
 };
 </script>

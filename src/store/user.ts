@@ -40,15 +40,19 @@ export const useUserStore = defineStore('user', {
       }
     },
     setYoutubePlaylists(playlists: Playlist[]) {
+      console.log("Setting YouTube playlists:", playlists);
       this.youtubePlaylists = playlists;
     },
     setDeezerPlaylists(playlists: Playlist[]) {
+      console.log("Setting Deezer playlists:", playlists);
       this.deezerPlaylists = playlists;
     },
     setSpotifyPlaylists(playlists: Playlist[]) {
+      console.log("Setting Spotify playlists:", playlists);
       this.spotifyPlaylists = playlists;
     },
     setApplePlaylists(playlists: Playlist[]) {
+      console.log("Setting Apple playlists:", playlists);
       this.applePlaylists = playlists;
     },
     reset() {

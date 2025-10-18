@@ -105,7 +105,7 @@ checksum = "b0674a1ddeecb70197781e945de4b3b8ffb61fa939a5597bcf48503737663100"
 [[package]]
 name = "apple-music-api"
 version = "0.1.0"
-source = "git+https://github.com/saurL/apple-music-api.git#012720de43591aa7abad1525b21cfa8bb5f947d1"
+source = "git+https://github.com/saurL/apple-music-api.git#acc52d036897e1b90e051bfe8004cb85893a1a7e"
 dependencies = [
  "base64 0.21.7",
  "chrono",
@@ -162,6 +162,19 @@ dependencies = [
  "event-listener-strategy",
  "futures-core",
  "pin-project-lite",
+]
+
+[[package]]
+name = "async-compression"
+version = "0.4.32"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "5a89bce6054c720275ac2432fbba080a66a2106a44a1b804553930ca6909f4e0"
+dependencies = [
+ "compression-codecs",
+ "compression-core",
+ "futures-core",
+ "pin-project-lite",
+ "tokio",
 ]
 
 [[package]]
@@ -794,6 +807,24 @@ dependencies = [
  "bytes",
  "memchr",
 ]
+
+[[package]]
+name = "compression-codecs"
+version = "0.4.31"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "ef8a506ec4b81c460798f572caead636d57d3d7e940f998160f52bd254bf2d23"
+dependencies = [
+ "brotli",
+ "compression-core",
+ "flate2",
+ "memchr",
+]
+
+[[package]]
+name = "compression-core"
+version = "0.4.29"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "e47641d3deaf41fb1538ac1f54735925e275eaf3bf4d55c81b137fba797e5cbb"
 
 [[package]]
 name = "concurrent-queue"
@@ -2472,7 +2503,7 @@ dependencies = [
  "js-sys",
  "log",
  "wasm-bindgen",
- "windows-core 0.61.2",
+ "windows-core 0.58.0",
 ]
 
 [[package]]
@@ -3241,7 +3272,7 @@ version = "0.7.4"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "77e878c846a8abae00dd069496dbe8751b16ac1c3d6bd2a7283a938e8228f90d"
 dependencies = [
- "proc-macro-crate 2.0.2",
+ "proc-macro-crate 1.3.1",
  "proc-macro2",
  "quote",
  "syn 2.0.106",
@@ -4434,6 +4465,7 @@ version = "0.11.27"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "dd67538700a17451e7cba03ac727fb961abb7607553461627b97de0b89cf4a62"
 dependencies = [
+ "async-compression",
  "base64 0.21.7",
  "bytes",
  "encoding_rs",
@@ -4460,6 +4492,7 @@ dependencies = [
  "system-configuration 0.5.1",
  "tokio",
  "tokio-rustls 0.24.1",
+ "tokio-util",
  "tower-service",
  "url",
  "wasm-bindgen",
@@ -5757,7 +5790,7 @@ dependencies = [
 [[package]]
 name = "swaptun-api"
 version = "0.1.0"
-source = "git+ssh://git@github.com/saurL/swaptun_backend.git?branch=main#b3a49d2a21713e54e2c9d39ece32ac127c33ba8f"
+source = "git+ssh://git@github.com/saurL/swaptun_backend.git?branch=main#fca96ded991719a4daa1ab8812e815a78f523341"
 dependencies = [
  "swaptun-services",
 ]
@@ -5765,7 +5798,7 @@ dependencies = [
 [[package]]
 name = "swaptun-backend"
 version = "0.1.0"
-source = "git+ssh://git@github.com/saurL/swaptun_backend.git?branch=main#b3a49d2a21713e54e2c9d39ece32ac127c33ba8f"
+source = "git+ssh://git@github.com/saurL/swaptun_backend.git?branch=main#fca96ded991719a4daa1ab8812e815a78f523341"
 dependencies = [
  "google-fcm1",
  "swaptun-api",
@@ -5774,7 +5807,7 @@ dependencies = [
 [[package]]
 name = "swaptun-models"
 version = "0.1.0"
-source = "git+ssh://git@github.com/saurL/swaptun_backend.git?branch=main#b3a49d2a21713e54e2c9d39ece32ac127c33ba8f"
+source = "git+ssh://git@github.com/saurL/swaptun_backend.git?branch=main#fca96ded991719a4daa1ab8812e815a78f523341"
 dependencies = [
  "sea-orm",
  "serde",
@@ -5784,7 +5817,7 @@ dependencies = [
 [[package]]
 name = "swaptun-services"
 version = "0.1.0"
-source = "git+ssh://git@github.com/saurL/swaptun_backend.git?branch=main#b3a49d2a21713e54e2c9d39ece32ac127c33ba8f"
+source = "git+ssh://git@github.com/saurL/swaptun_backend.git?branch=main#fca96ded991719a4daa1ab8812e815a78f523341"
 dependencies = [
  "apple-music-api",
  "chrono",

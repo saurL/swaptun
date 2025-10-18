@@ -1,10 +1,11 @@
 use crate::backend::backend::BackendClient;
 use crate::error::AppResult;
 use serde::{Deserialize, Serialize};
-use swaptun_backend::SharePlaylistRequest;
 use swaptun_backend::{
-    GetPlaylistResponse, GetPlaylistsParams, SendPlaylistRequest, SharedPlaylistsResponse,
+    GetPlaylistMusicsResponse, GetPlaylistResponse, GetPlaylistsParams, SendPlaylistRequest,
+    SendPlaylistResponse, SharedPlaylistsResponse,
 };
+use swaptun_backend::{GetSharedPlaylistsParams, SharePlaylistRequest};
 use tauri::{http::StatusCode, AppHandle};
 pub struct PlaylistService {
     backend_client: BackendClient,
@@ -35,10 +36,10 @@ impl PlaylistService {
         &self,
         playlist_id: i32,
         req: SendPlaylistRequest,
-    ) -> AppResult<StatusCode> {
+    ) -> AppResult<SendPlaylistResponse> {
         let url = format!("{}/{}/send", self.base_url, playlist_id);
         self.backend_client
-            .post(&url, serde_json::to_string(&req).unwrap())
+            .post_with_return(&url, serde_json::to_string(&req).unwrap())
             .await
     }
 
@@ -54,8 +55,13 @@ impl PlaylistService {
     }
 
     pub async fn get_shared_playlists(&self) -> AppResult<SharedPlaylistsResponse> {
+        let get_shared_playlist = GetSharedPlaylistsParams {
+            include_musics: true,
+        };
         let url = format!("{}/shared", self.base_url);
-        self.backend_client.get(&url).await
+        self.backend_client
+            .get_with_body(&url, serde_json::to_string(&get_shared_playlist).unwrap())
+            .await
     }
 
     pub async fn mark_shared_playlist_viewed(
@@ -64,5 +70,13 @@ impl PlaylistService {
     ) -> AppResult<StatusCode> {
         let url = format!("{}/shared/{}/viewed", self.base_url, shared_playlist_id);
         self.backend_client.post(&url, "{}").await
+    }
+
+    pub async fn get_playlist_musics(
+        &self,
+        playlist_id: i32,
+    ) -> AppResult<GetPlaylistMusicsResponse> {
+        let url = format!("{}/{}/musics", self.base_url, playlist_id);
+        self.backend_client.get(&url).await
     }
 }

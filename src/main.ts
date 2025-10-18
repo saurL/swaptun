@@ -9,6 +9,7 @@ import { invoke } from "@tauri-apps/api/core";
 import "tauri-plugin-safe-area-insets-css-api";
 import { useUserStore } from "./store/user";
 import { useSharedPlaylistsStore } from "./store/sharedPlaylists";
+import { useAppStore } from "./store/app";
 import { impactFeedback } from "@tauri-apps/plugin-haptics";
 
 const pinia = createPinia();
@@ -17,8 +18,10 @@ pinia.use(createPlugin());
 let app = createApp(App).use(pinia);
 const userStore = useUserStore();
 const sharedPlaylistsStore = useSharedPlaylistsStore();
+const appStore = useAppStore();
 await userStore.$tauri.start();
 await sharedPlaylistsStore.$tauri.start();
+await appStore.$tauri.start();
 
 app = app.use(router);
 
